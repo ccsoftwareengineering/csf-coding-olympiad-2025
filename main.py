@@ -15,19 +15,14 @@ game_states = Enum("State", [
 
 curr_state = game_states['home']
 
-tile_offset = 0
-
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    if tile_offset == 64:
-        tile_offset = 0
     if curr_state == game_states['home']:
         draw_home(game)
 
     pygame.display.flip()
     game.clock.tick(60)
-
 pygame.quit()
