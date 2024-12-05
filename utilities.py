@@ -60,3 +60,4 @@ def rescale(surf, size=None, factor=None):
     if size is None:
         return pygame.transform.scale_by(surf, factor)
     return pygame.transform.scale(surf, size)
+
