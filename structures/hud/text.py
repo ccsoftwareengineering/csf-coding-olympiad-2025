@@ -1,5 +1,5 @@
 import pygame
-import utilities as u
+from modules import utilities as u
 from structures.game import Game
 from structures.hud.hud_object import HudObject
 

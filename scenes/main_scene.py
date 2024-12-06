@@ -1,8 +1,7 @@
-import utilities as u
+from modules import utilities as u
 import pygame
 
-from structures.hud.button import Button
-from structures.game import Game, game_states
+from structures.game import Game
 
 play_button_surface = u.load_scale('assets/play_button.png', None, 1.6)
 

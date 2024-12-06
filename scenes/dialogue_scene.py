@@ -1,7 +1,7 @@
 import pygame.key
 from pygame import K_RETURN
 
-import utilities as u
+import modules.utilities as u
 from structures.game import Game
 from structures.hud.button import Button
 from structures.hud.hud_object import HudObject

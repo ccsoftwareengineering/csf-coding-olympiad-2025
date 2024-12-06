@@ -1,6 +1,6 @@
 import datetime
 
-import dialogue
+from modules import dialogue
 
 
 class DialogueHandler:

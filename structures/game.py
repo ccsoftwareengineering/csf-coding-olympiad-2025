@@ -2,7 +2,7 @@ from enum import Enum
 
 import pygame
 
-import utilities as u
+from modules import utilities as u
 from structures.dialogue_handler import DialogueHandler
 
 pygame.init()

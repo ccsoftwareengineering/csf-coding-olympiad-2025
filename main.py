@@ -1,8 +1,6 @@
-from enum import Enum
-import pygame
-from scenes.home import draw_home_factory
+from scenes.home_scene import draw_home_factory
 from scenes.main_scene import draw_main_factory
-from scenes.dialogue import draw_dialogue_factory
+from scenes.dialogue_scene import draw_dialogue_factory
 from structures.game import *
 
 game = Game()

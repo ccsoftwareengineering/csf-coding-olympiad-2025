@@ -1,5 +1,4 @@
-import utilities as u
-import pygame
+from modules import utilities as u
 
 from structures.hud.button import Button
 from structures.game import Game, game_states
