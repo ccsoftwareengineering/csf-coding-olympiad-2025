@@ -42,6 +42,10 @@ def center_blit_pos(surf: pygame.Surface, surf2: pygame.Surface, xy=(None, None)
     return _x, _y
 
 
+# Shorthand
+cbp = center_blit_pos
+
+
 # Does the blit of what was calculated above
 def center_blit(surf: pygame.Surface, surf2: pygame.Surface, xy=(None, None), offsets=(None, None)):
     _x, _y = center_blit_pos(surf, surf2, xy, offsets)
@@ -60,3 +64,14 @@ def rescale(surf, size=None, factor=None):
     if size is None:
         return pygame.transform.scale_by(surf, factor)
     return pygame.transform.scale(surf, size)
+
+
+# Draws the ocean tiles which are very common
+def draw_tiles(g, scr: pygame.Surface, tile: pygame.Surface, offset: int):
+    width_increment = -offset
+    while width_increment < g.screen.get_width() + 64:
+        height_increment = -offset
+        while height_increment < g.screen.get_height() + 64:
+            scr.blit(tile, (width_increment, height_increment))
+            height_increment = height_increment + 64
+        width_increment += 64

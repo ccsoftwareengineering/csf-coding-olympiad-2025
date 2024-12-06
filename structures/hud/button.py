@@ -1,9 +1,10 @@
 import pygame
+from structures.hud.hud_object import HudObject
 
 from structures.game import Game
 
 
-class Button:
+class Button(HudObject):
     # Press Events
     on_press_start = False
     on_press_end = False
@@ -14,20 +15,17 @@ class Button:
     on_hover_end = False
     hovering = False
 
-    def __init__(self, game: Game, pos: (int, int), image: pygame.Surface, scale=1):
-        self.game = game
-        self.image = pygame.transform.scale_by(image, scale)
-        self.darker_image = self.image.copy()
-        mask = pygame.mask.from_surface(self.image).to_surface(setcolor=(0, 0, 0), unsetcolor=(255, 255, 255))
+    def __init__(self, game: Game, surface: pygame.Surface, pos: (int, int) = (0, 0), scale: float = 1, name=None):
+        super().__init__(game, surface, pos, scale, name=name)
+        self.darker_surface = self.surface.copy()
+        mask = pygame.mask.from_surface(self.surface).to_surface(setcolor=(0, 0, 0), unsetcolor=(255, 255, 255))
         mask.set_colorkey((255, 255, 255))
         mask.set_alpha(int(255 * 0.15))
-        self.darker_image.blit(mask, (0, 0))
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (pos[0], pos[1])
+        self.darker_surface.blit(mask, (0, 0))
 
     def draw(self):
         pos = pygame.mouse.get_pos()
-        to_draw = self.image
+        to_draw = self.surface
 
         if self.rect.collidepoint(pos):
             self.on_hover_start = not self.hovering
@@ -39,9 +37,10 @@ class Button:
             else:
                 self.on_press_end = self.pressing
                 self.pressing = False
-                to_draw = self.darker_image
+                to_draw = self.darker_surface
         else:
             self.on_hover_end = self.hovering
             self.hovering = False
 
         self.game.screen.blit(to_draw, (self.rect.x, self.rect.y))
+        self.draw_children()
