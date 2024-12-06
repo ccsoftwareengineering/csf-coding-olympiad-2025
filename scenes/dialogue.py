@@ -18,7 +18,6 @@ def draw_dialogue_factory(game: Game):
     # info_box = HudObject(game, info_icon, parent=dialogue_box, pos=(40, 40), name="InfoBox")
     text = Text(game, "", 32, (20, 80), parent=dialogue_box, color=(33, 0, 43))
     text.end_padding = 20
-    text.text = "Oh my gosh!"
     text.wrap = True
 
     okay_surface = u.load_scale('assets/okay_button.png', factor=2)

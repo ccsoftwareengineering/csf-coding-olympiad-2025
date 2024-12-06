@@ -1,10 +1,10 @@
 import utilities as u
 import pygame
 
-from structures.button import Button
+from structures.hud.button import Button
 from structures.game import Game, game_states
 
-play_button_surface = u.load_scale('assets/playbtn.png', None, 1.6)
+play_button_surface = u.load_scale('assets/play_button.png', None, 1.6)
 
 
 def draw_tiles(g: Game, scr: pygame.Surface, tile: pygame.Surface, offset: int):

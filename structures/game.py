@@ -33,7 +33,7 @@ class Game:
     on_press_end = {}
 
     def initiate_dialogue(self, id):
-        self.curr_dialogue = DialogueHandler(id)
+        self.curr_dialogue = DialogueHandler(id, speed=0.018)
 
     def __init__(self):
         pygame.display.set_caption("Power Island")
