@@ -1,6 +1,7 @@
 from enum import Enum
 import pygame
 from scenes.home import draw_home_factory
+from scenes.main_scene import draw_main_factory
 from scenes.dialogue import draw_dialogue_factory
 from structures.game import *
 
@@ -8,6 +9,7 @@ game = Game()
 running = True
 draw_home = draw_home_factory(game)
 draw_dialogue = draw_dialogue_factory(game)
+draw_main = draw_main_factory(game)
 
 while running:
     for event in pygame.event.get():
@@ -31,8 +33,7 @@ while running:
         draw_dialogue()
 
     if game.curr_state == game_states['main']:
-        game.screen.fill((129, 135, 240))
-        game.screen.blit(game.main_font.render("In-Game", False, (22, 33, 240)), (10, 10))
+        draw_main()
 
     pygame.display.flip()
     game.clock.tick(60)
