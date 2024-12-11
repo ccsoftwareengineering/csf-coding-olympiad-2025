@@ -16,7 +16,7 @@ def draw_dialogue_factory(game: Game):
     dialogue_box.rect.topleft = u.cbp(game.screen, dialogue_box.surface)
 
     # info_box = HudObject(game, info_icon, parent=dialogue_box, pos=(40, 40), name="InfoBox")
-    text = Text(game, "", 32, (20, 80), parent=dialogue_box, color=(33, 0, 43))
+    text = Text(game, 32, pos=(20, 80), parent=dialogue_box, color=(33, 0, 43))
     text.end_padding = 20
     text.wrap = True
 

@@ -23,9 +23,8 @@ class Button(HudObject):
         mask.set_alpha(int(255 * 0.15))
         self.darker_surface.blit(mask, (0, 0))
 
-    def draw(self):
+    def draw(self, draw_surface: pygame.Surface = None):
         pos = pygame.mouse.get_pos()
-        to_draw = self.surface
 
         if self.rect.collidepoint(pos):
             self.on_hover_start = not self.hovering
@@ -37,10 +36,10 @@ class Button(HudObject):
             else:
                 self.on_press_end = self.pressing
                 self.pressing = False
-                to_draw = self.darker_surface
+                self.to_draw_surface = self.darker_surface
         else:
             self.on_hover_end = self.hovering
             self.hovering = False
 
-        self.game.screen.blit(to_draw, (self.rect.x, self.rect.y))
+        super().draw(draw_surface)
         self.draw_children()

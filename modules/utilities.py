@@ -75,3 +75,34 @@ def draw_tiles(g, scr: pygame.Surface, tile: pygame.Surface, offset: int):
             scr.blit(tile, (width_increment, height_increment))
             height_increment = height_increment + 64
         width_increment += 64
+
+
+# Allows for relative positions based on screen width
+# Eg. relative_pos( (100, 100), (10, 10), from_xy="right-bottom" )
+# Returns (90, 90) because it is 10 from the right and 10 from the bottom
+def relative_pos(screen_width: (int, int), xy: (int, int) = (0, 0), pu: (int, int) = None, from_x="left", from_y="top",
+                 from_xy: str = None):
+    x = xy[0]
+    y = xy[1]
+    if pu is not None:
+        x = pu[0] and pu[0] * screen_width[0]
+        y = pu[1] and pu[1] * screen_width[1]
+    x_offset = 0
+    y_offset = 0
+    if from_xy is not None:
+        a = from_xy.split('-')
+        from_x = a[0]
+        from_y = a[1]
+    if from_x == "center":
+        x_offset = screen_width[0] / 2
+    elif from_x == "right":
+        x = -x
+        x_offset = screen_width[0]
+
+    if from_y == "center":
+        y_offset = screen_width[1] / 2
+    elif from_y == "bottom":
+        y = -y
+        y_offset = screen_width[1]
+
+    return x + x_offset, y + y_offset
