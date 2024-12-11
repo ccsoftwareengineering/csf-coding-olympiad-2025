@@ -1,8 +1,12 @@
 import pygame
+import typing
+
+if typing.TYPE_CHECKING:
+    from structures.game import Game
 
 
 class InputHandler:
-    def __init__(self, game):
+    def __init__(self, game: 'Game'):
         self.game = game
         self.selected_input_box = None
 
@@ -41,24 +45,35 @@ class InputHandler:
         for func in event.values():
             func(value)
 
+    def get_key_names_down(self):
+        final = []
+        for key in self.key_down:
+            final.append(pygame.key.name(key))
+        return final
+
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN:
-            if event.key not in self.key_down:
-                self.key_on_down[event.key] = True
-                self.run_events('key_on_down', event.key)
+            qualifier = event.key not in self.key_down
             self.key_down.add(event.key)
-            self.run_events('key_down', event.key)
+            self.game.telemetry_handler.set_value('Keys Down', '+'.join(self.get_key_names_down()))
+            # self.run_events('key_down', event.key)
+            if qualifier:
+                self.key_on_down[event.key] = True
+                self.game.telemetry_handler.set_value('Key Down', pygame.key.name(event.key))
+                self.run_events('key_on_down', event.key)
         elif event.type == pygame.KEYUP:
             self.key_on_up[event.key] = True
-            self.run_events('key_on_up', event.key)
             self.key_down.discard(event.key)
+            self.game.telemetry_handler.set_value('Key Up', pygame.key.name(event.key))
+            self.game.telemetry_handler.set_value('Keys Down', '+'.join(self.get_key_names_down()))
+            self.run_events('key_on_up', event.key)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            self.mouse_down.add(event.button)
+            self.run_events('mouse_down', event.button)
             if event.button not in self.mouse_down:
                 self.mouse_on_down[event.button] = True
                 self.run_events('mouse_on_down', event.button)
-            self.mouse_down.add(event.button)
-            self.run_events('mouse_down', event.button)
 
         elif event.type == pygame.MOUSEBUTTONUP:
             self.mouse_on_up[event.button] = True
@@ -70,3 +85,5 @@ class InputHandler:
         self.key_on_up = {}
         self.mouse_on_down = {}
         self.mouse_on_up = {}
+        for key in self.key_down:
+            self.run_events('key_down', key)

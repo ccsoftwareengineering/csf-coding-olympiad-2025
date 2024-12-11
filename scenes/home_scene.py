@@ -7,7 +7,7 @@ play_button_surface = u.load_scale('assets/play_button.png', None, 1.6)
 
 
 def draw_home_factory(game: Game):
-    play_button = Button(game, play_button_surface, pos=u.cbp(game.screen, play_button_surface, offsets=(None, 1 / 3)), name="PlayButton")
+    play_button = Button(game, play_button_surface, scale=0.8, pos=u.cbp(game.screen, play_button_surface, offsets=(None, 1 / 3)), name="PlayButton")
 
     def draw_home():
         if play_button.on_press_end:
