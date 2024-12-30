@@ -146,10 +146,7 @@ class InputBox(HudObject):
         if self.absolute_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             self.set_selected(True)
 
-        print('soon')
-
         if self.selected and self.backspace_timer is not None:
-            print('yes')
             if (datetime.datetime.now() - self.backspace_timer).microseconds >= 400_000:
                 self.backspace()
 
