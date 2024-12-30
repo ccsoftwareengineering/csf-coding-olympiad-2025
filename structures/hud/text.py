@@ -31,11 +31,9 @@ class Text(HudObject):
         self.font = text_cache.get(size) or pygame.font.Font(u.resource_path('assets/fonts/main_reg.ttf'), size)
         self.size = size
 
-    def draw(self, draw_surface: pygame.Surface = None):
+    def calculate_surface(self):
         if not self.wrap:
-            self.surface = self.font.render(self.text, False, self.color)
-            super().draw(draw_surface)
-            return
+            return self.font.render(self.text, False, self.color)
         words = self.text.split(' ')
         allowed_width = self.game.screen.get_width() - self.rect.x
         if self.parent is not None:
@@ -70,6 +68,9 @@ class Text(HudObject):
             line_surface = self.font.render(line, False, self.color)
             surf.blit(line_surface, (0, y_offset))
             y_offset += line_surface.get_height()
+        return surf
 
-        self.surface = surf
+
+    def draw(self, draw_surface: pygame.Surface = None):
+        self.surface = self.calculate_surface()
         super().draw(draw_surface)

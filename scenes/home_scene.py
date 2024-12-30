@@ -1,18 +1,20 @@
 from modules import utilities as u
 
 from structures.hud.button import Button
-from structures.game import Game, game_states
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from structures.game import Game
 
 play_button_surface = u.load_scale('assets/play_button.png', None, 1.6)
 
 
-def draw_home_factory(game: Game):
+def draw_home_factory(game: 'Game'):
     play_button = Button(game, play_button_surface, scale=0.8, pos=u.cbp(game.screen, play_button_surface, offsets=(None, 1 / 3)), name="PlayButton")
 
     def draw_home():
         if play_button.on_press_end:
             game.initiate_dialogue('introduction')
-            game.curr_state = game_states['dialogue']
+            game.set_state('dialogue')
 
         u.draw_tiles(game, game.screen, game.bg_tile_scaled, game.tile_offset)
         u.center_blit(game.screen, u.rescale(game.country_detail, factor=9), offsets=(None, 20))

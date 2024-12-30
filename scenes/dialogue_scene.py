@@ -2,7 +2,9 @@ import pygame.key
 from pygame import K_RETURN
 
 import modules.utilities as u
-from structures.game import Game
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from structures.game import Game
 from structures.hud.button import Button
 from structures.hud.hud_object import HudObject
 from structures.hud.text import Text
@@ -11,7 +13,7 @@ info_icon = u.load_scale('assets/info_icon_32_new.png', factor=2)
 modal = u.load_scale('assets/modal.png', factor=4)
 
 
-def draw_dialogue_factory(game: Game):
+def draw_dialogue_factory(game: 'Game'):
     dialogue_box = HudObject(game, modal, name="DialogueBox")
     dialogue_box.rect.topleft = u.cbp(game.screen, dialogue_box.surface)
 
@@ -31,10 +33,14 @@ def draw_dialogue_factory(game: Game):
         if game.tile_offset == 64:
             game.tile_offset = 0
 
-        text.text = game.curr_dialogue.get_text()
+        text.text = game.curr_dialogue.get_subtext()
         dialogue_box.draw()
         okay.draw()
-        if not game.curr_dialogue.is_last_block_char or okay.on_press_end or game.on_press_start.get(K_RETURN):
+        if game.curr_dialogue.is_last_block_char:
+
+            if okay.on_press_end or game.on_press_start.get(K_RETURN):
+                game.curr_dialogue.update()
+        else:
             game.curr_dialogue.update()
 
     return draw_dialogue

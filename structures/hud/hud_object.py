@@ -14,6 +14,7 @@ class HudObject:
         self.should_preserve = False
         self.to_draw_surface = None
         self.parent = None
+        self.visible = True
         self.children = set()
         self.name = name
         if parent is not None:
@@ -43,6 +44,8 @@ class HudObject:
             return self.to_draw_surface or self.surface
 
     def draw(self, draw_surface: pygame.Surface = None):
+        if not self.visible:
+            return
         if draw_surface:
             surf = self.preserve()
             self.draw_children(surface=surf)

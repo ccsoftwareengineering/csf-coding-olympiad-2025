@@ -2,6 +2,7 @@ import os
 import sys
 
 import pygame.transform
+from pygame import Surface
 from pygame.image import load
 
 
@@ -78,7 +79,7 @@ def draw_tiles(g, scr: pygame.Surface, tile: pygame.Surface, offset: int):
 
 
 # Allows for relative positions based on screen width
-# Eg. relative_pos( (100, 100), (10, 10), from_xy="right-bottom" )
+# E.g. relative_pos( (100, 100), (10, 10), from_xy="right-bottom" )
 # Returns (90, 90) because it is 10 from the right and 10 from the bottom
 def relative_pos(screen_width: (int, int), xy: (int, int) = (0, 0), pu: (int, int) = None, from_x="left", from_y="top",
                  from_xy: str = None):
@@ -106,3 +107,44 @@ def relative_pos(screen_width: (int, int), xy: (int, int) = (0, 0), pu: (int, in
         y_offset = screen_width[1]
 
     return x + x_offset, y + y_offset
+
+
+# Generates a rounded rectangle with an outline (optionally)
+# You may see parameters talking about "emulated"
+# Emulated is simply saying what should it's resolution be
+# Because sometimes even though it's drawing on the big screen you want it to still look pixelated to maintain the look
+# So when it "emulates" an x it actually creates a rectangle of that width x and scales it up to the expected xy
+# (first param). The emulated outline boolean is if it should divide the outline by the scale factor (x / emulated_x)
+# Similar concept for emulated radius
+def rounded_rect(
+        xy: (int, int),
+        color=(255, 255, 255),
+        emulated_x=None,
+        radius=0,
+        outline=0,
+        outline_color=(0, 0, 0),
+        emulate_outline=False,
+        emulate_radius=False
+):
+    # Make emulated x just the x if you don't want a pixelated look
+    if not emulated_x:
+        emulated_x = xy[0]
+
+    scale = xy[0] / emulated_x
+    scaled_xy = (emulated_x, xy[1] // scale)
+
+    scaled_outline = emulate_outline and outline // scale or outline
+    scaled_outline_2x = scaled_outline * 2
+    radius = emulate_radius and radius // scale or radius
+
+    surf = Surface((scaled_xy[0] + scaled_outline_2x, scaled_xy[1] + scaled_outline_2x), pygame.SRCALPHA)
+    pygame.draw.rect(surf, outline_color, surf.get_rect(), border_radius=int(radius))
+    pygame.draw.rect(surf, color, (scaled_outline, scaled_outline, scaled_xy[0], scaled_xy[1]),
+                     border_radius=int(radius))
+
+    return pygame.transform.scale(surf, (xy[0], xy[1]))
+
+
+# if a pos (x, y) is in a rect
+def pos_in_rect(xy: (int, int), rect: pygame.Rect):
+    return rect.left < xy[0] < rect.right and rect.top < xy[1] < rect.bottom
