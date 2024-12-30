@@ -1,9 +1,13 @@
+import datetime
 from typing import TYPE_CHECKING, Optional
 
 import pygame
+from pygame import Surface
 
 import modules.utilities as u
+from modules.utilities import get_main_font, lerp_colors
 from structures.hud.hud_object import HudObject
+from structures.hud.text import Text
 
 if TYPE_CHECKING:
     from structures.game import Game
@@ -29,27 +33,68 @@ class InputBox(HudObject):
                  color: tuple[int, int, int, int] = (255, 162, 112, 255),
                  outline_color: tuple[int, int, int, int] = (211, 70, 0, 255),
                  selected_color: tuple[int, int, int, int] = (54, 65, 99, 255),
+                 text_color: tuple[int, int, int, int] = (0, 0, 0, 255),
+                 error_color: tuple[int, int, int, int] = (150, 0, 0, 255),
+                 error_text_size: int = 20,
+                 error_expiry_time: int = 2,
+                 text_size: int = 32,
+                 data=None,
                  radius=4,
                  outline=1,
                  pos: Optional[tuple[int, int]] = (0, 0),
                  scale: float = 1,
                  parent: Optional[HudObject] = None,
                  name=None):
+        self.game = game
         self.radius = radius
         self.outline = outline
         self.color = color
         self.selected_color = selected_color
         self.outline_color = outline_color
-        self.size = size
+        self._size = size
         self.data = ""
+        self._error = None
         self.selected = False
-        surface = u.rounded_rect(pos, color, round(size[0] / 200 * 64), radius, outline, outline_color)
+        self.error_set_time = None
+        self.backspace_timer = None
+        self.text_color = text_color
+        self.error_text_surface = None
+        self.input_data: dict = data or {}
+        self.text_size = text_size
+        self.error_color = error_color
+        self.error_expiry_time = error_expiry_time
+        self.error_text = get_main_font(error_text_size)
+        surface = u.rounded_rect(size, color, round(size[0] / 200 * 64), radius, outline, outline_color)
         super().__init__(game, surface, pos, scale, parent, name)
+        self.text = Text(game, parent=self, size=text_size, color=text_color, pos=(10, 10))
+
+    @property
+    def size(self):
+        return self.surface.get_size()
+
+    @size.setter
+    def size(self, value):
+        self.rect.size = value
+        self.surface = self.calculate_surface()
+
+    @property
+    def error(self):
+        return self._error
+
+    @error.setter
+    def error(self, value):
+        self._error = value
+        if value is not None:
+            self.error_set_time = datetime.datetime.now()
+            self.error_text_surface = self.error_text.render(self.error, False, self.error_color)
+        else:
+            self.error_set_time = None
+            self.error_text_surface = None
 
     def on_mouse_up(self, event):
         if event.button != 1:
             return
-        self.set_selected(u.pos_in_rect(event.pos, self.rect))
+        self.set_selected(self.absolute_rect.collidepoint(event.pos))
 
     def set_selected(self, selected: bool):
         if self.selected == selected:
@@ -65,20 +110,69 @@ class InputBox(HudObject):
             self.game.input_handler.unsubscribe("mouse_on_up", "input_box_selection")
 
     def calculate_surface(self):
-        return u.rounded_rect(self.rect.topleft, self.color, round(self.size[0] / 200 * 64), self.radius, self.outline,
-                              self.selected and self.selected_color or self.outline_color)
+        return u.rounded_rect(
+            self.size,
+            self.color,
+            round(self.size[0] / 200 * 64),
+            self.radius,
+            self.outline,
+            self.error is not None and self.error_color or (self.selected and self.selected_color or self.outline_color)
+        )
 
     def process_up(self, up_event: pygame.event.Event):
         if up_event.key == pygame.K_ESCAPE:
             self.set_selected(False)
+        elif up_event.key == pygame.K_BACKSPACE:
+            self.backspace_timer = None
+
+    acceptable = set(
+        list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789!@#$%^&*()-_=+`~[]\\{}|;\':",./<>?'))
+
+    def backspace(self):
+        self.data = self.data[:-1]
 
     def process_down(self, down_event: pygame.event.Event):
         if down_event.key == pygame.K_BACKSPACE:
-            self.data = self.data[:-1]
-        else:
+            self.backspace()
+            self.backspace_timer = datetime.datetime.now()
+        elif down_event.unicode in self.acceptable:
             self.data += down_event.unicode
 
+    def periodic(self):
+        if self.error_set_time and (
+                datetime.datetime.now() - self.error_set_time).total_seconds() >= self.error_expiry_time:
+            self.error = None
+
+        if self.absolute_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            self.set_selected(True)
+
+        print('soon')
+
+        if self.selected and self.backspace_timer is not None:
+            print('yes')
+            if (datetime.datetime.now() - self.backspace_timer).microseconds >= 400_000:
+                self.backspace()
+
     def draw(self, draw_surface: pygame.Surface = None):
-        self.surface = self.calculate_surface()
-        self.rect = self.surface.get_rect()
+        self.periodic()
+
+        surf = self.calculate_surface()
+        surf_size = surf.get_size()
+
+        if self.error:
+            error_size = self.error_text_surface.get_size()
+            big_surf = Surface(
+                (max([surf_size[0], error_size[0]]), surf_size[1] + error_size[1] + 20),
+                pygame.SRCALPHA,
+            )
+            big_surf.blit(surf, (0, 0))
+            big_surf.blit(self.error_text_surface, (0, surf_size[1] + 10))
+            self.to_draw_surface = big_surf
+        else:
+            self.surface = self.calculate_surface()
+        self.text.text = self.data or self.input_data.get('placeholder')
+        if self.data == "":
+            self.text.color = lerp_colors(self.color, self.text_color, 0.65)
+        else:
+            self.text.color = self.text_color
         super().draw(draw_surface)

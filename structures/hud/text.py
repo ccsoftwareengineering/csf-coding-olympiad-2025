@@ -1,11 +1,10 @@
 import pygame
 from modules import utilities as u
 import typing
+
 if typing.TYPE_CHECKING:
     from structures.game import Game
 from structures.hud.hud_object import HudObject
-
-text_cache = {}
 
 
 class Text(HudObject):
@@ -21,15 +20,20 @@ class Text(HudObject):
     ):
         self.color = color or (0, 0, 0, 100)
         self.end_padding = 0
-        self.size = size
+        self._size = size
         self.text = text
         self.wrap = wrap
-        self.font = text_cache.get(size) or pygame.font.Font(u.resource_path('assets/fonts/main_reg.ttf'), size)
+        self.font = u.get_main_font(size)
         super().__init__(game, self.font.render(text, False, self.color), parent=parent, pos=pos)
 
-    def set_size(self, size: int):
-        self.font = text_cache.get(size) or pygame.font.Font(u.resource_path('assets/fonts/main_reg.ttf'), size)
-        self.size = size
+    @property
+    def size(self):
+        return self._size
+
+    @size.setter
+    def size(self, value):
+        self._size = value
+        self.font = u.get_main_font(value)
 
     def calculate_surface(self):
         if not self.wrap:
@@ -62,14 +66,13 @@ class Text(HudObject):
 
         y_offset = 0
         for line in lines:
-            fw, fh = self.font.size(line)
-            topleft_x = self.rect.x - fw / 2
-            topleft_y = self.rect.y + y_offset
+            # fw, fh = self.font.size(line)
+            # topleft_x = self.rect.x - fw / 2
+            # topleft_y = self.rect.y + y_offset
             line_surface = self.font.render(line, False, self.color)
             surf.blit(line_surface, (0, y_offset))
             y_offset += line_surface.get_height()
         return surf
-
 
     def draw(self, draw_surface: pygame.Surface = None):
         self.surface = self.calculate_surface()

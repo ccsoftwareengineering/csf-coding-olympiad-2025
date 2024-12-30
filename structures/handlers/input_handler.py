@@ -47,7 +47,8 @@ class InputHandler:
         if not event:
             return
         for func in event.values():
-            func(value)
+            if func is not None:
+                func(value)
 
     def get_key_names_down(self):
         final = []
@@ -57,6 +58,9 @@ class InputHandler:
 
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN:
+            if self.selected_input_box is not None:
+                self.selected_input_box.process_down(event)
+                return
             qualifier = event.key not in self.key_down
             self.key_down.add(event.key)
             self.game.telemetry_handler.set_value('Keys Down', '+'.join(self.get_key_names_down()))
@@ -64,7 +68,7 @@ class InputHandler:
             if qualifier:
                 self.key_on_down[event.key] = True
                 self.game.telemetry_handler.set_value('Key Down', pygame.key.name(event.key))
-                self.run_events('key_on_down', event.key)
+                self.run_events('key_on_down', event)
         elif event.type == pygame.KEYUP:
             if self.selected_input_box is not None:
                 self.selected_input_box.process_up(event)
@@ -76,9 +80,6 @@ class InputHandler:
             self.run_events('key_on_up', event)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if self.selected_input_box is not None:
-                self.selected_input_box.process_down(event)
-                return
             self.mouse_down.add(event.button)
             self.run_events('mouse_down', event)
             if event.button not in self.mouse_down:

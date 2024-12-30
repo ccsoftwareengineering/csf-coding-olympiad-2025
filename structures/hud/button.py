@@ -35,7 +35,7 @@ class Button(HudObject):
     def draw(self, draw_surface: pygame.Surface = None):
         pos = pygame.mouse.get_pos()
 
-        if self.rect.collidepoint(pos):
+        if self.absolute_rect.collidepoint(pos):
             self.game.cursor_handler.set_cursor('HIGHLIGHT')
             self.on_hover_start = not self.hovering
             self.hovering = True

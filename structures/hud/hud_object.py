@@ -1,4 +1,5 @@
 import pygame
+from pygame import Rect
 
 
 class HudObject:
@@ -24,11 +25,30 @@ class HudObject:
         self.rect = self.surface.get_rect()
         self.rect.topleft = (pos[0], pos[1])
 
+    @property
+    def absolute_rect(self):
+        left = self.rect.left
+        top = self.rect.top
+        rect: Rect = self.rect.copy()
+        if self.parent is not None:
+            rect.topleft = (left + self.parent.rect.left, top + self.parent.rect.top)
+        return rect
+
     def add_child(self, child, keep_preservation=False):
         self.children.add(child)
         if not keep_preservation:
             self.should_preserve = True
         child.parent = self
+
+    def remove_child(self, child):
+        self.children.remove(child)
+        child.parent = None
+        if len(self.children) == 0:
+            self.should_preserve = False
+
+    def destroy(self):
+        self.parent.remove_child(self)
+        del self
 
     def draw_children(self, surface: pygame.Surface = None):
         if len(self.children) == 0:

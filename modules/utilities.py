@@ -148,3 +148,18 @@ def rounded_rect(
 # if a pos (x, y) is in a rect
 def pos_in_rect(xy: (int, int), rect: pygame.Rect):
     return rect.left < xy[0] < rect.right and rect.top < xy[1] < rect.bottom
+
+
+text_cache = {}
+
+
+def get_main_font(size: int) -> pygame.font.Font:
+    return text_cache.get(size) or pygame.font.Font(resource_path('assets/fonts/main_reg.ttf'), size)
+
+
+def lerp_colors(color1, color2, t) -> (int, int, int, int):
+    r = round(color1[0] + (color2[0] - color1[0]) * t)
+    g = round(color1[1] + (color2[1] - color1[1]) * t)
+    b = round(color1[2] + (color2[2] - color1[2]) * t)
+    a = round(color1[3] + (color2[3] - color1[3]) * t)
+    return r, g, b, a
