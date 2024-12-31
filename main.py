@@ -13,8 +13,8 @@ update = game.update_factory({
     'skipping': draw_skipping_factory(game, 1)
 })
 
-developer_player = Player(game, "<Developer>")
-game.player = developer_player
+# developer_player = Player(game, "<Developer>")
+# game.player = developer_player
 
 while game.running:
     update()
