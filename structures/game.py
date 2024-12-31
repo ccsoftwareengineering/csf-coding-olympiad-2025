@@ -57,6 +57,7 @@ class Game:
         pygame.mouse.set_visible(False)
 
     def set_state(self, state):
+        self.cursor_handler.set_cursor('NORMAL')
         self.curr_state = state
         self.curr_state_draw_function = state
 

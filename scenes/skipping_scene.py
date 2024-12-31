@@ -1,11 +1,8 @@
 import datetime
-
 import pygame
-
 from modules import utilities as u
 from modules.utilities import get_main_font
 from structures.game import Game
-
 
 def draw_skipping_factory(game: Game, duration: float):
     initial = None
@@ -13,6 +10,7 @@ def draw_skipping_factory(game: Game, duration: float):
     font = get_main_font(32)
 
     def draw_skipping():
+        game.cursor_handler.set_cursor('NORMAL')
         nonlocal initial
         if not initial:
             initial = datetime.datetime.now()
