@@ -126,7 +126,7 @@ class InputBox(HudObject):
             self.backspace_timer = None
 
     acceptable = set(
-        list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789!@#$%^&*()-_=+`~[]\\{}|;\':",./<>?'))
+        list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789!@#$%^&*()-_=+`~[]\\{}|;\':",./<>? '))
 
     def backspace(self):
         self.data = self.data[:-1]

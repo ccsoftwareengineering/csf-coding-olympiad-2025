@@ -13,10 +13,13 @@ def draw_home_factory(game: 'Game'):
 
     def draw_home():
         if play_button.on_press_end:
-            game.initiate_dialogue('introduction')
-            game.set_state('dialogue')
+            if not game.player:
+                game.initiate_dialogue('introduction')
+                game.set_state('dialogue')
+            else:
+                game.set_state('skipping')
 
-        u.draw_tiles(game, game.screen, game.bg_tile_scaled, game.tile_offset)
+        u.draw_tiles(game.screen, game.bg_tile_scaled, game.tile_offset)
         u.center_blit(game.screen, u.rescale(game.country_detail, factor=9), offsets=(None, 20))
         u.center_blit(game.screen, u.rescale(game.title, factor=1.3), offsets=(None, -0.6 / 3))
         game.tile_offset += 0.5

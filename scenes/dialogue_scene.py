@@ -32,7 +32,7 @@ def draw_dialogue_factory(game: 'Game'):
 
     def draw_dialogue():
         nonlocal text, curr_input
-        u.draw_tiles(game, game.screen, game.bg_tile_scaled, game.tile_offset)
+        u.draw_tiles(game.screen, game.bg_tile_scaled, game.tile_offset)
         game.tile_offset += 0.5
         if game.tile_offset == 64:
             game.tile_offset = 0

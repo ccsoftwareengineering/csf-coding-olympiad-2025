@@ -98,6 +98,8 @@ class InputHandler:
                 else:
                     self.mouse_focused = False
             self.run_events('active_event', event)
+        elif event.type == pygame.MOUSEWHEEL:
+            self.run_events('mouse_wheel', event)
         else:
             name = pygame.event.event_name(event.type)
             self.game.telemetry_handler.set_value('Event Name', name)

@@ -60,6 +60,9 @@ class DialogueHandler:
         self.is_last_block_char = False
         if self.curr_block_index == len(self.dialogue) - 1:
             self.done = True
+            after_fn = self.options.get('after')
+            if after_fn:
+                after_fn()
         else:
             # right here is where I do the input checking stuff
             input_submit_fn = self.curr_block[1].get('input_submit')

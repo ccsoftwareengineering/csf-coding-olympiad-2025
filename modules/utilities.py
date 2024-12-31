@@ -68,14 +68,14 @@ def rescale(surf, size=None, factor=None):
 
 
 # Draws the ocean tiles which are very common
-def draw_tiles(g, scr: pygame.Surface, tile: pygame.Surface, offset: int):
+def draw_tiles(scr: pygame.Surface, tile: pygame.Surface, offset: int, distance=64):
     width_increment = -offset
-    while width_increment < g.screen.get_width() + 64:
+    while width_increment < scr.get_width() + distance:
         height_increment = -offset
-        while height_increment < g.screen.get_height() + 64:
+        while height_increment < scr.get_height() + distance:
             scr.blit(tile, (width_increment, height_increment))
-            height_increment = height_increment + 64
-        width_increment += 64
+            height_increment = height_increment + distance
+        width_increment += distance
 
 
 # Allows for relative positions based on screen width
@@ -163,3 +163,7 @@ def lerp_colors(color1, color2, t) -> (int, int, int, int):
     b = round(color1[2] + (color2[2] - color1[2]) * t)
     a = round(color1[3] + (color2[3] - color1[3]) * t)
     return r, g, b, a
+
+
+def clamp(num: float, lower: float, upper: float):
+    return max(lower, min(num, upper))

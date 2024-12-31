@@ -15,7 +15,8 @@ game_states = Enum("State", [
     ('home', 0),
     ('main', 1),
     ('shop', 2),
-    ('dialogue', 3)
+    ('dialogue', 3),
+    ('skipping', 4)
 ])
 
 
@@ -24,6 +25,7 @@ class Game:
     tile_offset = 0
     screen = pygame.display.set_mode(dims)
     clock = pygame.time.Clock()
+    sea_tile = u.load_scale('assets/background.png', (16, 16))
     bg_tile_scaled = u.load_scale('assets/background.png', (64, 64))
     title = u.load_scale('assets/title.png', None, 3)
     country = u.load_scale('assets/country.png', None, 2 ** 3)
@@ -58,15 +60,21 @@ class Game:
         self.curr_state = state
         self.curr_state_draw_function = state
 
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+
     def update_factory(self, draw_functions):
         def update():
             self.pre_loop()
             for event in pygame.event.get():
                 self.handle_event(event)
             draw_functions[self.curr_state]()
+            self.screen.blit(self.main_font.render(f'{self.clock.get_fps():.0f} FPS', False, self.white, self.black),
+                             (0, 0))
             self.post_loop()
             pygame.display.flip()
             self.clock.tick(60)
+
         return update
 
     def initiate_dialogue(self, dialogue_id):
