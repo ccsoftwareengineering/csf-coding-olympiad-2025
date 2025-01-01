@@ -13,11 +13,13 @@ def island_name_comment(name: str):
     else:
         return 'Lovely'
 
+
 def developer_name_comment(name: str):
-    if name.lower() in ["tori", "matthew", "tjon", "amari"]:
-        return f"We know a {name.title()} ;) !"
+    if name.lower() in ("tori", "matthew", "tjon", "amari"):
+        return f"A developer doppelganger I see! ;)"
     else:
         return "That's a neat name."
+
 
 def dialogues(game: 'Game'):
     return {
@@ -32,7 +34,8 @@ def dialogues(game: 'Game'):
                      "input_submit": lambda data: setattr(game, 'player', Player(game, data)),
                  }),
                  (
-                     lambda: f"{game.player.name}? {developer_name_comment(game.player.name)} Now what for the name of your island?",
+                     lambda: f"{game.player.name}? {
+                        developer_name_comment(game.player.name)} Now what for the name of your island?",
                      {
                          "input": input_data("island_name", placeholder="Write your island name here",
                                              options={"min_length": 3}),
