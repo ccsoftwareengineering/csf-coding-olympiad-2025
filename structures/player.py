@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from structures.game import Game
+
 
 class Player:
     def __init__(self, game: 'Game', name: str):

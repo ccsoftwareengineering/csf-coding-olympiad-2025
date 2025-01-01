@@ -35,17 +35,19 @@ class InputBox(HudObject):
                  selected_color: tuple[int, int, int, int] = (54, 65, 99, 255),
                  text_color: tuple[int, int, int, int] = (0, 0, 0, 255),
                  error_color: tuple[int, int, int, int] = (150, 0, 0, 255),
-                 error_text_size: int = 20,
+                 error_text_size: int = 12,
                  error_expiry_time: int = 2,
-                 text_size: int = 32,
+                 text_size: int = 20,
                  data=None,
                  radius=4,
                  outline=1,
                  pos: Optional[tuple[int, int]] = (0, 0),
                  scale: float = 1,
+                 override_y=True,
                  parent: Optional[HudObject] = None,
                  name=None):
         self.game = game
+        self.override_y = override_y
         self.radius = radius
         self.outline = outline
         self.color = color
@@ -94,7 +96,7 @@ class InputBox(HudObject):
     def on_mouse_up(self, event):
         if event.button != 1:
             return
-        self.set_selected(self.absolute_rect.collidepoint(event.pos))
+        self.set_selected(self.hovering and self.enabled)
 
     def set_selected(self, selected: bool):
         if self.selected == selected:
@@ -109,9 +111,9 @@ class InputBox(HudObject):
             self.game.input_handler.selected_input_box = None
             self.game.input_handler.unsubscribe("mouse_on_up", "input_box_selection")
 
-    def calculate_surface(self):
+    def calculate_surface(self, y=None):
         return u.rounded_rect(
-            self.size,
+            (self.size[0], y or self.size[1]),
             self.color,
             round(self.size[0] / 200 * 64),
             self.radius,
@@ -143,8 +145,13 @@ class InputBox(HudObject):
                 datetime.datetime.now() - self.error_set_time).total_seconds() >= self.error_expiry_time:
             self.error = None
 
-        if self.absolute_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            self.set_selected(True)
+        if self.hovering:
+            if self.on_hover_start:
+                self.game.cursor_handler.cursor = 'INPUT'
+            if pygame.mouse.get_pressed()[0]:
+                self.set_selected(True)
+        elif self.on_hover_end:
+            self.game.cursor_handler.cursor = 'NORMAL'
 
         if self.selected and self.backspace_timer is not None:
             if (datetime.datetime.now() - self.backspace_timer).microseconds >= 400_000:
@@ -153,7 +160,11 @@ class InputBox(HudObject):
     def draw(self, draw_surface: pygame.Surface = None):
         self.periodic()
 
-        surf = self.calculate_surface()
+        self.text.text = self.data or self.input_data.get('placeholder')
+        y = self.size[1]
+        if self.override_y:
+            y = self.text.calculate_surface().get_height() + 20
+        surf = self.calculate_surface(y=y)
         surf_size = surf.get_size()
 
         if self.error:
@@ -166,8 +177,7 @@ class InputBox(HudObject):
             big_surf.blit(self.error_text_surface, (0, surf_size[1] + 10))
             self.to_draw_surface = big_surf
         else:
-            self.surface = self.calculate_surface()
-        self.text.text = self.data or self.input_data.get('placeholder')
+            self.surface = surf
         if self.data == "":
             self.text.color = lerp_colors(self.color, self.text_color, 0.65)
         else:

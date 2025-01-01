@@ -10,7 +10,8 @@ play_button_surface = u.load_scale('assets/play_button.png', None, 1.6)
 
 def draw_home_factory(game: 'Game'):
     play_button = Button(game, play_button_surface, scale=0.8, pos=u.cbp(game.screen, play_button_surface, offsets=(None, 1 / 3)), name="PlayButton")
-
+    rescaled_country = u.rescale(game.country_detail, factor=9)
+    rescaled_title = u.rescale(game.title, factor=1.3)
     def draw_home():
         if play_button.on_press_end:
             if not game.player:
@@ -18,10 +19,11 @@ def draw_home_factory(game: 'Game'):
                 game.set_state('dialogue')
             else:
                 game.set_state('skipping')
+            return
 
         u.draw_tiles(game.screen, game.bg_tile_scaled, game.tile_offset)
-        u.center_blit(game.screen, u.rescale(game.country_detail, factor=9), offsets=(None, 20))
-        u.center_blit(game.screen, u.rescale(game.title, factor=1.3), offsets=(None, -0.6 / 3))
+        u.center_blit(game.screen, rescaled_country, offsets=(None, 20))
+        u.center_blit(game.screen, rescaled_title, offsets=(None, -0.6 / 3))
         game.tile_offset += 0.5
         if game.tile_offset == 64:
             game.tile_offset = 0

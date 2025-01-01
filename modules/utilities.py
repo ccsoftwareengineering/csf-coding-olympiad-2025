@@ -54,7 +54,7 @@ def center_blit(surf: pygame.Surface, surf2: pygame.Surface, xy=(None, None), of
 
 
 # A shorthand to load an image and rescale
-def load_scale(path, size=None, factor=None):
+def load_scale(path, size=None, factor=1):
     if not size:
         return pygame.transform.scale_by(load_image(path).convert_alpha(), factor)
     return pygame.transform.scale(load_image(path).convert_alpha(), size)

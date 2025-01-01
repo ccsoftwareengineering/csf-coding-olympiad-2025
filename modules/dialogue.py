@@ -39,6 +39,6 @@ def dialogues(game: 'Game'):
                         island_name_comment(game.player.island_name)}! Press OKAY to jump into the action!",
                      {})
              ], {
-                 "after": lambda: game.set_state('main')
+                 "after": lambda: game.loading_handler.transition_to('main')
              })
     }

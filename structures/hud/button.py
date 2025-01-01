@@ -5,16 +5,6 @@ from structures.game import Game
 
 
 class Button(HudObject):
-    # Press Events
-    on_press_start = False
-    on_press_end = False
-    pressing = False
-
-    # Hover Events
-    on_hover_start = False
-    on_hover_end = False
-    hovering = False
-
     def __init__(
             self,
             game: Game,
@@ -24,6 +14,15 @@ class Button(HudObject):
             select_cursor='HIGHLIGHT',
             name=None
     ):
+        # Press Events
+        self.on_press_start = False
+        self.on_press_end = False
+        self.pressing = False
+
+        # Hover Events
+        self.on_hover_start = False
+        self.on_hover_end = False
+        self.hovering = False
         super().__init__(game, surface, pos, scale, name=name)
         self.darker_surface = self.surface.copy()
         self.select_cursor = select_cursor
@@ -35,8 +34,8 @@ class Button(HudObject):
     def draw(self, draw_surface: pygame.Surface = None):
         pos = pygame.mouse.get_pos()
 
-        if self.absolute_rect.collidepoint(pos):
-            self.game.cursor_handler.set_cursor('HIGHLIGHT')
+        if self.absolute_rect.collidepoint(pos) and self.enabled:
+            self.game.cursor_handler.cursor = self.select_cursor
             self.on_hover_start = not self.hovering
             self.hovering = True
 
@@ -48,7 +47,8 @@ class Button(HudObject):
                 self.pressing = False
                 self.to_draw_surface = self.darker_surface
         else:
-            self.game.cursor_handler.set_cursor('NORMAL')
+            if self.hovering:
+                self.game.cursor_handler.cursor = 'NORMAL'
             self.on_hover_end = self.hovering
             self.hovering = False
 

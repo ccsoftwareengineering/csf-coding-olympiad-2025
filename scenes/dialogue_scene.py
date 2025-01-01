@@ -20,12 +20,14 @@ def draw_dialogue_factory(game: 'Game'):
     dialogue_box.rect.topleft = u.cbp(game.screen, dialogue_box.surface)
 
     # info_box = HudObject(game, info_icon, parent=dialogue_box, pos=(40, 40), name="InfoBox")
-    text = Text(game, 32, pos=(20, 80), parent=dialogue_box, color=(33, 0, 43))
+    text = Text(game, 20, pos=(20, 80), parent=dialogue_box, color=(33, 0, 43))
     text.end_padding = 20
     text.wrap = True
 
+    boxw = dialogue_box.rect.width - 40
+
     okay_surface = u.load_scale('assets/okay_button.png', factor=2)
-    okay = Button(game, okay_surface, (0, 0), scale=0.6)
+    okay = Button(game, okay_surface, (0, 0), scale=0.6, select_cursor='NEXT')
     okay.rect.center = dialogue_box.rect.midbottom
 
     curr_input: Optional[InputBox] = None
@@ -41,14 +43,15 @@ def draw_dialogue_factory(game: 'Game'):
         dialogue_box.draw()
         okay.draw()
         if game.curr_dialogue.is_last_block_char:
-            if not curr_input and game.curr_dialogue.curr_input_data:
+            if not curr_input and (curr_input_data := game.curr_dialogue.curr_input_data):
+                dimensions = curr_input_data['options'].get('size') or (None, None)
                 curr_input = InputBox(
                     game,
-                    size=(300, 50),
+                    size=(dimensions[0] or boxw, dimensions[1] or 50),
                     parent=dialogue_box,
                     pos=(20, text.rect.top + text.surface.get_height() + 20),
-                    name=game.curr_dialogue.curr_input_data["id"],
-                    data=game.curr_dialogue.curr_input_data
+                    name=curr_input_data["id"],
+                    data=curr_input_data
                 )
 
             if okay.on_press_end or game.input_handler.key_on_down.get(K_RETURN):

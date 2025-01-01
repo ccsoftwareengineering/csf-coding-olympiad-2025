@@ -1,6 +1,8 @@
 import pygame
 import typing
 
+from structures.hud.hud_object import HudObject
+
 if typing.TYPE_CHECKING:
     from structures.hud.input_box import InputBox
     from structures.game import Game
@@ -11,6 +13,7 @@ class InputHandler:
         self.game = game
         # Makes game ignore inputs put into an input box!
         self.selected_input_box: typing.Optional['InputBox'] = None
+        self.modal: typing.Optional['HudObject'] = None
 
         self.key_on_down = {}
         self.key_down = set()
