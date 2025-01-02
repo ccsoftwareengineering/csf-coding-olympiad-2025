@@ -11,7 +11,7 @@ from structures.hud.text import Text
 
 
 class TelemetryHandler:
-    def __init__(self, game: 'Game', use_telemetry=False, text_size=18, enabled=False):
+    def __init__(self, game: 'Game', use_telemetry=False, text_size=12, enabled=False):
         self.enabled = enabled
         self.game = game
         self.use_telemetry = use_telemetry
@@ -25,6 +25,10 @@ class TelemetryHandler:
         if not self.use_telemetry:
             return
         self.keys[key] = value
+
+    def set_values(self, map: dict[str, any]):
+        for key in map:
+            self.set_value(key, map[key])
 
     def draw_terminal(self):
         if not self.use_telemetry or not self.enabled:
