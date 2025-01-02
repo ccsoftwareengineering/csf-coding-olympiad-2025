@@ -1,5 +1,5 @@
 import pygame
-from pygame import Rect
+from pygame import Rect, Surface
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from structures.game import Game
@@ -73,12 +73,12 @@ class HudObject:
         self.parent.remove_child(self)
         del self
 
-    def draw_children(self, surface: pygame.Surface = None):
+    def draw_children(self, surface: pygame.Surface = None, predraw=True):
         if len(self.children) == 0:
             return
         else:
             for child in self.children:
-                child.draw(draw_surface=surface)
+                child.draw(draw_surface=surface, predraw=predraw)
 
     def preserve(self):
         if self.should_preserve:
@@ -100,17 +100,17 @@ class HudObject:
             self.on_hover_end = self.hovering
             self.hovering = False
 
-    def draw(self, draw_surface: pygame.Surface = None):
-        self.predraw()
+    def draw(self, draw_surface: pygame.Surface = None, predraw=True, children_predraw=True):
         if not self.visible:
             return
-        if draw_surface:
-            surf = self.preserve()
-            self.draw_children(surface=surf)
-            draw_surface.blit(surf, self.rect)
-        else:
-            surf = self.preserve()
-            self.draw_children(surface=surf)
-            self.game.screen.blit(surf, self.rect)
+        if predraw:
+            self.predraw()
+        surf = self.preserve()
+        self.draw_children(surface=surf, predraw=children_predraw)
+        (draw_surface and draw_surface or self.game.screen).blit(surf, self.rect)
+        # if draw_surface:
+        #     draw_surface.blit(surf, self.rect)
+        # else:
+        #     self.game.screen.blit(surf, self.rect)
         self.to_draw_surface = None
         self.cached_abs_rect = None
