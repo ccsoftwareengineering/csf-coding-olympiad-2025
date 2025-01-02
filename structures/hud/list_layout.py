@@ -20,17 +20,20 @@ class ListLayout(HudObject):
             direction: Direction = Direction.DOWN,
             position: Optional[(int, int)] = (0, 0),
             scale: Optional[float] = 1,
+            gap: Optional[int] = 0,
             parent: Optional[HudObject] = None,
             name: Optional[str] = None,
             anchor_point: Optional[AnchorPoint] = AnchorPoint.TOP_LEFT
     ):
         self.direction = direction
         self._anchor_point = anchor_point
+        self.gap = gap
         self.min_size = min_width
         self.max_size = max_width
         self.children_list: list[HudObject] = []
         self.direction_multiplier = (self.direction in (self.direction.DOWN, self.direction.RIGHT)) and 1 or -1
-        if self.direction in (self.direction.DOWN, self.direction.UP):
+        self.vertical = self.direction in (self.direction.DOWN, self.direction.UP)
+        if self.vertical:
             self.axis_function = 'get_height'
             self.axis_value_placement = lambda v: (0, v)
         else:
@@ -80,13 +83,15 @@ class ListLayout(HudObject):
         total_width = 0
         total_height = 0
 
-        if self.direction == Direction.DOWN or self.direction == Direction.UP:
+        if self.vertical:
+            total_height += (len(self.children) - 1) * self.gap
             for child in self.children_list:
                 child.predraw()
                 child_size = (child.to_draw_surface or child.surface).get_size()
                 total_width = max(total_width, child_size[0])
                 total_height += child_size[1]
-        elif self.direction == Direction.RIGHT or self.direction == Direction.LEFT:
+        else:
+            total_width += (len(self.children) - 1) * self.gap
             for child in self.children_list:
                 child.predraw()
                 child_size = (child.to_draw_surface or child.surface).get_size()
@@ -116,5 +121,5 @@ class ListLayout(HudObject):
         for child in self.children_list:
             child.rect.topleft = self.calc_function(*self.axis_value_placement(accumulated_offset))
             # child it up with the anchor points
-            accumulated_offset += getattr((child.to_draw_surface or child.surface), self.axis_function)()
+            accumulated_offset += getattr((child.to_draw_surface or child.surface), self.axis_function)() + self.gap
         super().predraw()
