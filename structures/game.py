@@ -1,9 +1,11 @@
 from enum import Enum
+from typing import Callable, Tuple
 
 import pygame
 
 from modules import utilities as u
 from modules.dialogue import dialogues
+from modules.more_utilities.enums import GameState
 from structures.global_store import GlobalStore
 from structures.handlers.cursor_handler import CursorHandler
 from structures.handlers.dialogue_handler import DialogueHandler
@@ -11,22 +13,15 @@ from structures.handlers.input_handler import InputHandler
 from structures.handlers.loading_handler import LoadingHandler
 from structures.handlers.modal_handler import ModalHandler
 from structures.handlers.telemetry_handler import TelemetryHandler
+from structures.scene import Scene
 
 pygame.init()
-
-game_states = Enum("State", [
-    ('home', 0),
-    ('main', 1),
-    ('shop', 2),
-    ('dialogue', 3),
-    ('skipping', 4)
-])
 
 
 class Game:
     dims = (1280, 720)
     tile_offset = 0
-    screen = pygame.display.set_mode(dims)
+    screen = pygame.display.set_mode(dims, pygame.RESIZABLE)
     clock = pygame.time.Clock()
     sea_tile = u.load_scale('assets/background.png', (16, 16))
     bg_tile_scaled = u.load_scale('assets/background.png', (64, 64))
@@ -40,7 +35,6 @@ class Game:
     curr_dialogue = None
 
     curr_state = None
-    curr_state_draw_function = None
 
     on_press_start = {}
     on_press_end = {}
@@ -48,7 +42,7 @@ class Game:
     running = True
     player = None
 
-    def __init__(self, show_fps=False, default_state="home"):
+    def __init__(self, show_fps=False):
         pygame.display.set_caption("Power Island")
         pygame.display.set_icon(u.load_image('assets/energy_icon.png'))
         self.show_fps = show_fps
@@ -59,32 +53,37 @@ class Game:
         self.loading_handler = LoadingHandler(self)
         self.modal_handler = ModalHandler(self)
         self.telemetry_handler.inject_telemetry_events(self.input_handler)
-
-        self.set_state(default_state)
+        self.scenes: dict[Enum, Scene] = {}
 
         pygame.mouse.set_visible(False)
 
-    def set_state(self, state):
+    def set_state(self, state: Enum):
         self.cursor_handler.cursor = 'NORMAL'
+        if self.curr_state:
+            self.scenes[self.curr_state].cleanup()
         self.curr_state = state
-        self.curr_state_draw_function = state
+        self.scenes[self.curr_state].init()
 
     white = (255, 255, 255)
     black = (0, 0, 0)
 
-    def update_factory(self, draw_functions):
-        def update():
-            self.pre_loop()
-            for event in pygame.event.get():
-                self.handle_event(event)
-            draw_functions[self.curr_state]()
-            self.modal_handler.draw()
-            self.loading_handler.draw()
-            self.post_loop()
-            pygame.display.flip()
-            self.clock.tick(60)
+    def set_scenes(self, fns: dict[Enum, Scene]):
+        class EmptyScene(Scene):
+            def draw(self):
+                pass
+        self.scenes = fns
+        self.scenes[GameState.NONE] = EmptyScene(self)
 
-        return update
+    def update(self):
+        self.pre_loop()
+        for event in pygame.event.get():
+            self.handle_event(event)
+        self.scenes[self.curr_state].draw()
+        self.modal_handler.draw()
+        self.loading_handler.draw()
+        self.post_loop()
+        pygame.display.flip()
+        self.clock.tick(60)
 
     def initiate_dialogue(self, dialogue_id):
         self.curr_dialogue = DialogueHandler(self, dialogue_id, speed=0.018)

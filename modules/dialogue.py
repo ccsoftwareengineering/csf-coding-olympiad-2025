@@ -1,5 +1,6 @@
 import typing
 
+from modules.more_utilities.enums import GameState
 from structures.hud.input_box import input_data
 from structures.player import Player
 
@@ -47,6 +48,6 @@ def dialogues(game: 'Game'):
                         island_name_comment(game.player.island_name)}! Press OKAY to jump into the action!",
                      {})
              ], {
-                 "after": lambda: game.loading_handler.transition_to('main')
+                 "after": lambda: game.loading_handler.transition_to(GameState.MAIN)
              })
     }

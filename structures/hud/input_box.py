@@ -157,7 +157,7 @@ class InputBox(HudObject):
             if (datetime.datetime.now() - self.backspace_timer).microseconds >= 400_000:
                 self.backspace()
 
-    def draw(self, draw_surface: pygame.Surface = None):
+    def predraw(self):
         self.periodic()
 
         self.text.text = self.data or self.input_data.get('placeholder')
@@ -182,4 +182,4 @@ class InputBox(HudObject):
             self.text.color = lerp_colors(self.color, self.text_color, 0.65)
         else:
             self.text.color = self.text_color
-        super().draw(draw_surface)
+        super().predraw()

@@ -92,7 +92,7 @@ class HudObject:
             return False
         return True and self.visible
 
-    def draw(self, draw_surface: pygame.Surface = None):
+    def predraw(self):
         if self.absolute_rect.collidepoint(pygame.mouse.get_pos()):
             self.on_hover_start = not self.hovering
             self.hovering = True
@@ -100,6 +100,8 @@ class HudObject:
             self.on_hover_end = self.hovering
             self.hovering = False
 
+    def draw(self, draw_surface: pygame.Surface = None):
+        self.predraw()
         if not self.visible:
             return
         if draw_surface:

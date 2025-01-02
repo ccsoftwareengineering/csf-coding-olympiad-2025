@@ -74,6 +74,6 @@ class Text(HudObject):
             y_offset += line_surface.get_height()
         return surf
 
-    def draw(self, draw_surface: pygame.Surface = None):
+    def predraw(self):
         self.surface = self.calculate_surface()
-        super().draw(draw_surface)
+        super().predraw()

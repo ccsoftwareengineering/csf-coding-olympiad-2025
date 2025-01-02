@@ -1,5 +1,7 @@
 import os
 import sys
+from enum import Enum
+from typing import Callable, Tuple
 
 import pygame.transform
 from pygame import Surface
@@ -167,3 +169,7 @@ def lerp_colors(color1, color2, t) -> (int, int, int, int):
 
 def clamp(num: float, lower: float, upper: float):
     return max(lower, min(num, upper))
+
+
+def empty():
+    pass

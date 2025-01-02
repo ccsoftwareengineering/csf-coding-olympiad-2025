@@ -31,7 +31,7 @@ class Button(HudObject):
         mask.set_alpha(int(255 * 0.15))
         self.darker_surface.blit(mask, (0, 0))
 
-    def draw(self, draw_surface: pygame.Surface = None):
+    def predraw(self):
         pos = pygame.mouse.get_pos()
 
         if self.absolute_rect.collidepoint(pos) and self.enabled:
@@ -51,6 +51,7 @@ class Button(HudObject):
                 self.game.cursor_handler.cursor = 'NORMAL'
             self.on_hover_end = self.hovering
             self.hovering = False
+        super().predraw()
 
+    def draw(self, draw_surface: pygame.Surface = None):
         super().draw(draw_surface)
-        self.draw_children()

@@ -33,7 +33,7 @@ class CursorHandler:
         self.game = game
         self.cursors = {
             'NORMAL': self.get_cursor_and_offsets(1, 6),
-            'HIGHLIGHT': self.get_cursor_and_offsets(6, 17, (-3, 0)),
+            'HIGHLIGHT': self.get_cursor_and_offsets(6, 17, (-5, 0)),
             'INPUT': self.get_cursor_and_offsets(7, 1),
             'NEXT': self.get_cursor_and_offsets(3, 12),
         }
