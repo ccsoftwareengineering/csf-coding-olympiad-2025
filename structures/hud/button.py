@@ -1,3 +1,5 @@
+from typing import Optional, Tuple
+
 import pygame
 from structures.hud.hud_object import HudObject
 
@@ -9,10 +11,11 @@ class Button(HudObject):
             self,
             game: Game,
             surface: pygame.Surface,
-            pos: (int, int) = (0, 0),
-            scale: float = 1,
-            select_cursor='HIGHLIGHT',
-            name=None
+            pos: Optional[Tuple[int, int]] = (0, 0),
+            scale: Optional[float] = 1,
+            select_cursor: Optional[str] = 'HIGHLIGHT',
+            parent: Optional[HudObject] = None,
+            name: Optional[str] = None
     ):
         # Press Events
         self.on_press_start = False
@@ -23,7 +26,7 @@ class Button(HudObject):
         self.on_hover_start = False
         self.on_hover_end = False
         self.hovering = False
-        super().__init__(game, surface, pos, scale, name=name)
+        super().__init__(game, surface, pos, scale, name=name, parent=parent)
         self.darker_surface = self.surface.copy()
         self.select_cursor = select_cursor
         mask = pygame.mask.from_surface(self.surface).to_surface(setcolor=(0, 0, 0), unsetcolor=(255, 255, 255))
@@ -52,6 +55,3 @@ class Button(HudObject):
             self.on_hover_end = self.hovering
             self.hovering = False
         super().predraw()
-
-    def draw(self, draw_surface: pygame.Surface = None):
-        super().draw(draw_surface)
