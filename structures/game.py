@@ -63,6 +63,10 @@ class Game:
 
         pygame.mouse.set_visible(False)
 
+    @property
+    def in_dialogue(self):
+        return self.curr_dialogue is not None
+
     def set_state(self, state: Enum):
         self.cursor_handler.cursor = 'NORMAL'
         if self.curr_state:
