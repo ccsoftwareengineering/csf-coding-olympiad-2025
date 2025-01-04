@@ -37,6 +37,10 @@ class DialogueHandler:
     def curr_input_data(self):
         return self.curr_block[1].get('input')
 
+    @property
+    def curr_block_data(self):
+        return self.curr_block[1]
+
     def parse_data(self):
         data, error = input_parse(self.curr_input, self.curr_input_data)
         self.parsed_data = data
