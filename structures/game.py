@@ -21,7 +21,7 @@ pygame.init()
 
 class Game:
     tile_offset = 0
-    screen = pygame.display.set_mode(dims)
+    screen = pygame.display.set_mode(dims, pygame.RESIZABLE, pygame.SCALED)
     clock = pygame.time.Clock()
     sea_tile = u.load_scale('assets/background.png', (16, 16))
     bg_tile_scaled = u.load_scale('assets/background.png', (64, 64))
