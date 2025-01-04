@@ -93,6 +93,9 @@ class MainScene(Scene):
             # Button(self.game, self.add_icon, name="add_button", parent=self.tr_ui),
         }
 
+        # To make introduction dialogue see it
+        self.tr_ui.predraw()
+
     def define_game_variables(self):
         return {}
 

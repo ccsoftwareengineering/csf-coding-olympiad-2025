@@ -183,7 +183,8 @@ path = f'assets/fonts/{font_name}'
 
 
 def get_main_font(size: int) -> pygame.font.Font:
-    return text_cache.get(round(size * text_multiplier)) or pygame.font.Font(resource_path(path), round(size * text_multiplier))
+    return text_cache.get(round(size * text_multiplier)) or pygame.font.Font(resource_path(path),
+                                                                             round(size * text_multiplier))
 
 
 def lerp_colors(color1, color2, t) -> (int, int, int, int):
@@ -229,3 +230,11 @@ type TupleColor = tuple[int, int, int] | tuple[int, int, int, int]
 def rect_factory(pos: tuple[int, int], size: tuple[int, int], from_xy='left-top') -> pygame.Rect:
     left, top = relative_pos(dims, pos, from_xy=from_xy)
     return pygame.Rect(left, top, size[0], size[1])
+
+
+def expand_rect_outline(r: pygame.Rect, outline: int = 0) -> pygame.Rect:
+    a: pygame.Rect = r.copy()
+    a.left -= outline
+    a.top -= outline
+    a.size = (a.width + outline * 2, a.height + outline * 2)
+    return a
