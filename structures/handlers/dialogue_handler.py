@@ -63,6 +63,7 @@ class DialogueHandler:
             after_fn = self.options.get('after')
             if after_fn:
                 after_fn()
+            self.game.curr_dialogue = None
         else:
             # right here is where I do the input checking stuff
             input_submit_fn = self.curr_block[1].get('input_submit')
