@@ -58,8 +58,8 @@ class DynamicButton(Button):
         text_surf = self.text_object.surface
         darkened = surf.copy()
         darkened = self.get_darker_surface(darkened)
-        u.center_blit(darkened, text_surf, offsets=(0, -3))
-        u.center_blit(surf, text_surf, offsets=(0, -3))
+        u.center_blit(darkened, text_surf, offsets=(0, 0))
+        u.center_blit(surf, text_surf, offsets=(0, 0))
         return surf, darkened
 
     def predraw(self):

@@ -6,7 +6,7 @@ import pygame.transform
 from pygame import Surface
 from pygame.image import load
 
-from modules.constants import dims
+from modules.constants import dims, font_name, text_multiplier
 
 
 # Magic to make files work with compilation!
@@ -179,10 +179,11 @@ def pos_in_rect(xy: (int, int), rect: pygame.Rect):
 
 
 text_cache = {}
+path = f'assets/fonts/{font_name}'
 
 
 def get_main_font(size: int) -> pygame.font.Font:
-    return text_cache.get(size) or pygame.font.Font(resource_path('assets/fonts/main_reg.ttf'), size)
+    return text_cache.get(round(size * text_multiplier)) or pygame.font.Font(resource_path(path), round(size * text_multiplier))
 
 
 def lerp_colors(color1, color2, t) -> (int, int, int, int):

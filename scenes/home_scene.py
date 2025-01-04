@@ -8,6 +8,7 @@ from structures.scene import Scene
 class HomeScene(Scene):
     def __init__(self, g):
         self.play_button_surface = u.load_scale('assets/play_button.png', None, 1.6)
+        self.programmed_by_pos = u.relative_pos(dims, (10, 10), from_xy='left-bottom')
         super().__init__(g)
 
     def define_game_variables(self):
@@ -44,5 +45,5 @@ class HomeScene(Scene):
         # print(len(play_button.children))
         game.screen.blit(
             programmed_by,
-            u.relative_pos(dims, (10, 13 + programmed_by.get_height()//2), from_xy='left-bottom')
+            (self.programmed_by_pos[0], self.programmed_by_pos[1] - programmed_by.get_height())
         )

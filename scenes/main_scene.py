@@ -2,6 +2,7 @@ import pygame
 from pygame import Surface
 
 from modules import utilities as u
+from modules.constants import default_emulated_x
 from modules.more_utilities.enums import AnchorPoint, Direction, Side
 from modules.utilities import display_number
 from scenes.main_ui.money_display import MoneyDisplay
@@ -40,7 +41,7 @@ class MainScene(Scene):
         super().__init__(game)
         self.ui_rect_template = u.rounded_rect_template(
             color=(0, 97, 183),  # (255, 162, 112),
-            emulated_x=lambda xy: round(xy[0] / 200 * 64),
+            emulated_x=default_emulated_x,
             outline=1,
             double_bottom=True,
             radius=7
@@ -82,7 +83,7 @@ class MainScene(Scene):
                 {"color": (0, 0, 0), "size": 18},
                 box_template=u.rounded_rect_template(
                     color=(255, 255, 255),  # (255, 162, 112),
-                    emulated_x=lambda xy: round(xy[0] / 200 * 64),
+                    emulated_x=default_emulated_x,
                     outline=1,
                     radius=7
                 ),
@@ -122,7 +123,8 @@ class MainScene(Scene):
         if not self.game.player.did_tutorial:
             self.game.modal_handler.show_modal(
                 "Since you're new, let's give you a brief rundown of how to get started!",
-                on_close=lambda: self.game.initiate_dialogue("starting_tutorial"))
+                "Welcome!",
+                lambda: self.game.initiate_dialogue("starting_tutorial"))
 
     def cleanup(self):
         self.game.input_handler.unsubscribe('mouse_wheel', 'main_zoom')

@@ -4,6 +4,7 @@ import pygame
 from pygame import Surface
 
 from modules import utilities as u
+from modules.constants import text_multiplier
 
 if typing.TYPE_CHECKING:
     from structures.game import Game
@@ -17,6 +18,7 @@ class Text(HudObject):
             size: int,
             text: typing.Optional[str] = "",
             pos: tuple[int, int] = (0, 0),
+            end_padding=0,
             parent: typing.Optional[HudObject] = None,
             color: typing.Optional[u.TupleColor] = (255, 255, 255),
             wrap: typing.Optional[bool] = True,
@@ -24,7 +26,7 @@ class Text(HudObject):
             outline_color: typing.Optional[u.TupleColor] = (0, 0, 0),
     ):
         self.color = color or (0, 0, 0)
-        self.end_padding = 0
+        self.end_padding = end_padding
         self._size = size
         self.text = text
         self.wrap = wrap
@@ -48,9 +50,9 @@ class Text(HudObject):
         if not self.wrap:
             return self.font.render(self.text, False, color)
         words = self.text.split(' ')
-        allowed_width = self.game.screen.get_width() - self.rect.x
+        allowed_width = self.game.screen.get_width() - self.rect.x - self.end_padding
         if self.parent is not None:
-            allowed_width = self.parent.surface.get_width() - self.rect.x
+            allowed_width = self.parent.surface.get_width() - self.rect.x - self.end_padding
         lines = []
         while len(words) > 0:
             line_words = []

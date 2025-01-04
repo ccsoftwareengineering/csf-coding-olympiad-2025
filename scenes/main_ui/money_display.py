@@ -1,8 +1,8 @@
 import pygame
 from pygame import Surface
 
-from structures.hud.hud_object import HudObject
 import modules.utilities as u
+from structures.hud.hud_object import HudObject
 from structures.hud.text import Text
 
 
@@ -24,6 +24,6 @@ class MoneyDisplay(HudObject):
         x_size = text_size[0] + self.distance + self.money_size[0]
         self.surface = Surface((x_size, self.money_size[1]),
                                pygame.SRCALPHA)
-        self.text.rect.midleft = (self.money_size[0] + self.distance, self.half_money - 4)
+        self.text.rect.midleft = (self.money_size[0] + self.distance, self.half_money)
         self.surface.blit(self.text.current_surface, self.text.rect)
         self.surface.blit(self.money, (0, 0))

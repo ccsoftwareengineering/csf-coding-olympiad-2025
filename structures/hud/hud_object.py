@@ -1,9 +1,12 @@
+from typing import TYPE_CHECKING
+
 import pygame
 from pygame import Rect
-from typing import TYPE_CHECKING
+
+from modules.more_utilities.guide_helpers import get_curr_guide_info
+
 if TYPE_CHECKING:
     from structures.game import Game
-    from modules.more_utilities.guide_helpers import *
 
 
 class HudObject:
@@ -96,8 +99,9 @@ class HudObject:
     def enabled(self):
         if self.game.input_handler.modal is not None and self.patriarch is not self.game.input_handler.modal:
             return False
-        if self.game.in_dialogue and self.game.curr_dialogue.is_guide and get_curr_guide_info(self.game):
-            if get_curr_guide_info(self.game)['rect'].colliderect(self.rect):
+        if self.game.in_guide:
+            curr_guide_info = get_curr_guide_info(self.game)
+            if not curr_guide_info['rect'].colliderect(self.absolute_rect):
                 return False
         return True and self.visible
 

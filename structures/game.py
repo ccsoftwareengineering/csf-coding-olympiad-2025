@@ -3,7 +3,7 @@ from enum import Enum
 import pygame
 
 from modules import utilities as u
-from modules.constants import dims
+from modules.constants import dims, text_multiplier, font_name
 from modules.dialogue import dialogues
 from modules.more_utilities.enums import GameState
 from structures.global_store import GlobalStore
@@ -28,7 +28,7 @@ class Game:
     title = u.load_scale('assets/title.png', None, 3)
     country = u.load_scale('assets/country.png', None, 2 ** 3)
     country_detail = u.load_scale('assets/country_detail.png', None, 1)
-    main_font = pygame.font.Font(u.resource_path('assets/fonts/main_reg.ttf'), 16)
+    main_font = u.get_main_font(16)
     panels = u.load_scale('assets/panels.png')
 
     modal = u.load_scale('assets/modal.png', factor=4)
@@ -38,6 +38,7 @@ class Game:
     globals = GlobalStore()
 
     curr_dialogue = None
+    in_guide = False
 
     curr_state = None
 
@@ -50,22 +51,19 @@ class Game:
     def __init__(self, show_fps=False):
         pygame.display.set_caption("Power Island")
         pygame.display.set_icon(u.load_image('assets/energy_icon.png'))
+        self.in_dialogue = False
+        self.in_guide = False
+        self.dialogues = None
+        self.guide_handler = GuideHandler(self)
         self.show_fps = show_fps
-        self.dialogues = dialogues(self)
         self.input_handler = InputHandler(self)
         self.telemetry_handler = TelemetryHandler(self, use_telemetry=True)
         self.cursor_handler = CursorHandler(self)
-        self.guide_handler = GuideHandler(self)
         self.loading_handler = LoadingHandler(self)
         self.modal_handler = ModalHandler(self)
         self.telemetry_handler.inject_telemetry_events(self.input_handler)
         self.scenes: dict[Enum, Scene] = {}
-
         pygame.mouse.set_visible(False)
-
-    @property
-    def in_dialogue(self):
-        return self.curr_dialogue is not None
 
     def set_state(self, state: Enum):
         self.cursor_handler.cursor = 'NORMAL'
@@ -84,14 +82,17 @@ class Game:
 
         self.scenes = fns
         self.scenes[GameState.NONE] = EmptyScene(self)
+        self.dialogues = dialogues(self)
 
     def update(self):
         self.pre_loop()
         for event in pygame.event.get():
             self.handle_event(event)
+        self.telemetry_handler.set_value('Mouse Pos', pygame.mouse.get_pos())
         self.scenes[self.curr_state].draw()
         self.modal_handler.draw()
-        self.guide_handler.draw()
+        if self.in_guide:
+            self.guide_handler.draw()
         self.loading_handler.draw()
         self.post_loop()
         pygame.display.flip()
@@ -99,6 +100,9 @@ class Game:
 
     def initiate_dialogue(self, dialogue_id):
         self.curr_dialogue = DialogueHandler(self, dialogue_id, speed=0.018)
+        self.in_dialogue = True
+        if self.curr_dialogue.options.get('guide'):
+            self.in_guide = True
 
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.QUIT:

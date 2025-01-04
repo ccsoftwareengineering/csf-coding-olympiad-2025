@@ -72,6 +72,8 @@ class DialogueHandler:
             if after_fn:
                 after_fn()
             self.game.curr_dialogue = None
+            self.game.in_dialogue = False
+            self.game.in_guide = False
         else:
             # right here is where I do the input checking stuff
             input_submit_fn = self.curr_block[1].get('input_submit')
