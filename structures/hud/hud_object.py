@@ -99,7 +99,7 @@ class HudObject:
     def enabled(self):
         if self.game.input_handler.modal is not None and self.patriarch is not self.game.input_handler.modal:
             return False
-        if self.game.in_guide:
+        if self.game.in_guide and self.name != 'ok_guide_button':
             curr_guide_info = get_curr_guide_info(self.game)
             if not curr_guide_info['rect'].colliderect(self.absolute_rect):
                 return False

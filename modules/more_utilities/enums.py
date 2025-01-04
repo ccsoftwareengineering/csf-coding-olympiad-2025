@@ -42,9 +42,16 @@ class Direction(Enum):
     RIGHT = 3
 
 
-class Side(Enum):
+class VerticalAlignment(Enum):
+    TOP = 0,
+    CENTER = 1,
+    BOTTOM = 2
+
+
+class HorizontalAlignment(Enum):
     LEFT = 0
-    RIGHT = 1,
+    CENTER = 1
+    RIGHT = 2,
 
 
 class PlantType(Enum):
@@ -54,4 +61,3 @@ class PlantType(Enum):
     GEOTHERMAL = 'geothermal power plant',
     HYDROPOWER = 'hydroelectric power plant',
     NUCLEAR = 'nuclear power plant',
-

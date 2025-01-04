@@ -5,7 +5,7 @@ import pygame
 from pygame import Surface
 
 import modules.utilities as u
-from modules.more_utilities.enums import AnchorPoint, Direction, Side, anchor_map
+from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment, anchor_map
 
 if TYPE_CHECKING:
     from structures.game import Game
@@ -23,7 +23,7 @@ class ListLayout(HudObject):
             scale: Optional[float] = 1,
             gap: Optional[int] = 0,
             parent: Optional[HudObject] = None,
-            side: Optional[Side] = Side.LEFT,
+            side: Optional[HorizontalAlignment] = HorizontalAlignment.LEFT,
             name: Optional[str] = None,
             anchor_point: Optional[AnchorPoint] = AnchorPoint.TOP_LEFT,
             rect_template: Optional[u.RectTemplate] = None,
@@ -40,7 +40,7 @@ class ListLayout(HudObject):
         self.direction_multiplier = 1 if self.direction in (Direction.DOWN, Direction.RIGHT) else -1
         self.vertical = self.direction in (self.direction.DOWN, self.direction.UP)
         self._side = side
-        self.child_anchor_point = 'topleft' if side == Side.RIGHT else 'topright'
+        self.child_anchor_point = 'topleft' if side == HorizontalAlignment.RIGHT else 'topright'
         if self.vertical:
             self.axis_function = 'get_height'
             self.axis_value_placement = lambda v: (self.padding, v + self.padding * self.direction_multiplier)
@@ -81,7 +81,7 @@ class ListLayout(HudObject):
     @side.setter
     def side(self, value):
         self._side = value
-        self.child_anchor_point = 'topleft' if self._side == Side.RIGHT else 'topright'
+        self.child_anchor_point = 'topleft' if self._side == HorizontalAlignment.RIGHT else 'topright'
 
     @property
     def anchor_point(self) -> AnchorPoint:

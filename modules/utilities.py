@@ -238,3 +238,8 @@ def expand_rect_outline(r: pygame.Rect, outline: int = 0) -> pygame.Rect:
     a.top -= outline
     a.size = (a.width + outline * 2, a.height + outline * 2)
     return a
+
+
+def rect_from_to(pos1: tuple[int, int], pos2: tuple[int, int]) -> pygame.Rect:
+    size = (pos2[0] - pos1[0], pos2[1] - pos1[1])
+    return pygame.Rect(pos1[0], pos1[1], size[0], size[1])

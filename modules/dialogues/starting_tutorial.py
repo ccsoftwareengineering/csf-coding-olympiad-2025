@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, cast
 
 import modules.utilities as u
-from modules.more_utilities.enums import Direction, GameState
+from modules.more_utilities.enums import Direction, GameState, HorizontalAlignment, VerticalAlignment
 from modules.more_utilities.guide_helpers import igi
 
 if TYPE_CHECKING:
@@ -16,8 +16,12 @@ def starting_tutorial(game: 'Game'):
             (
                 ("Firstly, your yearly budget allocation. "
                  "Every year in-game you are given more money which is used for creating new plants as well as "
-                 "Funding the upkeep of pre-existing"),
-                igi({}, u.expand_rect_outline(main_scene.tr_ui.rect, 3), Direction.LEFT)
+                 "funding the upkeep of pre-existing plants."),
+                igi({},
+                    u.rect_from_to((12, 533), (375, 705)),
+                    Direction.RIGHT,
+                    text_alignment=VerticalAlignment.CENTER,
+                    button_alignment=HorizontalAlignment.LEFT)
             )
         ], {'guide': True}
     )

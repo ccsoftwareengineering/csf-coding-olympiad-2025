@@ -51,14 +51,16 @@ class Game:
     def __init__(self, show_fps=False):
         pygame.display.set_caption("Power Island")
         pygame.display.set_icon(u.load_image('assets/energy_icon.png'))
+        self.screen.fill((0, 0, 0))
+        u.center_blit(self.screen, self.title)
+        self.input_handler = InputHandler(self)
         self.in_dialogue = False
         self.in_guide = False
         self.dialogues = None
+        self.cursor_handler = CursorHandler(self)
         self.guide_handler = GuideHandler(self)
         self.show_fps = show_fps
-        self.input_handler = InputHandler(self)
         self.telemetry_handler = TelemetryHandler(self, use_telemetry=True)
-        self.cursor_handler = CursorHandler(self)
         self.loading_handler = LoadingHandler(self)
         self.modal_handler = ModalHandler(self)
         self.telemetry_handler.inject_telemetry_events(self.input_handler)

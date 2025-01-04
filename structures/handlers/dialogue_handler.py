@@ -1,5 +1,4 @@
 import datetime
-
 from typing import TYPE_CHECKING
 
 from modules.more_utilities.input_parse import input_parse
@@ -71,6 +70,7 @@ class DialogueHandler:
             after_fn = self.options.get('after')
             if after_fn:
                 after_fn()
+            self.game.cursor_handler.cursor = 'NORMAL'
             self.game.curr_dialogue = None
             self.game.in_dialogue = False
             self.game.in_guide = False

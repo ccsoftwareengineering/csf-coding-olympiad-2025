@@ -23,6 +23,7 @@ class Text(HudObject):
             color: typing.Optional[u.TupleColor] = (255, 255, 255),
             wrap: typing.Optional[bool] = True,
             outline: typing.Optional[int] = 0,
+            bottom_stack: typing.Optional[int] = 0,
             outline_color: typing.Optional[u.TupleColor] = (0, 0, 0),
     ):
         self.color = color or (0, 0, 0)

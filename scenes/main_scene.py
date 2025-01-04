@@ -2,13 +2,14 @@ import pygame
 from pygame import Surface
 
 from modules import utilities as u
-from modules.constants import default_emulated_x
-from modules.more_utilities.enums import AnchorPoint, Direction, Side
+from modules.constants import default_emulated_x, dims
+from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment
 from modules.utilities import display_number
 from scenes.main_ui.money_display import MoneyDisplay
 from structures.game import Game
 from structures.hud.button import Button
 from structures.hud.dynamic_button import DynamicButton
+from structures.hud.dynamic_text_box import DynamicTextBox
 from structures.hud.hud_object import HudObject
 from structures.hud.list_layout import ListLayout
 from structures.hud.text import Text
@@ -58,14 +59,23 @@ class MainScene(Scene):
             rect_template=self.ui_rect_template
         )
 
+        self.tc_ui = DynamicTextBox(
+            self.game,
+            (200, 100),
+            {"color": (255, 255, 255), "size": 32, "outline": 1, "outline_color": (0, 0, 0)},
+            box_template=self.ui_rect_template,
+            text=f'YEAR X',
+        )
+        self.tc_ui.rect.midtop = u.relative_pos(dims, (0, 10), from_xy='center-top')
+
         self.bl_ui = ListLayout(
             self.game,
             anchor_point=AnchorPoint.BOTTOM_LEFT,
             direction=Direction.UP,
-            side=Side.RIGHT,
+            side=HorizontalAlignment.RIGHT,
             gap=5,
             padding=20,
-            position=u.relative_pos(self.game.screen.get_size(), (20, -30), from_xy='left-bottom'),
+            position=u.relative_pos(self.game.screen.get_size(), (20, 20), from_xy='left-bottom'),
             rect_template=self.ui_rect_template,
             max_width=(350, 10_000)
         )
@@ -87,7 +97,7 @@ class MainScene(Scene):
                     outline=1,
                     radius=7
                 ),
-                text='ADD..',
+                text='ADD...',
                 parent=self.tr_ui
             )
             # Button(self.game, self.add_icon, name="add_button", parent=self.tr_ui),
@@ -95,6 +105,8 @@ class MainScene(Scene):
 
         # To make introduction dialogue see it
         self.tr_ui.predraw()
+        self.bl_ui.predraw()
+        self.tc_ui.predraw()
 
     def define_game_variables(self):
         return {}
@@ -114,8 +126,8 @@ class MainScene(Scene):
 
     def draw_ui(self):
         self.tr_ui.draw()
-        self.budget_display.text = f'Annual Budget Allocation: {display_number(self.game.player.budget_increase)}'
         self.bl_ui.draw()
+        self.tc_ui.draw()
 
     def draw(self):
         self.draw_map()
@@ -123,6 +135,8 @@ class MainScene(Scene):
 
     def init(self):
         self.game.input_handler.subscribe('mouse_wheel', self.mouse_scroll, 'main_zoom')
+        self.tc_ui.text_object.text = f'YEAR {self.game.player.year}'
+        self.budget_display.text = f'Annual Budget Allocation: {display_number(self.game.player.budget_increase)}'
         if not self.game.player.did_tutorial:
             self.game.modal_handler.show_modal(
                 "Since you're new, let's give you a brief rundown of how to get started!",

@@ -12,6 +12,7 @@ class Player:
         self.budget_increase = 1_000_000
         self.popularity = 0
         self.emissions = 0
+        self.year = 1
         self.plants = {}
         self.plants_construction_pending = {}
         self.island_name = ""
@@ -23,10 +24,14 @@ class Player:
             for option, value in options.items():
                 setattr(self, option, value)
 
-        self.replenish()
+        self.initial_replenish()
 
     def get_plants_from_type(self):
         pass
 
-    def replenish(self):
+    def initial_replenish(self):
         self.budget += self.budget_increase
+
+    def replenish(self):
+        self.initial_replenish()
+        self.year += 1
