@@ -96,8 +96,8 @@ class HudObject:
     def enabled(self):
         if self.game.input_handler.modal is not None and self.patriarch is not self.game.input_handler.modal:
             return False
-        if self.game.in_dialogue and self.:
-            if get_curr_guide_rect(self.game).colliderect(self.rect):
+        if self.game.in_dialogue and self.game.curr_dialogue.is_guide and get_curr_guide_info(self.game):
+            if get_curr_guide_info(self.game)['rect'].colliderect(self.rect):
                 return False
         return True and self.visible
 

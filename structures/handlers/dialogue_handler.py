@@ -53,6 +53,10 @@ class DialogueHandler:
     def subtext(self):
         return self.curr_text[0:self.curr_char + 1]
 
+    @property
+    def is_guide(self):
+        return "guide" in self.options
+
     def skip_to_end_of_block(self):
         self.curr_char = len(self.curr_text) - 2
 

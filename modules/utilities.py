@@ -35,13 +35,13 @@ def center_blit_pos(surf: pygame.Surface, surf2: pygame.Surface, xy=(None, None)
         _y = xy[1]
     if offsets[0] is not None:
         offset = offsets[0]
-        if abs(offsets[0]) < 1:
-            offset = round(offsets[0] * (surf.get_width() / 2))
+        if abs(offset) < 1:
+            offset = round(offset * (surf.get_width() / 2))
         _x += offset
     if offsets[1] is not None:
         offset = offsets[1]
-        if abs(offsets[1]) < 1:
-            offset = round(offsets[1] * (surf.get_height() / 2))
+        if abs(offset) < 1:
+            offset = round(offset * (surf.get_height() / 2))
         _y += offset
     return _x, _y
 
