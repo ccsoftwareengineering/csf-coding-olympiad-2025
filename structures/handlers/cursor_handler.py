@@ -49,7 +49,7 @@ class CursorHandler:
         return (int(x) for x in self.cursor.split(','))
 
     @cursor.setter
-    def cursor(self, cursor: str|tuple[int, int]):
+    def cursor(self, cursor: str | tuple[int, int]):
         _cursor = self.cursors.get(cursor)
         if _cursor:
             self.cursor_icon = _cursor[0]
