@@ -47,7 +47,7 @@ class ModalHandler:
         self.modal_object.surface.blit(self.title_modal if title is not None else self.regular_modal, (0, 0))
 
     def draw(self):
-        if self.curr_modal:
+        if self.curr_modal and not self.game.loading_handler.is_transitioning:
             self.game.telemetry_handler.set_values({
                 'modal_object_pos': self.modal_object.rect.center,
             })
