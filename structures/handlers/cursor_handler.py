@@ -45,9 +45,6 @@ class CursorHandler:
     def cursor(self):
         return self._cursor
 
-    def row_col_from_key(self, key):
-        return (int(x) for x in self.cursor.split(','))
-
     @cursor.setter
     def cursor(self, cursor: str | tuple[int, int]):
         _cursor = self.cursors.get(cursor)
