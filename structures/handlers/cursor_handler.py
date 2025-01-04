@@ -15,27 +15,27 @@ class CursorHandler:
     cols = 19
     rows = 10
 
-    def get_cursor_icon(self, row, col):
-        key = f'{row},{col}'
-        the = self.cursor_cache_map.get(key)
+    def get_cursor_icon(self, rc: tuple[int, int]):
+        row, col = rc
+        the = self.cursor_cache_map.get(rc)
         if the:
             return the
         which = self.tilemap.subsurface(
             (col * self.translation, row * self.translation, self.translation, self.translation))
-        self.cursor_cache_map[key] = which
+        self.cursor_cache_map[rc] = which
         return which
 
-    def get_cursor_and_offsets(self, row, col, offsets=(0, 0)):
-        return self.get_cursor_icon(row, col), offsets
+    def get_cursor_and_offsets(self, rc: tuple[int, int], offsets=(0, 0)):
+        return self.get_cursor_icon(rc), offsets
 
     def __init__(self, game: 'Game'):
         self.tilemap = u.load_scale('assets/cursor_map.png', factor=self.factor)
         self.game = game
         self.cursors = {
-            'NORMAL': self.get_cursor_and_offsets(1, 6),
-            'HIGHLIGHT': self.get_cursor_and_offsets(6, 17, (-5, 0)),
-            'INPUT': self.get_cursor_and_offsets(7, 1),
-            'NEXT': self.get_cursor_and_offsets(3, 12),
+            'NORMAL': self.get_cursor_and_offsets((1, 6)),
+            'HIGHLIGHT': self.get_cursor_and_offsets((6, 17), (-5, 0)),
+            'INPUT': self.get_cursor_and_offsets((7, 1)),
+            'NEXT': self.get_cursor_and_offsets((3, 12)),
         }
         self._cursor = 'NORMAL'
         self.cursor_icon = self.cursors['NORMAL'][0]
@@ -49,14 +49,13 @@ class CursorHandler:
         return (int(x) for x in self.cursor.split(','))
 
     @cursor.setter
-    def cursor(self, cursor: str):
+    def cursor(self, cursor: str|tuple[int, int]):
         _cursor = self.cursors.get(cursor)
         if _cursor:
             self.cursor_icon = _cursor[0]
             self.cursor_offset = _cursor[1]
-        elif ',' in cursor:
-            row, col = [int(x) for x in cursor.split(',')]
-            self.cursor_icon = self.get_cursor_icon(row, col)
+        elif type(cursor) is tuple:
+            self.cursor_icon = self.get_cursor_icon(cursor)
             self.cursor_offset = (0, 0)
         else:
             self.cursor_icon, self.cursor_offset = self.cursors.get('NORMAL')

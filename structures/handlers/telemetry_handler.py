@@ -3,6 +3,8 @@ import pygame
 import modules.utilities as u
 import typing
 
+from modules.constants import dims
+
 if typing.TYPE_CHECKING:
     from structures.game import Game
     from structures.handlers.input_handler import InputHandler
@@ -18,7 +20,7 @@ class TelemetryHandler:
         if use_telemetry:
             self.keys = {}
             self.window = HudObject(game, u.load_scale('assets/terminal.png', factor=3))
-            self.window.rect.bottomleft = u.relative_pos(game.dims, (20, 20), from_xy="left-bottom")
+            self.window.rect.bottomleft = u.relative_pos(dims, (20, 20), from_xy="left-bottom")
             self.window_text = Text(game, text_size, parent=self.window, pos=(20, 20), color=(255, 255, 255))
 
     def set_value(self, key, value):
@@ -26,9 +28,9 @@ class TelemetryHandler:
             return
         self.keys[key] = value
 
-    def set_values(self, map: dict[str, any]):
-        for key in map:
-            self.set_value(key, map[key])
+    def set_values(self, mp: dict[str, any]):
+        for key in mp:
+            self.set_value(key, mp[key])
 
     def draw_terminal(self):
         if not self.use_telemetry or not self.enabled:

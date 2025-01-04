@@ -11,13 +11,11 @@ from structures.scene import Scene
 
 
 class DialogueScene(Scene):
-    okay_surface = u.load_scale('assets/okay_button.png', factor=2)
     curr_input: Optional[InputBox] = None
-    info_icon = u.load_scale('assets/info_icon_32_new.png', factor=2)
-    modal = u.load_scale('assets/modal.png', factor=4)
+    # info_icon = u.load_scale('assets/info_icon_32_new.png', factor=2)
 
     def define_game_variables(self):
-        dialogue_box = HudObject(self.game, self.modal, name="DialogueBox")
+        dialogue_box = HudObject(self.game, self.game.modal, name="DialogueBox")
         dialogue_box.rect.topleft = u.cbp(self.game.screen, dialogue_box.surface)
 
         # info_box = HudObject(game, info_icon, parent=dialogue_box, pos=(40, 40), name="InfoBox")
@@ -25,7 +23,7 @@ class DialogueScene(Scene):
         text.end_padding = 20
         text.wrap = True
 
-        okay = Button(self.game, self.okay_surface, (0, 0), scale=0.6, select_cursor='NEXT')
+        okay = Button(self.game, self.game.okay_surface, (0, 0), scale=0.6, select_cursor='NEXT')
         okay.rect.center = dialogue_box.rect.midbottom
 
         return {
@@ -43,6 +41,11 @@ class DialogueScene(Scene):
         game.tile_offset += 0.5
         if game.tile_offset == 64:
             game.tile_offset = 0
+
+        if game.loading_handler.is_transitioning:
+            game.screen.blit(dialogue_box.surface, dialogue_box.rect)
+            okay.draw()
+            return
 
         text.text = game.curr_dialogue.subtext
         dialogue_box.draw()

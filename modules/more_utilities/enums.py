@@ -40,3 +40,18 @@ class Direction(Enum):
     UP = 1
     LEFT = 2
     RIGHT = 3
+
+
+class Side(Enum):
+    LEFT = 0
+    RIGHT = 1,
+
+
+class PlantType(Enum):
+    FOSSIL_FUEL = 'fossil fuel power station',
+    SOLAR = 'solar power plant',
+    WIND = 'wind farm',
+    GEOTHERMAL = 'geothermal power plant',
+    HYDROPOWER = 'hydroelectric power plant',
+    NUCLEAR = 'nuclear power plant',
+

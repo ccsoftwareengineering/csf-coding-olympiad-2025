@@ -1,11 +1,14 @@
 from modules import utilities as u
+from modules.constants import dims
 from modules.more_utilities.enums import GameState
 from structures.hud.button import Button
 from structures.scene import Scene
 
 
 class HomeScene(Scene):
-    play_button_surface = u.load_scale('assets/play_button.png', None, 1.6)
+    def __init__(self, g):
+        self.play_button_surface = u.load_scale('assets/play_button.png', None, 1.6)
+        super().__init__(g)
 
     def define_game_variables(self):
         return {
@@ -13,20 +16,23 @@ class HomeScene(Scene):
                                   pos=u.cbp(self.game.screen, self.play_button_surface, offsets=(None, 1 / 3)),
                                   name="PlayButton"),
             'rescaled_country': u.rescale(self.game.country_detail, factor=9),
-            'rescaled_title': u.rescale(self.game.title, factor=1.3)
+            'rescaled_title': u.rescale(self.game.title, factor=1.3),
+            'programmed_by': self.game.main_font.render(
+                'Programmed by: Campion College Island Swallowtails',
+                False,
+                (20, 0, 0))
         }
 
     def draw(self):
-        game, play_button, rescaled_country, rescaled_title = (
-            self.game, self.g_vars['play_button'], self.g_vars['rescaled_country'], self.g_vars['rescaled_title'])
+        game, play_button, rescaled_country, rescaled_title, programmed_by = (
+            self.game, self.g_vars['play_button'], self.g_vars['rescaled_country'], self.g_vars['rescaled_title'], self.g_vars['programmed_by'])
 
         if play_button.on_press_end:
             if not game.player:
                 game.initiate_dialogue('introduction')
-                game.set_state(GameState.DIALOGUE)
+                game.loading_handler.transition_to(GameState.DIALOGUE)
             else:
                 game.loading_handler.transition_to(GameState.MAIN)
-            return
 
         u.draw_tiles(game.screen, game.bg_tile_scaled, game.tile_offset)
         u.center_blit(game.screen, rescaled_country, offsets=(None, 20))
@@ -37,9 +43,6 @@ class HomeScene(Scene):
         play_button.draw()
         # print(len(play_button.children))
         game.screen.blit(
-            game.main_font.render(
-                'Programmed by: Campion College Island Swallowtails',
-                False,
-                (20, 0, 0)),
-            (10, game.dims[1] - (24 + 5))
+            programmed_by,
+            u.relative_pos(dims, (10, 13 + programmed_by.get_height()//2), from_xy='left-bottom')
         )

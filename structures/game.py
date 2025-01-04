@@ -1,14 +1,15 @@
 from enum import Enum
-from typing import Callable, Tuple
 
 import pygame
 
 from modules import utilities as u
+from modules.constants import dims
 from modules.dialogue import dialogues
 from modules.more_utilities.enums import GameState
 from structures.global_store import GlobalStore
 from structures.handlers.cursor_handler import CursorHandler
 from structures.handlers.dialogue_handler import DialogueHandler
+from structures.handlers.guide_handler import GuideHandler
 from structures.handlers.input_handler import InputHandler
 from structures.handlers.loading_handler import LoadingHandler
 from structures.handlers.modal_handler import ModalHandler
@@ -19,9 +20,8 @@ pygame.init()
 
 
 class Game:
-    dims = (1280, 720)
     tile_offset = 0
-    screen = pygame.display.set_mode(dims, pygame.RESIZABLE)
+    screen = pygame.display.set_mode(dims)
     clock = pygame.time.Clock()
     sea_tile = u.load_scale('assets/background.png', (16, 16))
     bg_tile_scaled = u.load_scale('assets/background.png', (64, 64))
@@ -30,6 +30,11 @@ class Game:
     country_detail = u.load_scale('assets/country_detail.png', None, 1)
     main_font = pygame.font.Font(u.resource_path('assets/fonts/main_reg.ttf'), 16)
     panels = u.load_scale('assets/panels.png')
+
+    modal = u.load_scale('assets/modal.png', factor=4)
+    title_modal = u.load_scale('assets/title_modal.png', factor=4)
+    okay_surface = u.load_scale('assets/okay_button.png', factor=2)
+
     globals = GlobalStore()
 
     curr_dialogue = None
@@ -50,6 +55,7 @@ class Game:
         self.input_handler = InputHandler(self)
         self.telemetry_handler = TelemetryHandler(self, use_telemetry=True)
         self.cursor_handler = CursorHandler(self)
+        self.guide_handler = GuideHandler(self)
         self.loading_handler = LoadingHandler(self)
         self.modal_handler = ModalHandler(self)
         self.telemetry_handler.inject_telemetry_events(self.input_handler)
@@ -71,6 +77,7 @@ class Game:
         class EmptyScene(Scene):
             def draw(self):
                 pass
+
         self.scenes = fns
         self.scenes[GameState.NONE] = EmptyScene(self)
 
@@ -80,6 +87,7 @@ class Game:
             self.handle_event(event)
         self.scenes[self.curr_state].draw()
         self.modal_handler.draw()
+        self.guide_handler.draw()
         self.loading_handler.draw()
         self.post_loop()
         pygame.display.flip()

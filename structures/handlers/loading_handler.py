@@ -31,6 +31,10 @@ class LoadingHandler:
         self.transition_state_to = state
         self.transition_progress = 0
 
+    @property
+    def is_transitioning(self):
+        return self.transition_state_to is not None
+
     def draw(self):
         if self.transition_state_to is not None and not self.game.input_handler.modal:
             if self.transition_progress == self.transition_length:

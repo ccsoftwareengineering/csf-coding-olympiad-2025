@@ -1,5 +1,5 @@
 import pygame
-from pygame import Rect, Surface
+from pygame import Rect
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from structures.game import Game
@@ -13,7 +13,8 @@ class HudObject:
             pos: (int, int) = (0, 0),
             scale: float = 1,
             parent=None,
-            name=None
+            name=None,
+            **kwargs
     ):
         self.should_preserve = False
         self.to_draw_surface = None
@@ -33,6 +34,10 @@ class HudObject:
         self.on_hover_end = False
 
         self.cached_abs_rect = None
+
+    @property
+    def current_surface(self):
+        return self.to_draw_surface or self.surface
 
     @property
     def absolute_rect(self):

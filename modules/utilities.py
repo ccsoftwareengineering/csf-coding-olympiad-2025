@@ -1,11 +1,12 @@
 import os
 import sys
-from enum import Enum
-from typing import Callable, Tuple
+from typing import Optional, Callable, Tuple
 
 import pygame.transform
 from pygame import Surface
 from pygame.image import load
+
+from modules.constants import dims
 
 
 # Magic to make files work with compilation!
@@ -122,11 +123,12 @@ def rounded_rect(
         xy: (int, int),
         color=(255, 255, 255),
         emulated_x=None,
-        radius=0,
-        outline=0,
+        radius: int = 0,
+        outline: int = 0,
         outline_color=(0, 0, 0),
         emulate_outline=False,
-        emulate_radius=False
+        emulate_radius=False,
+        double_bottom=False
 ):
     # Make emulated x just the x if you don't want a pixelated look
     if not emulated_x:
@@ -139,12 +141,36 @@ def rounded_rect(
     scaled_outline_2x = scaled_outline * 2
     radius = emulate_radius and radius // scale or radius
 
-    surf = Surface((scaled_xy[0] + scaled_outline_2x, scaled_xy[1] + scaled_outline_2x), pygame.SRCALPHA)
-    pygame.draw.rect(surf, outline_color, surf.get_rect(), border_radius=int(radius))
+    change = (1 if double_bottom else 0)
+    surf = Surface((scaled_xy[0] + scaled_outline_2x, scaled_xy[1] + scaled_outline_2x + change),
+                   pygame.SRCALPHA)
+    size: pygame.Rect = surf.get_rect().copy()
+    size.size = (size.w, size.h - change)
+    pygame.draw.rect(surf, outline_color, size, border_radius=radius)
+    size.top += change
+    pygame.draw.rect(surf, outline_color, size, border_radius=radius)
     pygame.draw.rect(surf, color, (scaled_outline, scaled_outline, scaled_xy[0], scaled_xy[1]),
-                     border_radius=int(radius))
+                     border_radius=radius)
 
     return pygame.transform.scale(surf, (xy[0], xy[1]))
+
+
+type RectTemplate = Callable[[Tuple[int, int]], pygame.Surface]
+
+
+def rounded_rect_template(color=(255, 255, 255),
+                          emulated_x: Optional[int | Callable] = None,
+                          radius=0,
+                          outline=0,
+                          outline_color=(0, 0, 0),
+                          emulate_outline=False,
+                          emulate_radius=False,
+                          double_bottom=False) -> RectTemplate:
+    if type(emulate_outline) is int:
+        old_x = emulated_x
+        emulated_x = lambda _: old_x
+    return lambda xy: rounded_rect(xy, color, emulated_x(xy), radius, outline, outline_color, emulate_outline,
+                                   emulate_radius, double_bottom)
 
 
 # if a pos (x, y) is in a rect
@@ -173,3 +199,32 @@ def clamp(num: float, lower: float, upper: float):
 
 def empty():
     pass
+
+
+def comma_adder(amount: int):
+    return f"{amount:,}"
+
+
+units = ('K', 'M', 'B', 'T', 'Qd', 'Qt', 'Sx', 'Sp', 'Oc', 'Nt', 'Dc',)
+
+
+def display_number(amount: int):
+    return comma_adder(amount)
+    # if amount < 1000:
+    #     return str(amount)
+    # unit_index = 0
+    # while amount >= 1000 and unit_index < len(units) - 1:
+    #     amount /= 1000
+    #     unit_index += 1
+    # if amount.is_integer():
+    #     return f"{int(amount)}{units[unit_index]}"
+    # else:
+    #     return f"{amount:.1f}{units[unit_index]}"
+
+
+type TupleColor = tuple[int, int, int] | tuple[int, int, int, int]
+
+
+def rect_factory(pos: tuple[int, int], size: tuple[int, int], from_xy='left-top') -> pygame.Rect:
+    left, top = relative_pos(dims, pos, from_xy=from_xy)
+    return pygame.Rect(left, top, size[0], size[1])

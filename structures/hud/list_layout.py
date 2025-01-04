@@ -1,20 +1,15 @@
-from enum import Enum
 from math import inf
 from typing import TYPE_CHECKING, Optional, Tuple
 
 import pygame
 from pygame import Surface
 
-from modules.more_utilities.enums import AnchorPoint, Direction, anchor_map
+import modules.utilities as u
+from modules.more_utilities.enums import AnchorPoint, Direction, Side, anchor_map
 
 if TYPE_CHECKING:
     from structures.game import Game
 from structures.hud.hud_object import HudObject
-
-
-class Side(Enum):
-    LEFT = 0
-    RIGHT = 1,
 
 
 class ListLayout(HudObject):
@@ -30,13 +25,17 @@ class ListLayout(HudObject):
             parent: Optional[HudObject] = None,
             side: Optional[Side] = Side.LEFT,
             name: Optional[str] = None,
-            anchor_point: Optional[AnchorPoint] = AnchorPoint.TOP_LEFT
+            anchor_point: Optional[AnchorPoint] = AnchorPoint.TOP_LEFT,
+            rect_template: Optional[u.RectTemplate] = None,
+            padding: Optional[int] = 0,
     ):
         self.direction = direction
         self._anchor_point = anchor_point
         self.gap = gap
+        self.padding = padding
         self.min_size = min_width
         self.max_size = max_width
+        self.rect_template = rect_template
         self.children_list: list[HudObject] = []
         self.direction_multiplier = 1 if self.direction in (Direction.DOWN, Direction.RIGHT) else -1
         self.vertical = self.direction in (self.direction.DOWN, self.direction.UP)
@@ -44,10 +43,10 @@ class ListLayout(HudObject):
         self.child_anchor_point = 'topleft' if side == Side.RIGHT else 'topright'
         if self.vertical:
             self.axis_function = 'get_height'
-            self.axis_value_placement = lambda v: (0, v)
+            self.axis_value_placement = lambda v: (self.padding, v + self.padding * self.direction_multiplier)
         else:
             self.axis_function = 'get_width'
-            self.axis_value_placement = lambda v: (v, 0)
+            self.axis_value_placement = lambda v: (v + self.padding * self.direction_multiplier, self.padding)
         self.anchor_calc_map = {
             AnchorPoint.TOP_LEFT: lambda x_offset, y_offset: (x_offset, y_offset),
             AnchorPoint.TOP_CENTER: lambda x_offset, y_offset: (self.rect.width / 2 + x_offset, y_offset),
@@ -57,7 +56,8 @@ class ListLayout(HudObject):
                 self.rect.width / 2 + x_offset, self.rect.height / 2 + y_offset),
             AnchorPoint.MID_RIGHT: lambda x_offset, y_offset: (
                 self.rect.width + x_offset, self.rect.height / 2 + y_offset),
-            AnchorPoint.BOTTOM_LEFT: lambda x_offset, y_offset: (x_offset, self.rect.height + y_offset),
+            AnchorPoint.BOTTOM_LEFT: lambda x_offset, y_offset: (
+                x_offset, self.rect.height / 2 + y_offset + self.padding),
             AnchorPoint.BOTTOM_CENTER: lambda x_offset, y_offset: (
                 self.rect.width / 2 + x_offset, self.rect.height + y_offset),
             AnchorPoint.BOTTOM_RIGHT: lambda x_offset, y_offset: (
@@ -111,8 +111,8 @@ class ListLayout(HudObject):
                 total_height = max(total_height, child_size[1])
                 total_width += child_size[0]
 
-        total_width = max(self.min_size[0], min(total_width, self.max_size[0]))
-        total_height = max(self.min_size[1], min(total_height, self.max_size[1]))
+        total_width = max(self.min_size[0], min(total_width + self.padding * 2, self.max_size[0]))
+        total_height = max(self.min_size[1], min(total_height + self.padding * 2, self.max_size[1]))
 
         return total_width, total_height
 
@@ -132,7 +132,9 @@ class ListLayout(HudObject):
         # set size
         old_pos = getattr(self.rect, anchor_map[self.anchor_point.value])
         calculated_size = self.calculate_total_size()
-        self.surface = pygame.Surface(calculated_size, pygame.SRCALPHA)
+        self.surface = pygame.Surface((calculated_size[0], calculated_size[1] + 1), pygame.SRCALPHA)
+        if self.rect_template:
+            self.surface.blit(self.rect_template(calculated_size), (0, 0))
         self.rect.size = calculated_size
         setattr(self.rect, anchor_map[self.anchor_point.value], old_pos)
 
