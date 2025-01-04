@@ -121,7 +121,8 @@ class MainScene(Scene):
         self.game.input_handler.subscribe('mouse_wheel', self.mouse_scroll, 'main_zoom')
         if not self.game.player.did_tutorial:
             self.game.modal_handler.show_modal(
-                "Since you're new, let's give you a brief rundown of how to get started!")
+                "Since you're new, let's give you a brief rundown of how to get started!",
+                on_close=lambda: self.game.initiate_dialogue("starting_tutorial"))
 
     def cleanup(self):
         self.game.input_handler.unsubscribe('mouse_wheel', 'main_zoom')

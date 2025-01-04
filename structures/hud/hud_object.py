@@ -3,6 +3,7 @@ from pygame import Rect
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from structures.game import Game
+    from modules.more_utilities.guide_helpers import *
 
 
 class HudObject:
@@ -95,6 +96,9 @@ class HudObject:
     def enabled(self):
         if self.game.input_handler.modal is not None and self.patriarch is not self.game.input_handler.modal:
             return False
+        if self.game.in_dialogue and self.:
+            if get_curr_guide_rect(self.game).colliderect(self.rect):
+                return False
         return True and self.visible
 
     def predraw(self):

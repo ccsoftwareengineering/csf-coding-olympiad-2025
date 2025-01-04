@@ -12,5 +12,5 @@ starting_tutorial = lambda game: (
              "Funding the upkeep of pre-existing"),
             inject_guide_info({}, u.rect_factory((50, 50), (50, 50), 'right-top'), Direction.RIGHT)
         )
-    ], {}
+    ], {'guide': True}
 )
