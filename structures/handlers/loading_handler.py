@@ -23,6 +23,7 @@ class LoadingHandler:
         self.transition_length = 70
         # self.easing_function = lambda x: easings.stepwise(x, 10)
         self.easing_function = easings.ease_in_out
+        self.is_transitioning = False
 
     def transition_to(self, state: Enum):
         if self.transition_state_to is not None:
@@ -30,10 +31,7 @@ class LoadingHandler:
         self.game.cursor_handler.cursor = 'NORMAL'
         self.transition_state_to = state
         self.transition_progress = 0
-
-    @property
-    def is_transitioning(self):
-        return self.transition_state_to is not None
+        self.is_transitioning = True
 
     def draw(self):
         if self.transition_state_to is not None and not self.game.input_handler.modal:
@@ -43,6 +41,7 @@ class LoadingHandler:
             elif self.transition_progress == 0 and self.direction == -1:
                 self.transition_state_to = None
                 self.direction = 1
+                self.is_transitioning = False
                 return
             self.loading_surface.fill((255, 255, 255))
             range360 = self.easing_function(self.transition_progress / self.transition_length) * (

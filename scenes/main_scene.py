@@ -119,7 +119,7 @@ class MainScene(Scene):
 
     def init(self):
         self.game.input_handler.subscribe('mouse_wheel', self.mouse_scroll, 'main_zoom')
-        if not self.game.player.did_tutorial:
+        if not self.game.player.did_tutorial and not self.game.loading_handler.is_transitioning:
             self.game.modal_handler.show_modal(
                 "Since you're new, let's give you a brief rundown of how to get started!")
 
