@@ -101,9 +101,9 @@ class HudObject:
             return False
         if self.game.in_guide and self.name != 'ok_guide_button':
             curr_guide_info = get_curr_guide_info(self.game)
-            if not curr_guide_info['rect'].colliderect(self.absolute_rect):
+            if not curr_guide_info['rect'].colliderect(self.absolute_rect) or not curr_guide_info['gui_enabled']:
                 return False
-        return True and self.visible
+        return True and self.visible and not self.game.loading_handler.is_transitioning
 
     def predraw(self):
         if self.absolute_rect.collidepoint(pygame.mouse.get_pos()):

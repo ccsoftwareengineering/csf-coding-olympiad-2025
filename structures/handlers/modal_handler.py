@@ -64,14 +64,17 @@ class ModalHandler:
             self.title.text = title
             self.title.predraw()
             self.title.rect.topleft = u.center_blit_pos(self.title_surface, self.title.surface)
+        self.game.input_handler.modal = self.modal_object
         self.modal_object.surface.blit(self.title_modal if title is not None else self.regular_modal, (0, 0))
 
     def draw(self):
         if self.curr_modal and not self.game.loading_handler.is_transitioning:
-            if self.okay_button.on_press_end:
+            if self.okay_button.on_press_end or self.game.input_handler.key_on_down.get(pygame.K_RETURN):
                 self.curr_modal['on_close']()
                 self.curr_modal = None
                 self.game.cursor_handler.cursor = "NORMAL"
+                self.game.input_handler.modal = None
+                self.game.just_ended_modal = True
                 return
             self.game.telemetry_handler.set_values({
                 'modal_object_pos': self.modal_object.rect.center

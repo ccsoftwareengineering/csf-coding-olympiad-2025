@@ -17,6 +17,8 @@ class TextOptions(TypedDict):
     outline: NotRequired[int]
     outline_color: NotRequired[u.TupleColor]
     size: int
+    offsets: NotRequired[tuple[int | None, int | None]]
+    xy: NotRequired[tuple[int | None, int | None]]
 
 
 class DynamicButton(Button):
@@ -58,8 +60,18 @@ class DynamicButton(Button):
         text_surf = self.text_object.surface
         darkened = surf.copy()
         darkened = self.get_darker_surface(darkened)
-        u.center_blit(darkened, text_surf, offsets=(0, 0))
-        u.center_blit(surf, text_surf, offsets=(0, 0))
+        u.center_blit(
+            surf,
+            text_surf,
+            offsets=self.text_options.get('offsets') or (None, None),
+            xy=self.text_options.get('xy') or (None, None)
+        )
+        u.center_blit(
+            darkened,
+            text_surf,
+            offsets=self.text_options.get('offsets') or (None, None),
+            xy=self.text_options.get('xy') or (None, None)
+        )
         return surf, darkened
 
     def predraw(self):

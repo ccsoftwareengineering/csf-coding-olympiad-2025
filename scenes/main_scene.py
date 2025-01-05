@@ -61,12 +61,28 @@ class MainScene(Scene):
 
         self.tc_ui = DynamicTextBox(
             self.game,
-            (200, 100),
-            {"color": (255, 255, 255), "size": 32, "outline": 1, "outline_color": (0, 0, 0)},
+            (300, 150),
+            {"color": (255, 255, 255), "size": 32, "outline": 2, "outline_color": (0, 0, 0), "xy": (None, 20)},
             box_template=self.ui_rect_template,
             text=f'YEAR X',
         )
         self.tc_ui.rect.midtop = u.relative_pos(dims, (0, 10), from_xy='center-top')
+
+        self.advance = DynamicButton(
+            game,
+            (250, 50),
+            select_cursor='NEXT',
+            box_template=u.rounded_rect_template(
+                outline=1,
+                emulated_x=default_emulated_x,
+                color=(148, 180, 239),
+                radius=7
+            ),
+            text_options={"size": 20},
+            text="ADVANCE YEAR",
+            parent=self.tc_ui
+        )
+        self.advance.rect.midbottom = u.relative_pos(self.tc_ui.size, (0, 20), from_xy='center-bottom')
 
         self.bl_ui = ListLayout(
             self.game,
@@ -77,14 +93,13 @@ class MainScene(Scene):
             padding=20,
             position=u.relative_pos(self.game.screen.get_size(), (20, 20), from_xy='left-bottom'),
             rect_template=self.ui_rect_template,
-            max_width=(350, 10_000)
+            max_width=(300, 10_000),
         )
 
-        apply_empty_space(self.bl_ui, amount=10)
-        self.budget_display = Text(self.game, wrap=True, outline=1, size=15, parent=self.bl_ui)
+        self.budget_display = Text(self.game, wrap=True, outline=1, size=15, parent=self.bl_ui, max_width=300)
         self.money_display = MoneyDisplay(game=self.game, parent=self.bl_ui, size=28)
 
-        self.buttons = {
+        self.tr_buttons = {
             'settings_button': Button(self.game, self.settings_icon, name="settings_button", parent=self.tr_ui),
             'info_button': Button(self.game, self.info_icon, name="info_button", parent=self.tr_ui),
             'add_button': DynamicButton(
@@ -98,6 +113,7 @@ class MainScene(Scene):
                     radius=7
                 ),
                 text='ADD...',
+                select_cursor='ADD',
                 parent=self.tr_ui
             )
             # Button(self.game, self.add_icon, name="add_button", parent=self.tr_ui),
@@ -136,7 +152,7 @@ class MainScene(Scene):
     def init(self):
         self.game.input_handler.subscribe('mouse_wheel', self.mouse_scroll, 'main_zoom')
         self.tc_ui.text_object.text = f'YEAR {self.game.player.year}'
-        self.budget_display.text = f'Annual Budget Allocation: {display_number(self.game.player.budget_increase)}'
+        self.budget_display.text = f'Annual Budget Allocation: ${display_number(self.game.player.budget_increase)}'
         if not self.game.player.did_tutorial:
             self.game.modal_handler.show_modal(
                 "Since you're new, let's give you a brief rundown of how to get started!",

@@ -1,10 +1,9 @@
-from typing import TYPE_CHECKING, Optional, TypedDict, NotRequired
+from typing import TYPE_CHECKING, Optional
 
 import pygame
 from pygame import Surface
 
 import modules.utilities as u
-from structures.hud.button import Button
 from structures.hud.dynamic_button import TextOptions
 from structures.hud.hud_object import HudObject
 from structures.hud.text import Text
@@ -50,7 +49,12 @@ class DynamicTextBox(HudObject):
             surf.blit(self.box_template(self.size), (0, 0))
         self.text_object.predraw()
         text_surf = self.text_object.surface
-        u.center_blit(surf, text_surf, offsets=(0, 0))
+        u.center_blit(
+            surf,
+            text_surf,
+            offsets=self.text_options.get('offsets') or (None, None),
+            xy=self.text_options.get('xy') or (None, None)
+        )
         return surf
 
     def predraw(self):

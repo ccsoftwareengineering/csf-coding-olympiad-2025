@@ -101,12 +101,12 @@ class GuideHandler:
 
                 VerticalAlignment.CENTER: lambda rect, offset: self.set_text_rect_pos_to(
                     'midtop',
-                    (rect.midtop[0], rect.midtop[1] + self.text_gap + offset[0])
+                    (rect.midtop[0], rect.midbottom[1] + self.text_gap + offset[0])
                 ),
 
                 VerticalAlignment.BOTTOM: lambda rect, offset: self.set_text_rect_pos_to(
                     'topright',
-                    (rect.right, rect.topright[1] + self.text_gap + offset[0])
+                    (rect.right, rect.bottomright[1] + self.text_gap + offset[0])
                 )
             },
         }
@@ -141,9 +141,10 @@ class GuideHandler:
         direction = cgi['text_placement']
         offset = cgi['text_offset']
         self.text.text = self.game.curr_dialogue.subtext
+        self.text.align = cgi['text_alignment']
         self.text.predraw()
         self.text_hud.rect.size = self.text.rect.size
-        self.text_placement_strategies[direction][cgi['text_alignment']](rect, offset)
+        self.text_placement_strategies[direction][cgi['text_box_alignment']](rect, offset)
         self.button_placement_strategies[cgi['button_alignment']]()
 
     def draw(self):
@@ -168,7 +169,9 @@ class GuideHandler:
                 #     if error:
                 #         self.curr_input.error = error
                 #         return
+                self.ok_button.predraw()
                 self.game.curr_dialogue.update()
+                self.ok_button.visible = False
         else:
             # if self.curr_input:
             #     self.curr_input.destroy()

@@ -1,9 +1,10 @@
 from enum import Enum
 
 import pygame
+import pygame._sdl2 as pg_sdl2
 
 from modules import utilities as u
-from modules.constants import dims, text_multiplier, font_name
+from modules.constants import dims
 from modules.dialogue import dialogues
 from modules.more_utilities.enums import GameState
 from structures.global_store import GlobalStore
@@ -30,6 +31,7 @@ class Game:
     country_detail = u.load_scale('assets/country_detail.png', None, 1)
     main_font = u.get_main_font(16)
     panels = u.load_scale('assets/panels.png')
+    window = pg_sdl2.Window.from_display_module()
 
     modal = u.load_scale('assets/modal.png', factor=4)
     title_modal = u.load_scale('assets/title_modal.png', factor=4)
@@ -54,14 +56,23 @@ class Game:
         self.screen.fill((0, 0, 0))
         u.center_blit(self.screen, self.title)
         self.input_handler = InputHandler(self)
+
+        def fullscreen_keybinding(ev: pygame.event.Event):
+            if ev.key == pygame.K_ESCAPE:
+                self.window.set_windowed()
+            elif ev.key == pygame.K_F11:
+                self.screen = pygame.display.set_mode(dims, pygame.SCALED | pygame.FULLSCREEN)
+
+        self.input_handler.subscribe('key_on_down', fullscreen_keybinding, 'fullscreen')
         self.in_dialogue = False
         self.in_guide = False
         self.dialogues = None
+        self.just_ended_modal = False
+        self.loading_handler = LoadingHandler(self)
         self.cursor_handler = CursorHandler(self)
         self.guide_handler = GuideHandler(self)
         self.show_fps = show_fps
         self.telemetry_handler = TelemetryHandler(self, use_telemetry=True)
-        self.loading_handler = LoadingHandler(self)
         self.modal_handler = ModalHandler(self)
         self.telemetry_handler.inject_telemetry_events(self.input_handler)
         self.scenes: dict[Enum, Scene] = {}
@@ -93,8 +104,10 @@ class Game:
         self.telemetry_handler.set_value('Mouse Pos', pygame.mouse.get_pos())
         self.scenes[self.curr_state].draw()
         self.modal_handler.draw()
-        if self.in_guide:
+        if self.in_guide and not self.just_ended_modal:
             self.guide_handler.draw()
+        else:
+            self.just_ended_modal = False
         self.loading_handler.draw()
         self.post_loop()
         pygame.display.flip()

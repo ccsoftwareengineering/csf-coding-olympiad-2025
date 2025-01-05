@@ -18,6 +18,7 @@ class ListLayout(HudObject):
             game: 'Game',
             min_width: Optional[Tuple[int, int]] = (0, 0),
             max_width: Optional[Tuple[int, int]] = (inf, inf),
+            size: Optional[Tuple[int, int]] = None,
             direction: Direction = Direction.DOWN,
             position: Optional[Tuple[int, int]] = (0, 0),
             scale: Optional[float] = 1,
@@ -35,6 +36,9 @@ class ListLayout(HudObject):
         self.padding = padding
         self.min_size = min_width
         self.max_size = max_width
+        if size:
+            self.min_size = size[0]
+            self.max_size = size[1]
         self.rect_template = rect_template
         self.children_list: list[HudObject] = []
         self.direction_multiplier = 1 if self.direction in (Direction.DOWN, Direction.RIGHT) else -1
@@ -135,7 +139,7 @@ class ListLayout(HudObject):
         self.surface = pygame.Surface((calculated_size[0], calculated_size[1] + 1), pygame.SRCALPHA)
         if self.rect_template:
             self.surface.blit(self.rect_template(calculated_size), (0, 0))
-        self.rect.size = calculated_size
+        self.rect.size = self.surface.get_size()
         setattr(self.rect, anchor_map[self.anchor_point.value], old_pos)
 
         # firstly the positions

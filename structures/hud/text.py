@@ -5,6 +5,7 @@ from pygame import Surface
 
 from modules import utilities as u
 from modules.constants import text_multiplier
+from modules.more_utilities.enums import HorizontalAlignment
 
 if typing.TYPE_CHECKING:
     from structures.game import Game
@@ -23,14 +24,18 @@ class Text(HudObject):
             color: typing.Optional[u.TupleColor] = (255, 255, 255),
             wrap: typing.Optional[bool] = True,
             outline: typing.Optional[int] = 0,
-            bottom_stack: typing.Optional[int] = 0,
+            # bottom_stack: typing.Optional[int] = 0,
+            align: HorizontalAlignment = HorizontalAlignment.LEFT,
+            max_width: int = 0,
             outline_color: typing.Optional[u.TupleColor] = (0, 0, 0),
     ):
         self.color = color or (0, 0, 0)
         self.end_padding = end_padding
+        self.max_width = max_width
         self._size = size
         self.text = text
         self.wrap = wrap
+        self.align = align
         self.outline = outline or 0
         self.outline_color = outline_color or (0, 0, 0)
         self.font = u.get_main_font(size)
@@ -51,9 +56,9 @@ class Text(HudObject):
         if not self.wrap:
             return self.font.render(self.text, False, color)
         words = self.text.split(' ')
-        allowed_width = self.game.screen.get_width() - self.rect.x - self.end_padding
+        allowed_width = self.max_width or (self.game.screen.get_width() - self.rect.x - self.end_padding)
         if self.parent is not None:
-            allowed_width = self.parent.surface.get_width() - self.rect.x - self.end_padding
+            allowed_width = self.max_width or (self.parent.surface.get_width() - self.rect.x - self.end_padding)
         lines = []
         while len(words) > 0:
             line_words = []
@@ -77,12 +82,18 @@ class Text(HudObject):
         surf.get_rect().topleft = self.surface.get_rect().topleft
 
         y_offset = 0
+        half_aw = allowed_width//2
         for line in lines:
             # fw, fh = self.font.size(line)
             # topleft_x = self.rect.x - fw / 2
             # topleft_y = self.rect.y + y_offset
             line_surface = self.font.render(line, False, color)
-            surf.blit(line_surface, (0, y_offset))
+            if self.align == HorizontalAlignment.LEFT:
+                surf.blit(line_surface, (0, y_offset))
+            elif self.align == HorizontalAlignment.RIGHT:
+                surf.blit(line_surface, (allowed_width - line_surface.get_width(), y_offset))
+            else:
+                surf.blit(line_surface, (half_aw - line_surface.get_width()//2, y_offset))
             y_offset += line_surface.get_height()
         return surf
 

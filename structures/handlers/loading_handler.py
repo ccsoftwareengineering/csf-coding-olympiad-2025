@@ -28,13 +28,13 @@ class LoadingHandler:
     def transition_to(self, state: Enum):
         if self.transition_state_to is not None:
             return
-        self.game.cursor_handler.cursor = 'NORMAL'
         self.transition_state_to = state
         self.transition_progress = 0
         self.is_transitioning = True
 
     def draw(self):
-        if self.transition_state_to is not None and not self.game.input_handler.modal:
+        if self.transition_state_to is not None:
+            self.game.cursor_handler.cursor = 'NORMAL'
             if self.transition_progress == self.transition_length:
                 self.direction = -1
                 self.game.set_state(self.transition_state_to)
