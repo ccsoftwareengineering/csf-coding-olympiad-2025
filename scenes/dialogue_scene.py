@@ -15,10 +15,10 @@ class DialogueScene(Scene):
     # info_icon = u.load_scale('assets/info_icon_32_new.png', factor=2)
 
     def define_game_variables(self):
-        dialogue_box = HudObject(self.game, self.game.modal, id="DialogueBox")
+        dialogue_box = HudObject(self.game, self.game.modal, object_id="DialogueBox")
         dialogue_box.rect.topleft = u.cbp(self.game.screen, dialogue_box.surface)
 
-        # info_box = HudObject(game, info_icon, parent=dialogue_box, pos=(40, 40), id="InfoBox")
+        # info_box = HudObject(game, info_icon, parent=dialogue_box, pos=(40, 40), object_id="InfoBox")
         text = Text(self.game, 20, pos=(20, 80), parent=dialogue_box, color=(33, 0, 43))
         text.end_padding = 20
         text.wrap = True
@@ -58,7 +58,7 @@ class DialogueScene(Scene):
                     size=(dimensions[0] or box_w, dimensions[1] or 50),
                     parent=dialogue_box,
                     pos=(20, text.rect.top + text.surface.get_height() + 20),
-                    id=curr_input_data["id"],
+                    object_id=curr_input_data["object_id"],
                     data=curr_input_data
                 )
 

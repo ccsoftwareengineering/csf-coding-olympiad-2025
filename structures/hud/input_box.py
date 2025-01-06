@@ -18,7 +18,7 @@ def input_data(input_id: str, input_type="text", placeholder="", required=True, 
     if options is None:
         options = {}
     return {
-        "id": input_id,
+        "object_id": input_id,
         "type": input_type,
         "placeholder": placeholder,
         "required": required,
@@ -45,7 +45,7 @@ class InputBox(HudObject):
                  scale: float = 1,
                  override_y=True,
                  parent: Optional[HudObject] = None,
-                 id=None):
+                 object_id=None):
         self.game = game
         self.override_y = override_y
         self.radius = radius
@@ -67,7 +67,7 @@ class InputBox(HudObject):
         self.error_expiry_time = error_expiry_time
         self.error_text = get_main_font(error_text_size)
         surface = u.rounded_rect(size, color, round(size[0] / 200 * 64), radius, outline, outline_color)
-        super().__init__(game, surface, pos, scale, parent, id)
+        super().__init__(game, surface, pos, scale, parent, object_id)
         self.text = Text(game, parent=self, size=text_size, color=text_color, pos=(10, 10))
 
     @property

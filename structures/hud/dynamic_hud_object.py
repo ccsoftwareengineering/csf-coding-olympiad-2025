@@ -20,7 +20,7 @@ class DynamicHudObject(HudObject):
             position: (int, int) = (0, 0),
             scale: float = 1,
             parent=None,
-            id=None,
+            object_id=None,
             children_enabled=True,
             **kwargs
     ):
@@ -29,7 +29,7 @@ class DynamicHudObject(HudObject):
         surf = Surface(size, pygame.SRCALPHA)
         if rect_template:
             surf.blit(rect_template(size), (0, 0))
-        super().__init__(game, surf, position, scale, parent, id, children_enabled)
+        super().__init__(game, surf, position, scale, parent, object_id, children_enabled)
 
     @property
     def size(self):

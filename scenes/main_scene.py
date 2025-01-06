@@ -108,8 +108,8 @@ class MainScene(Scene):
             radius=7
         )
         self.tr_buttons = {
-            'settings_button': Button(self.game, self.settings_icon, id="settings_button", parent=self.tr_ui),
-            'info_button': Button(self.game, self.info_icon, id="info_button", parent=self.tr_ui),
+            'settings_button': Button(self.game, self.settings_icon, object_id="settings_button", parent=self.tr_ui),
+            'info_button': Button(self.game, self.info_icon, object_id="info_button", parent=self.tr_ui),
             'add_button': DynamicButton(
                 self.game,
                 (150, 50),
@@ -118,9 +118,9 @@ class MainScene(Scene):
                 text='CREATE...',
                 select_cursor='ADD',
                 parent=self.tr_ui,
-                id="create_button"
+                object_id="create_button"
             )
-            # Button(self.game, self.add_icon, id="add_button", parent=self.tr_ui),
+            # Button(self.game, self.add_icon, object_id="add_button", parent=self.tr_ui),
         }
 
         self.add_dropdown = Dropdown(
@@ -149,7 +149,7 @@ class MainScene(Scene):
             text_options={"size": 18, "color": (0, 0, 0)},
             rect_template=white_template,
             text=text,
-            id=text.lower().replace(' ', '_'),
+            object_id=text.lower().replace(' ', '_'),
             parent=dbl
         )
         self.add_dropdown_button_list = (dbl, {

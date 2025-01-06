@@ -37,7 +37,7 @@ class GuideHandler:
                 outline_color=(255, 255, 255)
             ),
             text="OKAY!",
-            id="ok_guide_button"
+            object_id="ok_guide_button"
         )
         self.button_height = self.ok_button.surface.get_height()
 

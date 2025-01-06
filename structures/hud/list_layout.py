@@ -25,7 +25,7 @@ class ListLayout(HudObject):
             gap: Optional[int] = 0,
             parent: Optional[HudObject] = None,
             side: Optional[HorizontalAlignment] = HorizontalAlignment.RIGHT,
-            id: Optional[str] = None,
+            object_id: Optional[str] = None,
             anchor_point: Optional[AnchorPoint] = AnchorPoint.TOP_LEFT,
             rect_template: Optional[u.RectTemplate] = None,
             padding: Optional[int] = 0,
@@ -68,7 +68,7 @@ class ListLayout(HudObject):
                 self.rect.width + x_offset, self.rect.height + y_offset),
         }
         self.calc_function = self.anchor_calc_map[self._anchor_point]
-        super().__init__(game, Surface(min_width, pygame.SRCALPHA), pos=position, id=id, parent=parent, scale=scale)
+        super().__init__(game, Surface(min_width, pygame.SRCALPHA), pos=position, object_id=object_id, parent=parent, scale=scale)
         setattr(self.rect, anchor_map[anchor_point.value], position)  # type: ignore[int]
 
         # supposed to be able to list elements with a gap in any direction and work regardless of the lists anchor point

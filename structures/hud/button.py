@@ -17,7 +17,7 @@ class Button(HudObject):
             scale: Optional[float] = 1,
             select_cursor: Optional[str] = 'HIGHLIGHT',
             parent: Optional[HudObject] = None,
-            id: Optional[str] = None
+            object_id: Optional[str] = None
     ):
         # Press Events
         self.on_press_start = False
@@ -29,7 +29,7 @@ class Button(HudObject):
         self.on_hover_end = False
         self.hovering = False
         self.event_dict_map = {}
-        super().__init__(game, surface, pos, scale, id=id, parent=parent)
+        super().__init__(game, surface, pos, scale, object_id=object_id, parent=parent)
         self.darker_surface = self.get_darker_surface()
         self.select_cursor = select_cursor
 

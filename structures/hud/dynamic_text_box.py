@@ -24,7 +24,7 @@ class DynamicTextBox(HudObject):
             scale: Optional[float] = 1,
             select_cursor: Optional[str] = 'HIGHLIGHT',
             parent: Optional[HudObject] = None,
-            id: Optional[str] = None
+            object_id: Optional[str] = None
     ):
         self.size = size
         self.box_template = box_template
@@ -37,7 +37,7 @@ class DynamicTextBox(HudObject):
             outline_color=text_options.get('outline_color'),
             wrap=False
         )
-        super().__init__(game, Surface(size, pygame.SRCALPHA), pos, scale, parent, id)
+        super().__init__(game, Surface(size, pygame.SRCALPHA), pos, scale, parent, object_id)
         self.surface = self.calculate_surface()
         self.rect.size = self.surface.get_size()
         self.text_object.text = text

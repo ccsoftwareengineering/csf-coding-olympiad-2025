@@ -33,7 +33,7 @@ class DynamicButton(Button):
             scale: Optional[float] = 1,
             select_cursor: Optional[str] = 'HIGHLIGHT',
             parent: Optional[HudObject] = None,
-            id: Optional[str] = None
+            object_id: Optional[str] = None
     ):
         self.size = size
         self.box_template = rect_template
@@ -46,7 +46,7 @@ class DynamicButton(Button):
             outline_color=text_options.get('outline_color'),
             wrap=False
         )
-        super().__init__(game, Surface((0, 0), pygame.SRCALPHA), pos, scale, select_cursor, parent, id)
+        super().__init__(game, Surface((0, 0), pygame.SRCALPHA), pos, scale, select_cursor, parent, object_id)
         self.surface, self.darker_surface = self.calculate_surface()
         self.rect.size = self.surface.get_size()
         self.text_object.text = text

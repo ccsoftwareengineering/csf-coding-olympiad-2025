@@ -17,7 +17,7 @@ class HudObject:
             pos: (int, int) = (0, 0),
             scale: float = 1,
             parent=None,
-            id=None,
+            object_id=None,
             children_enabled=True,
             **kwargs
     ):
@@ -26,7 +26,7 @@ class HudObject:
         self.parent = None
         self.visible = True
         self.children = set()
-        self.id = id
+        self.id = object_id
         if parent is not None:
             parent.add_child(self)
         self.game = game

@@ -46,6 +46,16 @@ def starting_tutorial(game: 'Game'):
                     text_box_alignment=VerticalAlignment.CENTER,
                     text_alignment=HorizontalAlignment.CENTER,
                     button_alignment=HorizontalAlignment.CENTER)
+            ),
+            (
+                ("Here is the menu in which you can adjust settings, see player information, as well as use "
+                 "the create button to make campaigns, power plants, and infrastructure."),
+                igi({},
+                    u.expand_rect_outline(main_scene.tr_ui.rect, 5),
+                    Direction.DOWN,
+                    text_box_alignment=HorizontalAlignment.RIGHT,
+                    text_alignment=HorizontalAlignment.CENTER,
+                    button_alignment=HorizontalAlignment.CENTER)
             )
         ], {'guide': True}
     )

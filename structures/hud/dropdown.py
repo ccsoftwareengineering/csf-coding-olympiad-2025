@@ -19,7 +19,7 @@ class Dropdown(DynamicHudObject):
             pos: (int, int) = (0, 0),
             scale: float = 1,
             parent=None,
-            id=None,
+            object_id=None,
             children_enabled=True,
             **kwargs
     ):
@@ -27,7 +27,7 @@ class Dropdown(DynamicHudObject):
         self.button = button
         self.button.subscribe('on_press_end', self.on_button_press)
         self._selected = False
-        super().__init__(game, size, rect_template, pos, scale, parent, id, children_enabled)
+        super().__init__(game, size, rect_template, pos, scale, parent, object_id, children_enabled)
         self.visible = False
 
     @property

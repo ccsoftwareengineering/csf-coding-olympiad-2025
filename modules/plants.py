@@ -6,27 +6,32 @@ power_plants = {
         "output_mw": 50,
         "pollution_tco2e": 150,
         "location_constraints": "None (Can be placed anywhere)",
+        "description": "Generates reliable energy at a low upfront cost. However, it produces high levels of "
+                       "pollution and contributes to environmental degradation.",
         "size": 10
     },
     PlantType.SOLAR: {
         "cost": 750_000,
         "output_mw": 20,
         "pollution_tco2e": 0,
-        "location_constraints": "Requires open, non-shaded areas",
+        "location_constraints": "Produces clean, renewable energy with minimal pollution. Its energy output is "
+                                "limited and can fluctuate depending on weather conditions.",
         "size": 8
     },
     PlantType.WIND: {
         "cost": 1_000_000,
         "output_mw": 30,
         "pollution_tco2e": 0,
-        "location_constraints": "Requires areas with high wind potential",
+        "location_constraints": "Provides renewable energy with zero emissions. Energy production is less predictable "
+                                "and depends on wind availability.",
         "size": 30
     },
     PlantType.GEOTHERMAL: {
         "cost": 1_500_000,
         "output_mw": 40,
         "pollution_tco2e": 5,
-        "location_constraints": "Requires geothermal hotspot",
+        "location_constraints": "Delivers consistent energy with minimal pollution. High initial costs make it an "
+                                "expensive investment.",
         "size": 15,
         "upkeep": 150_000
     },
@@ -34,7 +39,8 @@ power_plants = {
         "cost": 2_000_000,
         "output_mw": 60,
         "pollution_tco2e": 2,
-        "location_constraints": "Requires proximity to rivers",
+        "location_constraints": "Generates efficient, renewable energy with very low emissions. Its construction is "
+                                "costly and requires significant infrastructure.",
         "size": 25,
         "upkeep": 200_000
     },
@@ -42,7 +48,8 @@ power_plants = {
         "cost": 4_000_000,
         "output_mw": 100,
         "pollution_tco2e": 50,
-        "location_constraints": "Requires proximity to cooling water sources",
+        "location_constraints": "Offers a massive energy output and low greenhouse gas emissions. It comes with high "
+                                "costs, radioactive waste, and safety concerns.",
         "size": 20,
         "upkeep": 500_000
     }

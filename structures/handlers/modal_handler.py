@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 import pygame
 from pygame import Surface
@@ -16,7 +16,8 @@ if TYPE_CHECKING:
 
 
 class ModalType(Enum):
-    SIMPLE = 0
+    SIMPLE = 0,
+    CUSTOM = 1,
 
 
 class ModalHandler:
@@ -73,6 +74,14 @@ class ModalHandler:
         self.game.input_handler.modal = self.modal_object
         self.modal_object.surface.blit(self.title_modal if title is not None else self.regular_modal, (0, 0))
 
+    def show_custom_modal(self, hud_object: HudObject, should_close: Callable[[], bool], on_close=empty):
+        self.curr_modal = {
+            "object": hud_object,
+            "should_close": should_close,
+            "type": ModalType.CUSTOM,
+            "on_close": on_close
+        }
+
     def draw(self):
         if self.curr_modal and not self.game.loading_handler.is_transitioning:
             if self.curr_modal['type'] == ModalType.SIMPLE:
@@ -83,7 +92,13 @@ class ModalHandler:
                     self.game.input_handler.modal = None
                     self.game.just_ended_modal = True
                     return
-                self.game.telemetry_handler.set_values({
-                    'modal_object_pos': self.modal_object.rect.center
-                })
                 self.modal_object.draw()
+            elif self.curr_modal['type'] == ModalType.CUSTOM:
+                if self.curr_modal['should_close']():
+                    self.curr_modal['on_close']()
+                    self.curr_modal = None
+                    self.game.cursor_handler.cursor = "NORMAL"
+                    self.game.input_handler.modal = None
+                    self.game.just_ended_modal = True
+                    return
+                self.curr_modal['object'].draw()
