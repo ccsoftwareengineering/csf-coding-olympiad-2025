@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import TYPE_CHECKING
 
 import pygame
@@ -12,6 +13,10 @@ from structures.hud.text import Text
 
 if TYPE_CHECKING:
     from structures.game import Game
+
+
+class ModalType(Enum):
+    SIMPLE = 0
 
 
 class ModalHandler:
@@ -32,14 +37,15 @@ class ModalHandler:
         center_pos = u.center_blit_pos(game.screen, self.regular_modal)
         self.modal_object.rect.topleft = center_pos
         self.title = Text(game, size=28, color=(255, 255, 255), wrap=False, parent=self.modal_object)
-        self.body = Text(game, size=18, color=(0, 0, 0), pos=(18, 100), wrap=True, parent=self.modal_object, end_padding=18)
+        self.body = Text(game, size=18, color=(0, 0, 0), pos=(18, 100), wrap=True, parent=self.modal_object,
+                         end_padding=18)
         ok_button_pos = u.relative_pos(self.regular_modal.get_size(), (-self.button_offset[0], self.button_offset[1]),
                                        from_xy="center-bottom")
-        self.title_surface = Surface((self.box_size[0], 61), pygame.SRCALPHA)
+        self.title_surface = Surface((self.box_size[0], 70), pygame.SRCALPHA)
         self.okay_button = DynamicButton(
             game,
             size=self.okay_surface.get_size(),
-            box_template=u.rounded_rect_template(
+            rect_template=u.rounded_rect_template(
                 (255, 255, 255),
                 emulated_x=default_emulated_x,
                 double_bottom=True,
@@ -52,8 +58,8 @@ class ModalHandler:
             parent=self.modal_object,
         )
 
-    def show_modal(self, body: str, title=None, on_close=empty):
-        self.curr_modal = {"body": body, "title": title, "on_close": on_close}
+    def show_simple_modal(self, body: str, title=None, on_close=empty):
+        self.curr_modal = {"body": body, "title": title, "on_close": on_close, "type": ModalType.SIMPLE}
         self.title.visible = title is not None
         self.title.text = title
         self.body.text = body
@@ -69,14 +75,15 @@ class ModalHandler:
 
     def draw(self):
         if self.curr_modal and not self.game.loading_handler.is_transitioning:
-            if self.okay_button.on_press_end or self.game.input_handler.key_on_down.get(pygame.K_RETURN):
-                self.curr_modal['on_close']()
-                self.curr_modal = None
-                self.game.cursor_handler.cursor = "NORMAL"
-                self.game.input_handler.modal = None
-                self.game.just_ended_modal = True
-                return
-            self.game.telemetry_handler.set_values({
-                'modal_object_pos': self.modal_object.rect.center
-            })
-            self.modal_object.draw()
+            if self.curr_modal['type'] == ModalType.SIMPLE:
+                if self.okay_button.on_press_end or self.game.input_handler.key_on_down.get(pygame.K_RETURN):
+                    self.curr_modal['on_close']()
+                    self.curr_modal = None
+                    self.game.cursor_handler.cursor = "NORMAL"
+                    self.game.input_handler.modal = None
+                    self.game.just_ended_modal = True
+                    return
+                self.game.telemetry_handler.set_values({
+                    'modal_object_pos': self.modal_object.rect.center
+                })
+                self.modal_object.draw()
