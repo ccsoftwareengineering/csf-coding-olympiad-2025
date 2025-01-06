@@ -1,8 +1,8 @@
 from typing import Optional, Tuple
+from typing import TYPE_CHECKING
 
 import pygame
-from pygame import Surface
-from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from structures.game import Game
 from structures.hud.hud_object import HudObject
@@ -17,7 +17,7 @@ class Button(HudObject):
             scale: Optional[float] = 1,
             select_cursor: Optional[str] = 'HIGHLIGHT',
             parent: Optional[HudObject] = None,
-            name: Optional[str] = None
+            id: Optional[str] = None
     ):
         # Press Events
         self.on_press_start = False
@@ -28,9 +28,26 @@ class Button(HudObject):
         self.on_hover_start = False
         self.on_hover_end = False
         self.hovering = False
-        super().__init__(game, surface, pos, scale, name=name, parent=parent)
+        self.event_dict_map = {}
+        super().__init__(game, surface, pos, scale, id=id, parent=parent)
         self.darker_surface = self.get_darker_surface()
         self.select_cursor = select_cursor
+
+    def subscribe(self, event, function, event_id="default"):
+        if event not in self.event_dict_map:
+            self.event_dict_map[event] = {}
+        self.event_dict_map[event][event_id] = function
+
+    def unsubscribe(self, event, event_id="default"):
+        self.event_dict_map[event][event_id] = None
+
+    def run_events(self, event, value):
+        event = self.event_dict_map.get(event)
+        if not event:
+            return
+        for func in event.values():
+            if func is not None:
+                func(value)
 
     def get_darker_surface(self, surface=None):
         if surface is None:
@@ -42,8 +59,24 @@ class Button(HudObject):
         darker_surface.blit(mask, (0, 0))
         return darker_surface
 
+    def handle_events(self):
+        if self.on_hover_start:
+            self.run_events('on_hover_start', self)
+        if self.hovering:
+            self.run_events('hovering', self)
+        if self.on_press_start:
+            self.run_events('on_press_start', self)
+        if self.pressing:
+            self.run_events('pressing', self)
+        if self.on_press_end:
+            self.run_events('on_press_end', self)
+        if self.on_hover_end:
+            self.run_events('on_hover_end', self)
+
     def predraw(self):
         pos = pygame.mouse.get_pos()
+
+        self.handle_events()
 
         if self.absolute_rect.collidepoint(pos) and self.enabled:
             self.game.cursor_handler.cursor = self.select_cursor
