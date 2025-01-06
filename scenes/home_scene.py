@@ -15,7 +15,7 @@ class HomeScene(Scene):
         return {
             'play_button': Button(self.game, self.play_button_surface, scale=0.8,
                                   pos=u.cbp(self.game.screen, self.play_button_surface, offsets=(None, 1 / 3)),
-                                  name="PlayButton"),
+                                  id="PlayButton"),
             'rescaled_country': u.rescale(self.game.country_detail, factor=9),
             'rescaled_title': u.rescale(self.game.title, factor=1.3),
             'programmed_by': self.game.main_font.render(

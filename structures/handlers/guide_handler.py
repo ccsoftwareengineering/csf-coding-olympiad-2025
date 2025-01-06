@@ -30,14 +30,14 @@ class GuideHandler:
             game,
             (100, 30),
             text_options={'size': 10, 'color': (255, 255, 255)},
-            box_template=u.rounded_rect_template(
+            rect_template=u.rounded_rect_template(
                 color=(0, 0, 0, 0),
                 emulated_x=default_emulated_x,
                 radius=4, outline=1,
                 outline_color=(255, 255, 255)
             ),
             text="OKAY!",
-            name="ok_guide_button"
+            id="ok_guide_button"
         )
         self.button_height = self.ok_button.surface.get_height()
 

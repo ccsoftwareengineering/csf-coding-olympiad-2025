@@ -8,6 +8,7 @@ from modules.utilities import display_number
 from scenes.main_ui.money_display import MoneyDisplay
 from structures.game import Game
 from structures.hud.button import Button
+from structures.hud.dropdown import Dropdown
 from structures.hud.dynamic_button import DynamicButton
 from structures.hud.dynamic_text_box import DynamicTextBox
 from structures.hud.hud_object import HudObject
@@ -55,6 +56,7 @@ class MainScene(Scene):
             direction=Direction.LEFT,
             gap=15,
             padding=13,
+            side=HorizontalAlignment.LEFT,
             position=u.relative_pos(self.game.screen.get_size(), (10, 10), from_xy='right-top'),
             rect_template=self.ui_rect_template
         )
@@ -72,7 +74,7 @@ class MainScene(Scene):
             game,
             (250, 50),
             select_cursor='NEXT',
-            box_template=u.rounded_rect_template(
+            rect_template=u.rounded_rect_template(
                 outline=1,
                 emulated_x=default_emulated_x,
                 color=(148, 180, 239),
@@ -99,25 +101,62 @@ class MainScene(Scene):
         self.budget_display = Text(self.game, wrap=True, outline=1, size=15, parent=self.bl_ui, max_width=300)
         self.money_display = MoneyDisplay(game=self.game, parent=self.bl_ui, size=28)
 
+        white_template = u.rounded_rect_template(
+            color=(255, 255, 255),  # (255, 162, 112),
+            emulated_x=default_emulated_x,
+            outline=1,
+            radius=7
+        )
         self.tr_buttons = {
-            'settings_button': Button(self.game, self.settings_icon, name="settings_button", parent=self.tr_ui),
-            'info_button': Button(self.game, self.info_icon, name="info_button", parent=self.tr_ui),
+            'settings_button': Button(self.game, self.settings_icon, id="settings_button", parent=self.tr_ui),
+            'info_button': Button(self.game, self.info_icon, id="info_button", parent=self.tr_ui),
             'add_button': DynamicButton(
                 self.game,
-                (120, 50),
+                (150, 50),
                 {"color": (0, 0, 0), "size": 18},
-                box_template=u.rounded_rect_template(
-                    color=(255, 255, 255),  # (255, 162, 112),
-                    emulated_x=default_emulated_x,
-                    outline=1,
-                    radius=7
-                ),
-                text='ADD...',
+                rect_template=white_template,
+                text='CREATE...',
                 select_cursor='ADD',
-                parent=self.tr_ui
+                parent=self.tr_ui,
+                id="create_button"
             )
-            # Button(self.game, self.add_icon, name="add_button", parent=self.tr_ui),
+            # Button(self.game, self.add_icon, id="add_button", parent=self.tr_ui),
         }
+
+        self.add_dropdown = Dropdown(
+            game,
+            (300, 300),
+            button=self.tr_buttons['add_button'],
+            # rect_template=self.ui_rect_template
+        )
+
+        button_dropdown_space = 10
+        dbl = ListLayout(
+            game,
+            anchor_point=AnchorPoint.TOP_LEFT,
+            direction=Direction.DOWN,
+            parent=self.add_dropdown,
+            side=HorizontalAlignment.RIGHT,
+            position=(0, 0),
+            rect_template=self.ui_rect_template,
+            max_width=(300, 300),
+            gap=10,
+            padding=button_dropdown_space
+        )
+        manufacture_button = lambda text: DynamicButton(
+            game,
+            (300 - button_dropdown_space * 2, 38),
+            text_options={"size": 18, "color": (0, 0, 0)},
+            rect_template=white_template,
+            text=text,
+            id=text.lower().replace(' ', '_'),
+            parent=dbl
+        )
+        self.add_dropdown_button_list = (dbl, {
+            'plant': manufacture_button('Plant'),
+            'campaign': manufacture_button('Campaign'),
+            'infra': manufacture_button('Infrastructure'),
+        })
 
         # To make introduction dialogue see it
         self.tr_ui.predraw()
@@ -142,6 +181,9 @@ class MainScene(Scene):
 
     def draw_ui(self):
         self.tr_ui.draw()
+        self.add_dropdown.draw()
+        a = tuple(x.rect.topleft for x in self.add_dropdown_button_list[1].values())
+        self.game.telemetry_handler.set_value('positions', a)
         self.bl_ui.draw()
         self.tc_ui.draw()
 
@@ -154,7 +196,7 @@ class MainScene(Scene):
         self.tc_ui.text_object.text = f'YEAR {self.game.player.year}'
         self.budget_display.text = f'Annual Budget Allocation: ${display_number(self.game.player.budget_increase)}'
         if not self.game.player.did_tutorial:
-            self.game.modal_handler.show_modal(
+            self.game.modal_handler.show_simple_modal(
                 "Since you're new, let's give you a brief rundown of how to get started!",
                 "Welcome!",
                 lambda: self.game.initiate_dialogue("starting_tutorial"))
