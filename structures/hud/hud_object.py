@@ -17,7 +17,8 @@ class HudObject:
             pos: (int, int) = (0, 0),
             scale: float = 1,
             parent=None,
-            name=None,
+            id=None,
+            children_enabled=True,
             **kwargs
     ):
         self.should_preserve = False
@@ -25,7 +26,7 @@ class HudObject:
         self.parent = None
         self.visible = True
         self.children = set()
-        self.name = name
+        self.id = id
         if parent is not None:
             parent.add_child(self)
         self.game = game
@@ -36,8 +37,7 @@ class HudObject:
         self.hovering = False
         self.on_hover_start = False
         self.on_hover_end = False
-
-        self.cached_abs_rect = None
+        self.children_enabled = children_enabled
 
     @property
     def current_surface(self):
@@ -45,14 +45,11 @@ class HudObject:
 
     @property
     def absolute_rect(self):
-        if self.cached_abs_rect:
-            return self.cached_abs_rect
         left = self.rect.left
         top = self.rect.top
         rect: Rect = self.rect.copy()
         if self.parent is not None:
-            rect.topleft = (left + self.parent.rect.left, top + self.parent.rect.top)
-        self.cached_abs_rect = rect
+            rect.topleft = (left + self.parent.absolute_rect.left, top + self.parent.absolute_rect.top)
         return rect
 
     @property
@@ -99,7 +96,7 @@ class HudObject:
     def enabled(self):
         if self.game.input_handler.modal is not None and self.patriarch is not self.game.input_handler.modal:
             return False
-        if self.game.in_guide and self.name != 'ok_guide_button':
+        if self.game.in_guide and self.id != 'ok_guide_button':
             curr_guide_info = get_curr_guide_info(self.game)
             if not curr_guide_info['rect'].colliderect(self.absolute_rect) or not curr_guide_info['gui_enabled']:
                 return False
@@ -114,13 +111,13 @@ class HudObject:
             self.hovering = False
 
     def draw(self, draw_surface: pygame.Surface = None, predraw=True, children_predraw=True):
-        if not self.visible:
-            return
         if predraw:
             self.predraw()
+        if not self.visible:
+            return
         surf = self.preserve()
         self.draw_children(surface=surf, predraw=children_predraw)
-        (draw_surface and draw_surface or self.game.screen).blit(surf, self.rect)
+        (draw_surface or self.game.screen).blit(surf, self.rect)
         # if draw_surface:
         #     draw_surface.blit(surf, self.rect)
         # else:
