@@ -6,7 +6,7 @@ class EventEmitter:
     def __init__(self):
         global all_id
         self.events = {}
-        self.id = all_id
+        self.emitter_id = all_id
         all_id += 1
 
     def on(self, event, function, event_id="default"):
@@ -18,7 +18,6 @@ class EventEmitter:
         self.events[event][event_id] = None
 
     def emit(self, event, value):
-        print(f'emitting: {event} ({self.id})')
         event = self.events.get(event)
         if not event:
             return
