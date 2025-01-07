@@ -25,7 +25,7 @@ class Dropdown(DynamicHudObject):
     ):
         self.gap = gap
         self.button = button
-        self.button.subscribe('on_press_end', self.on_button_press)
+        self.button.on('on_press_end', self.on_button_press)
         self._selected = False
         super().__init__(game, size, rect_template, pos, scale, parent, object_id, children_enabled)
         self.visible = False
@@ -43,11 +43,11 @@ class Dropdown(DynamicHudObject):
             return
         self._selected = selected
         if selected:
-            self.game.input_handler.subscribe("mouse_on_up", self.on_mouse_up, "dropdown_selection")
+            self.game.input_handler.on("mouse_on_up", self.on_mouse_up, "dropdown_selection")
             self.visible = True
         else:
             self.visible = False
-            self.game.input_handler.unsubscribe("mouse_on_up", "dropdown_selection")
+            self.game.input_handler.off("mouse_on_up", "dropdown_selection")
             pass
 
     def on_mouse_up(self, event):

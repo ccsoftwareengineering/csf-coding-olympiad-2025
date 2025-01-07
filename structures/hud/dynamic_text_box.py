@@ -19,7 +19,7 @@ class DynamicTextBox(HudObject):
             size: tuple[int, int],
             text_options: TextOptions,
             text="",
-            box_template: Optional[u.RectTemplate] = None,
+            rect_template: Optional[u.RectTemplate] = None,
             pos: Optional[tuple[int, int]] = (0, 0),
             scale: Optional[float] = 1,
             select_cursor: Optional[str] = 'HIGHLIGHT',
@@ -27,7 +27,7 @@ class DynamicTextBox(HudObject):
             object_id: Optional[str] = None
     ):
         self.size = size
-        self.box_template = box_template
+        self.box_template = rect_template
         self.text_options = text_options
         self.text_object = Text(
             game,

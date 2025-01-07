@@ -75,7 +75,7 @@ class DynamicButton(Button):
         return surf, darkened
 
     def predraw(self):
-        if self.id == 'add_button':
+        if self.object_id == 'add_button':
             self.game.telemetry_handler.set_value('add_button', (self.hovering, self.on_hover_start, self.on_hover_end,
                                                   self.on_press_start, self.on_press_end))
         self.surface, self.darker_surface = self.calculate_surface()

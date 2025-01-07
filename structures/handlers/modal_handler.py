@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import pygame
 from pygame import Surface
@@ -43,6 +43,7 @@ class ModalHandler:
         ok_button_pos = u.relative_pos(self.regular_modal.get_size(), (-self.button_offset[0], self.button_offset[1]),
                                        from_xy="center-bottom")
         self.title_surface = Surface((self.box_size[0], 70), pygame.SRCALPHA)
+        self.to_cancel = False
         self.okay_button = DynamicButton(
             game,
             size=self.okay_surface.get_size(),
@@ -74,31 +75,36 @@ class ModalHandler:
         self.game.input_handler.modal = self.modal_object
         self.modal_object.surface.blit(self.title_modal if title is not None else self.regular_modal, (0, 0))
 
-    def show_custom_modal(self, hud_object: HudObject, should_close: Callable[[], bool], on_close=empty):
+    def show_custom_modal(self, hud_object: HudObject, on_close=empty):
+        self.game.input_handler.modal = hud_object
         self.curr_modal = {
             "object": hud_object,
-            "should_close": should_close,
             "type": ModalType.CUSTOM,
             "on_close": on_close
         }
 
+    def cancel_modal(self):
+        self.to_cancel = True
+
+    def modal_cleanup(self):
+        self.curr_modal = None
+        self.game.cursor_handler.cursor = "NORMAL"
+        self.game.input_handler.modal = None
+        self.game.just_ended_modal = True
+        self.to_cancel = False
+
     def draw(self):
         if self.curr_modal and not self.game.loading_handler.is_transitioning:
             if self.curr_modal['type'] == ModalType.SIMPLE:
-                if self.okay_button.on_press_end or self.game.input_handler.key_on_down.get(pygame.K_RETURN):
+                if self.okay_button.on_press_end or self.game.input_handler.key_on_down.get(
+                        pygame.K_RETURN) or self.to_cancel:
                     self.curr_modal['on_close']()
-                    self.curr_modal = None
-                    self.game.cursor_handler.cursor = "NORMAL"
-                    self.game.input_handler.modal = None
-                    self.game.just_ended_modal = True
+                    self.modal_cleanup()
                     return
                 self.modal_object.draw()
             elif self.curr_modal['type'] == ModalType.CUSTOM:
-                if self.curr_modal['should_close']():
+                if self.to_cancel:
                     self.curr_modal['on_close']()
-                    self.curr_modal = None
-                    self.game.cursor_handler.cursor = "NORMAL"
-                    self.game.input_handler.modal = None
-                    self.game.just_ended_modal = True
+                    self.modal_cleanup()
                     return
                 self.curr_modal['object'].draw()

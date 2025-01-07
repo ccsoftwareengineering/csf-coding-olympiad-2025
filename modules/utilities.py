@@ -1,12 +1,12 @@
 import os
 import sys
-from typing import Optional, Callable, Tuple
+from typing import Optional, Callable, Tuple, Literal
 
 import pygame.transform
 from pygame import Surface
 from pygame.image import load
 
-from modules.constants import dims, font_name, text_multiplier
+from modules.constants import dims, font_name, text_multiplier, default_emulated_x
 
 
 # Magic to make files work with compilation!
@@ -128,7 +128,8 @@ def rounded_rect(
         outline_color=(0, 0, 0),
         emulate_outline=False,
         emulate_radius=False,
-        double_bottom=False
+        double_bottom=False,
+        behavior: Literal['out'] | Literal['in'] = 'in'
 ):
     # Make emulated x just the x if you don't want a pixelated look
     if not emulated_x:
@@ -142,16 +143,26 @@ def rounded_rect(
     radius = emulate_radius and radius // scale or radius
 
     change = (1 if double_bottom else 0)
-    surf = Surface((scaled_xy[0] + scaled_outline_2x, scaled_xy[1] + scaled_outline_2x + change),
-                   pygame.SRCALPHA)
-    size: pygame.Rect = surf.get_rect().copy()
-    size.size = (size.w, size.h - change)
-    pygame.draw.rect(surf, outline_color, size, border_radius=radius)
-    size.top += change
-    pygame.draw.rect(surf, outline_color, size, border_radius=radius)
-    pygame.draw.rect(surf, color, (scaled_outline, scaled_outline, scaled_xy[0], scaled_xy[1]),
-                     border_radius=radius)
 
+    surf = None
+    if behavior == 'out':
+        surf = Surface((scaled_xy[0] + scaled_outline_2x, scaled_xy[1] + scaled_outline_2x + change),
+                       pygame.SRCALPHA)
+        size: pygame.Rect = surf.get_rect().copy()
+        size.size = (size.w, size.h - change)
+        pygame.draw.rect(surf, outline_color, size, border_radius=radius)
+        size.top += change
+        pygame.draw.rect(surf, outline_color, size, border_radius=radius)
+        pygame.draw.rect(surf, color, (scaled_outline, scaled_outline, scaled_xy[0], scaled_xy[1]),
+                         border_radius=radius)
+    elif behavior == 'in':
+        surf = Surface((scaled_xy[0], scaled_xy[1]),
+                       pygame.SRCALPHA)
+        size: pygame.Rect = surf.get_rect().copy()
+        pygame.draw.rect(surf, outline_color, size, border_radius=radius)
+        size.size = (size.w - scaled_outline_2x, size.h - scaled_outline_2x - change)
+        size.topleft = (scaled_outline, scaled_outline)
+        pygame.draw.rect(surf, color, size, border_radius=radius)
     return pygame.transform.scale(surf, (xy[0], xy[1]))
 
 
@@ -171,6 +182,16 @@ def rounded_rect_template(color=(255, 255, 255),
         emulated_x = lambda _: old_x
     return lambda xy: rounded_rect(xy, color, emulated_x(xy), radius, outline, outline_color, emulate_outline,
                                    emulate_radius, double_bottom)
+
+
+def quick_template(color, radius=7, dark=False):
+    return rounded_rect_template(
+        color,
+        emulated_x=default_emulated_x,
+        radius=radius,
+        outline=1,
+        outline_color=(255, 255, 255) if dark else (0, 0, 0),
+    )
 
 
 # if a pos (x, y) is in a rect
@@ -243,3 +264,12 @@ def expand_rect_outline(r: pygame.Rect, outline: int = 0) -> pygame.Rect:
 def rect_from_to(pos1: tuple[int, int], pos2: tuple[int, int]) -> pygame.Rect:
     size = (pos2[0] - pos1[0], pos2[1] - pos1[1])
     return pygame.Rect(pos1[0], pos1[1], size[0], size[1])
+
+
+ui_rect_template = rounded_rect_template(
+    color=(0, 97, 183),  # (255, 162, 112),
+    emulated_x=default_emulated_x,
+    outline=1,
+    double_bottom=True,
+    radius=7
+)

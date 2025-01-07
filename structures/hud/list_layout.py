@@ -16,8 +16,8 @@ class ListLayout(HudObject):
     def __init__(
             self,
             game: 'Game',
-            min_width: Optional[Tuple[int, int]] = (0, 0),
-            max_width: Optional[Tuple[int, int]] = (inf, inf),
+            min_size: Optional[Tuple[int, int]] = (0, 0),
+            max_size: Optional[Tuple[int, int]] = (inf, inf),
             size: Optional[Tuple[int, int]] = None,
             direction: Direction = Direction.DOWN,
             position: Optional[Tuple[int, int]] = (0, 0),
@@ -34,11 +34,11 @@ class ListLayout(HudObject):
         self._anchor_point = anchor_point
         self.gap = gap
         self.padding = padding
-        self.min_size = min_width
-        self.max_size = max_width
+        self.min_size = min_size
+        self.max_size = max_size
         if size:
-            self.min_size = size[0]
-            self.max_size = size[1]
+            self.min_size = size
+            self.max_size = size
         self.rect_template = rect_template
         self.children_list: list[HudObject] = []
         self.direction_multiplier = 1 if self.direction in (Direction.DOWN, Direction.RIGHT) else -1
@@ -68,7 +68,7 @@ class ListLayout(HudObject):
                 self.rect.width + x_offset, self.rect.height + y_offset),
         }
         self.calc_function = self.anchor_calc_map[self._anchor_point]
-        super().__init__(game, Surface(min_width, pygame.SRCALPHA), pos=position, object_id=object_id, parent=parent, scale=scale)
+        super().__init__(game, Surface(min_size, pygame.SRCALPHA), pos=position, object_id=object_id, parent=parent, scale=scale)
         setattr(self.rect, anchor_map[anchor_point.value], position)  # type: ignore[int]
 
         # supposed to be able to list elements with a gap in any direction and work regardless of the lists anchor point

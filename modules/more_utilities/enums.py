@@ -52,12 +52,3 @@ class HorizontalAlignment(Enum):
     LEFT = 0
     CENTER = 1
     RIGHT = 2,
-
-
-class PlantType(Enum):
-    FOSSIL_FUEL = 'fossil fuel power station',
-    SOLAR = 'solar power plant',
-    WIND = 'wind farm',
-    GEOTHERMAL = 'geothermal power plant',
-    HYDROPOWER = 'hydroelectric power plant',
-    NUCLEAR = 'nuclear power plant',

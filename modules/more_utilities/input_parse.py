@@ -1,5 +1,6 @@
 from math import inf
 
+
 def input_parse_text(raw_input: str, input_data):
     max_length = input_data['options'].get('max_length') or inf
     min_length = input_data['options'].get('min_length') or 0

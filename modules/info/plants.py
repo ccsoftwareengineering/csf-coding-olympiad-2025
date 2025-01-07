@@ -1,6 +1,16 @@
-from modules.more_utilities.enums import PlantType
+from enum import Enum
 
-power_plants = {
+
+class PlantType(Enum):
+    FOSSIL_FUEL = 'fossil fuel power station',
+    SOLAR = 'solar power plant',
+    WIND = 'wind farm',
+    GEOTHERMAL = 'geothermal power plant',
+    HYDROPOWER = 'hydroelectric power plant',
+    NUCLEAR = 'nuclear power plant',
+
+
+plants = {
     PlantType.FOSSIL_FUEL: {
         "cost": 500_000,
         "output_mw": 50,
@@ -8,7 +18,8 @@ power_plants = {
         "location_constraints": "None (Can be placed anywhere)",
         "description": "Generates reliable energy at a low upfront cost. However, it produces high levels of "
                        "pollution and contributes to environmental degradation.",
-        "size": 10
+        "size": 10,
+        "upkeep": 100_000
     },
     PlantType.SOLAR: {
         "cost": 750_000,
@@ -16,7 +27,8 @@ power_plants = {
         "pollution_tco2e": 0,
         "location_constraints": "Produces clean, renewable energy with minimal pollution. Its energy output is "
                                 "limited and can fluctuate depending on weather conditions.",
-        "size": 8
+        "size": 8,
+        "upkeep": 50_000
     },
     PlantType.WIND: {
         "cost": 1_000_000,
@@ -24,7 +36,8 @@ power_plants = {
         "pollution_tco2e": 0,
         "location_constraints": "Provides renewable energy with zero emissions. Energy production is less predictable "
                                 "and depends on wind availability.",
-        "size": 30
+        "size": 30,
+        "upkeep": 80_000
     },
     PlantType.GEOTHERMAL: {
         "cost": 1_500_000,

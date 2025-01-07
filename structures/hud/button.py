@@ -3,12 +3,14 @@ from typing import TYPE_CHECKING
 
 import pygame
 
+from structures.event_emitter import EventEmitter
+
 if TYPE_CHECKING:
     from structures.game import Game
 from structures.hud.hud_object import HudObject
 
 
-class Button(HudObject):
+class Button(HudObject, EventEmitter):
     def __init__(
             self,
             game: 'Game',
@@ -19,6 +21,8 @@ class Button(HudObject):
             parent: Optional[HudObject] = None,
             object_id: Optional[str] = None
     ):
+        super().__init__(game, surface, pos, scale, object_id=object_id, parent=parent)
+        EventEmitter.__init__(self)
         # Press Events
         self.on_press_start = False
         self.on_press_end = False
@@ -28,26 +32,8 @@ class Button(HudObject):
         self.on_hover_start = False
         self.on_hover_end = False
         self.hovering = False
-        self.event_dict_map = {}
-        super().__init__(game, surface, pos, scale, object_id=object_id, parent=parent)
         self.darker_surface = self.get_darker_surface()
         self.select_cursor = select_cursor
-
-    def subscribe(self, event, function, event_id="default"):
-        if event not in self.event_dict_map:
-            self.event_dict_map[event] = {}
-        self.event_dict_map[event][event_id] = function
-
-    def unsubscribe(self, event, event_id="default"):
-        self.event_dict_map[event][event_id] = None
-
-    def run_events(self, event, value):
-        event = self.event_dict_map.get(event)
-        if not event:
-            return
-        for func in event.values():
-            if func is not None:
-                func(value)
 
     def get_darker_surface(self, surface=None):
         if surface is None:
@@ -59,19 +45,36 @@ class Button(HudObject):
         darker_surface.blit(mask, (0, 0))
         return darker_surface
 
+    def reset_events(self):
+        self.on_press_start = False
+        self.on_press_end = False
+        self.on_hover_start = False
+        self.on_hover_end = False
+
     def handle_events(self):
+        if not self.enabled:
+            self.reset_events()
+            return
         if self.on_hover_start:
-            self.run_events('on_hover_start', self)
+            self.emit('on_hover_start', self)
+            self.game.input_handler.buttons.emit('on_hover_start', self)
         if self.hovering:
-            self.run_events('hovering', self)
+            self.emit('hovering', self)
+            self.game.input_handler.buttons.emit('hovering', self)
         if self.on_press_start:
-            self.run_events('on_press_start', self)
+            self.emit('on_press_start', self)
+            self.game.input_handler.buttons.emit('on_press_start', self)
         if self.pressing:
-            self.run_events('pressing', self)
+            self.emit('pressing', self)
+            self.game.input_handler.buttons.emit('pressing', self)
         if self.on_press_end:
-            self.run_events('on_press_end', self)
+            self.emit('on_press_end', self)
+            self.game.input_handler.buttons.emit('on_press_end', self)
         if self.on_hover_end:
-            self.run_events('on_hover_end', self)
+            self.emit('on_hover_end', self)
+            self.game.input_handler.buttons.emit('on_hover_end', self)
+
+        self.reset_events()
 
     def predraw(self):
         pos = pygame.mouse.get_pos()

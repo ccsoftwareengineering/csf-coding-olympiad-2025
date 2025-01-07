@@ -14,6 +14,7 @@ game.set_state(GameState.HOME)
 
 developer_player = Player(game, "<Developer>")
 game.player = developer_player
+game.player.did_tutorial = True
 
 while game.running:
     game.update()

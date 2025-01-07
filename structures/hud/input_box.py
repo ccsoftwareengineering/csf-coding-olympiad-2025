@@ -106,10 +106,10 @@ class InputBox(HudObject):
             if self.game.input_handler.selected_input_box:
                 self.game.input_handler.selected_input_box.set_selected(False)
             self.game.input_handler.selected_input_box = self
-            self.game.input_handler.subscribe("mouse_on_up", self.on_mouse_up, "input_box_selection")
+            self.game.input_handler.on("mouse_on_up", self.on_mouse_up, "input_box_selection")
         else:
             self.game.input_handler.selected_input_box = None
-            self.game.input_handler.unsubscribe("mouse_on_up", "input_box_selection")
+            self.game.input_handler.off("mouse_on_up", "input_box_selection")
 
     def calculate_surface(self, y=None):
         return u.rounded_rect(

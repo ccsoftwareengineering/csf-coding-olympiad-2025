@@ -37,6 +37,8 @@ class CursorHandler:
             'INPUT': self.get_cursor_and_offsets((7, 1)),
             'NEXT': self.get_cursor_and_offsets((3, 12)),
             'ADD': self.get_cursor_and_offsets((6, 2), (-8, 0)),
+            'POINT_QUESTION': self.get_cursor_and_offsets((8, 3)),
+            'MODIFY': self.get_cursor_and_offsets((6, 12))
         }
         self._cursor = 'NORMAL'
         self.cursor_icon = self.cursors['NORMAL'][0]

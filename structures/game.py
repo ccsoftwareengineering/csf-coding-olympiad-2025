@@ -38,6 +38,7 @@ class Game:
     okay_surface = u.load_scale('assets/okay_button.png', factor=2)
 
     globals = GlobalStore()
+    hud_object_store = GlobalStore()
 
     curr_dialogue = None
     in_guide = False
@@ -63,7 +64,7 @@ class Game:
             elif ev.key == pygame.K_F11:
                 self.screen = pygame.display.set_mode(dims, pygame.SCALED | pygame.FULLSCREEN)
 
-        self.input_handler.subscribe('key_on_down', fullscreen_keybinding, 'fullscreen')
+        self.input_handler.on('key_on_down', fullscreen_keybinding, 'fullscreen')
         self.in_dialogue = False
         self.in_guide = False
         self.dialogues = None

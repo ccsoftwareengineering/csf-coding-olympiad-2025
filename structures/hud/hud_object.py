@@ -26,7 +26,9 @@ class HudObject:
         self.parent = None
         self.visible = True
         self.children = set()
-        self.id = object_id
+        self.object_id = object_id
+        if object_id:
+            game.hud_object_store.set(object_id, self)
         if parent is not None:
             parent.add_child(self)
         self.game = game
@@ -96,7 +98,7 @@ class HudObject:
     def enabled(self):
         if self.game.input_handler.modal is not None and self.patriarch is not self.game.input_handler.modal:
             return False
-        if self.game.in_guide and self.id != 'ok_guide_button':
+        if self.game.in_guide and self.object_id != 'ok_guide_button':
             curr_guide_info = get_curr_guide_info(self.game)
             if not curr_guide_info['rect'].colliderect(self.absolute_rect) or not curr_guide_info['gui_enabled']:
                 return False

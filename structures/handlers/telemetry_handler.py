@@ -50,4 +50,4 @@ class TelemetryHandler:
             if event.key == pygame.K_o and input_handler.is_key_down(pygame.K_LCTRL):
                 self.enabled = not self.enabled
 
-        input_handler.subscribe('key_on_down', on_o_press, 'telemetry_window_enable')
+        input_handler.on('key_on_down', on_o_press, 'telemetry_window_enable')

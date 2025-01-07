@@ -2,10 +2,11 @@ import pygame
 from pygame import Surface
 
 from modules import utilities as u
-from modules.constants import default_emulated_x, dims
+from modules.constants import default_emulated_x, dims, ui_color_light
 from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment
 from modules.utilities import display_number
 from scenes.main_ui.money_display import MoneyDisplay
+from scenes.main_ui.selector_prompt import SelectorPrompt
 from structures.game import Game
 from structures.hud.button import Button
 from structures.hud.dropdown import Dropdown
@@ -41,13 +42,6 @@ class MainScene(Scene):
 
     def __init__(self, game: 'Game'):
         super().__init__(game)
-        self.ui_rect_template = u.rounded_rect_template(
-            color=(0, 97, 183),  # (255, 162, 112),
-            emulated_x=default_emulated_x,
-            outline=1,
-            double_bottom=True,
-            radius=7
-        )
         self.country = u.rescale(self.game.country_detail, factor=self.country_factor)
 
         self.tr_ui = ListLayout(
@@ -58,14 +52,14 @@ class MainScene(Scene):
             padding=13,
             side=HorizontalAlignment.LEFT,
             position=u.relative_pos(self.game.screen.get_size(), (10, 10), from_xy='right-top'),
-            rect_template=self.ui_rect_template
+            rect_template=u.ui_rect_template
         )
 
         self.tc_ui = DynamicTextBox(
             self.game,
             (300, 150),
             {"color": (255, 255, 255), "size": 32, "outline": 2, "outline_color": (0, 0, 0), "xy": (None, 20)},
-            box_template=self.ui_rect_template,
+            rect_template=u.ui_rect_template,
             text=f'YEAR X',
         )
         self.tc_ui.rect.midtop = u.relative_pos(dims, (0, 10), from_xy='center-top')
@@ -77,7 +71,7 @@ class MainScene(Scene):
             rect_template=u.rounded_rect_template(
                 outline=1,
                 emulated_x=default_emulated_x,
-                color=(148, 180, 239),
+                color=ui_color_light,
                 radius=7
             ),
             text_options={"size": 20},
@@ -94,8 +88,8 @@ class MainScene(Scene):
             gap=5,
             padding=20,
             position=u.relative_pos(self.game.screen.get_size(), (20, 20), from_xy='left-bottom'),
-            rect_template=self.ui_rect_template,
-            max_width=(300, 10_000),
+            rect_template=u.ui_rect_template,
+            max_size=(300, 10_000),
         )
 
         self.budget_display = Text(self.game, wrap=True, outline=1, size=15, parent=self.bl_ui, max_width=300)
@@ -105,7 +99,7 @@ class MainScene(Scene):
             color=(255, 255, 255),  # (255, 162, 112),
             emulated_x=default_emulated_x,
             outline=1,
-            radius=7
+            radius=20,
         )
         self.tr_buttons = {
             'settings_button': Button(self.game, self.settings_icon, object_id="settings_button", parent=self.tr_ui),
@@ -138,8 +132,8 @@ class MainScene(Scene):
             parent=self.add_dropdown,
             side=HorizontalAlignment.RIGHT,
             position=(0, 0),
-            rect_template=self.ui_rect_template,
-            max_width=(300, 300),
+            rect_template=u.ui_rect_template,
+            max_size=(300, 300),
             gap=10,
             padding=button_dropdown_space
         )
@@ -154,14 +148,23 @@ class MainScene(Scene):
         )
         self.add_dropdown_button_list = (dbl, {
             'plant': manufacture_button('Plant'),
-            'campaign': manufacture_button('Campaign'),
+            # 'campaign': manufacture_button('Campaign'),
             'infra': manufacture_button('Infrastructure'),
         })
+
+        for button_type, btn in self.add_dropdown_button_list[1].items():
+            btn.on('on_press_end', lambda _: self.create_selector_prompt(button_type))
+
+        self.selector_prompts = None
 
         # To make introduction dialogue see it
         self.tr_ui.predraw()
         self.bl_ui.predraw()
         self.tc_ui.predraw()
+
+    def create_selector_prompt(self, which):
+        self.add_dropdown.selected = False
+        self.game.modal_handler.show_custom_modal(self.selector_prompts[which])
 
     def define_game_variables(self):
         return {}
@@ -192,7 +195,7 @@ class MainScene(Scene):
         self.draw_ui()
 
     def init(self):
-        self.game.input_handler.subscribe('mouse_wheel', self.mouse_scroll, 'main_zoom')
+        self.game.input_handler.on('mouse_wheel', self.mouse_scroll, 'main_zoom')
         self.tc_ui.text_object.text = f'YEAR {self.game.player.year}'
         self.budget_display.text = f'Annual Budget Allocation: ${display_number(self.game.player.budget_increase)}'
         if not self.game.player.did_tutorial:
@@ -200,6 +203,11 @@ class MainScene(Scene):
                 "Since you're new, let's give you a brief rundown of how to get started!",
                 "Welcome!",
                 lambda: self.game.initiate_dialogue("starting_tutorial"))
+        self.selector_prompts = {
+            'plant': SelectorPrompt(self.game, 'plant'),
+            # 'campaign': SelectorPrompt(self.game, 'campaign'),
+            'infra': SelectorPrompt(self.game, 'infra'),
+        }
 
     def cleanup(self):
-        self.game.input_handler.unsubscribe('mouse_wheel', 'main_zoom')
+        self.game.input_handler.off('mouse_wheel', 'main_zoom')

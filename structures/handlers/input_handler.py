@@ -1,6 +1,7 @@
 import pygame
 import typing
 
+from structures.event_emitter import EventEmitter
 from structures.hud.hud_object import HudObject
 
 if typing.TYPE_CHECKING:
@@ -8,7 +9,7 @@ if typing.TYPE_CHECKING:
     from structures.game import Game
 
 
-class InputHandler:
+class InputHandler(EventEmitter):
     def __init__(self, game: 'Game'):
         self.game = game
         # Makes game ignore inputs put into an input box!
@@ -23,35 +24,14 @@ class InputHandler:
         self.mouse_down = set()
         self.mouse_on_up = {}
 
+        self.buttons = EventEmitter()
+
         self.mouse_focused = True
 
-        self.event_dict_map = {
-            # 'key_on_down': {},
-            # 'key_down': {},
-            # 'key_on_up': {},
-            # 'mouse_on_down': {},
-            # 'mouse_down': {},
-            # 'mouse_on_up': {},
-        }
+        super().__init__()
 
     def is_key_down(self, key):
         return key in self.key_down
-
-    def subscribe(self, event, function, event_id="default"):
-        if event not in self.event_dict_map:
-            self.event_dict_map[event] = {}
-        self.event_dict_map[event][event_id] = function
-
-    def unsubscribe(self, event, event_id="default"):
-        self.event_dict_map[event][event_id] = None
-
-    def run_events(self, event, value):
-        event = self.event_dict_map.get(event)
-        if not event:
-            return
-        for func in event.values():
-            if func is not None:
-                func(value)
 
     def get_key_names_down(self):
         final = []
@@ -67,11 +47,11 @@ class InputHandler:
             qualifier = event.key not in self.key_down
             self.key_down.add(event.key)
             self.game.telemetry_handler.set_value('Keys Down', '+'.join(self.get_key_names_down()))
-            # self.run_events('key_down', event.key)
+            # self.emit('key_down', event.key)
             if qualifier:
                 self.key_on_down[event.key] = True
                 self.game.telemetry_handler.set_value('Key Down', pygame.key.name(event.key))
-                self.run_events('key_on_down', event)
+                self.emit('key_on_down', event)
         elif event.type == pygame.KEYUP:
             if self.selected_input_box is not None:
                 self.selected_input_box.process_up(event)
@@ -80,18 +60,18 @@ class InputHandler:
             self.key_down.discard(event.key)
             self.game.telemetry_handler.set_value('Key Up', pygame.key.name(event.key))
             self.game.telemetry_handler.set_value('Keys Down', '+'.join(self.get_key_names_down()))
-            self.run_events('key_on_up', event)
+            self.emit('key_on_up', event)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             self.mouse_down.add(event.button)
-            self.run_events('mouse_down', event)
+            self.emit('mouse_down', event)
             if event.button not in self.mouse_down:
                 self.mouse_on_down[event.button] = True
-                self.run_events('mouse_on_down', event)
+                self.emit('mouse_on_down', event)
 
         elif event.type == pygame.MOUSEBUTTONUP:
             self.mouse_on_up[event.button] = True
-            self.run_events('mouse_on_up', event)
+            self.emit('mouse_on_up', event)
             self.mouse_down.discard(event.button)
 
         elif event.type == pygame.ACTIVEEVENT:
@@ -100,13 +80,13 @@ class InputHandler:
                     self.mouse_focused = True
                 else:
                     self.mouse_focused = False
-            self.run_events('active_event', event)
+            self.emit('active_event', event)
         elif event.type == pygame.MOUSEWHEEL:
-            self.run_events('mouse_wheel', event)
+            self.emit('mouse_wheel', event)
         else:
             name = pygame.event.event_name(event.type)
             self.game.telemetry_handler.set_value('Event Name', name)
-            events = self.event_dict_map.get(name)
+            events = self.events.get(name)
             if events:
                 for fn in events:
                     fn(events)
@@ -117,4 +97,4 @@ class InputHandler:
         self.mouse_on_down = {}
         self.mouse_on_up = {}
         for key in self.key_down:
-            self.run_events('key_down', key)
+            self.emit('key_down', key)

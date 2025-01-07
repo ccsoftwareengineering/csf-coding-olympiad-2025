@@ -27,8 +27,8 @@ introduction = lambda game: ([
                         "input_submit": lambda data: setattr(game, 'player', Player(game, data)),
                     }),
                     (
-                        lambda: f"{game.player.id}? {
-                        developer_name_comment(game.player.id)} Now what for the object_id of your island?",
+                        lambda: f"{game.player.object_id}? {
+                        developer_name_comment(game.player.object_id)} Now what for the object_id of your island?",
                         {
                             "input": input_data("island_name", placeholder="Write your island object_id here",
                                                 options={"min_length": 3}),
