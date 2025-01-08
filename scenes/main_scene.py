@@ -137,23 +137,24 @@ class MainScene(Scene):
             gap=10,
             padding=button_dropdown_space
         )
-        manufacture_button = lambda text: DynamicButton(
+        manufacture_button = lambda text, mtype: DynamicButton(
             game,
             (300 - button_dropdown_space * 2, 38),
             text_options={"size": 18, "color": (0, 0, 0)},
             rect_template=white_template,
             text=text,
             object_id=text.lower().replace(' ', '_'),
-            parent=dbl
+            parent=dbl,
+            attributes={"type": mtype}
         )
-        self.add_dropdown_button_list = (dbl, {
-            'plant': manufacture_button('Plant'),
+        self.add_dropdown_button_list = (dbl, (
+            manufacture_button('Plant', 'plant'),
             # 'campaign': manufacture_button('Campaign'),
-            'infra': manufacture_button('Infrastructure'),
-        })
+            manufacture_button('Infrastructure', 'infra'),
+        ))
 
-        for button_type, btn in self.add_dropdown_button_list[1].items():
-            btn.on('on_press_end', lambda _: self.create_selector_prompt(button_type))
+        for btn in self.add_dropdown_button_list[1]:
+            btn.on('on_press_end', lambda b: self.create_selector_prompt(b.attributes.get('type')))
 
         self.selector_prompts = None
 
@@ -185,8 +186,6 @@ class MainScene(Scene):
     def draw_ui(self):
         self.tr_ui.draw()
         self.add_dropdown.draw()
-        a = tuple(x.rect.topleft for x in self.add_dropdown_button_list[1].values())
-        self.game.telemetry_handler.set_value('positions', a)
         self.bl_ui.draw()
         self.tc_ui.draw()
 

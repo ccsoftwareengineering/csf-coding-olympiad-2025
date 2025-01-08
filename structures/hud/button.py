@@ -19,9 +19,10 @@ class Button(HudObject, EventEmitter):
             scale: Optional[float] = 1,
             select_cursor: Optional[str] = 'HIGHLIGHT',
             parent: Optional[HudObject] = None,
-            object_id: Optional[str] = None
+            object_id: Optional[str] = None,
+            attributes=None
     ):
-        super().__init__(game, surface, pos, scale, object_id=object_id, parent=parent)
+        super().__init__(game, surface, pos, scale, object_id=object_id, parent=parent, attributes=attributes)
         EventEmitter.__init__(self)
         # Press Events
         self.on_press_start = False

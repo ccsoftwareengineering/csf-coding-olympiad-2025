@@ -13,9 +13,11 @@ class EventEmitter:
         if event not in self.events:
             self.events[event] = {}
         self.events[event][event_id] = function
+        return self
 
     def off(self, event, event_id="default"):
         self.events[event][event_id] = None
+        return self
 
     def emit(self, event, value):
         event = self.events.get(event)
@@ -24,3 +26,4 @@ class EventEmitter:
         for func in event.values():
             if func is not None:
                 func(value)
+        return self

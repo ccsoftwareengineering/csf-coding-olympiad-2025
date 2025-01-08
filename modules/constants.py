@@ -7,3 +7,4 @@ black = (0, 0, 0)
 
 ui_color = (0, 97, 183)
 ui_color_light = (148, 180, 239)
+ui_color_dark = (2, 55, 102)

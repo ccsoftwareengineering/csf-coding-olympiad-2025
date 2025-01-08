@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class InfraType(Enum):
-    BATTERY_ENERGY_GRID_STORAGE = "battery_energy_grid_storage",
+    BATTERY_ENERGY_GRID_STORAGE = "battery energy grid storage",
     PUMPED_HYDROELECTRIC_ENERGY_STORAGE = "pumped hydroelectric energy storage",
     MAINTENANCE_CENTER = "maintenance center",
 

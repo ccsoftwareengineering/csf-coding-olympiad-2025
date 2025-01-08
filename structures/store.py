@@ -1,5 +1,8 @@
-class GlobalStore:
-    main_dict = {}
+class Store:
+    def __init__(self, init=None):
+        if not init:
+            init = {}
+        self.main_dict = init
 
     def set(self, key: str, value: any):
         self.main_dict[key] = value

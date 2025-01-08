@@ -7,7 +7,7 @@ from modules import utilities as u
 from modules.constants import dims
 from modules.dialogue import dialogues
 from modules.more_utilities.enums import GameState
-from structures.global_store import GlobalStore
+from structures.store import Store
 from structures.handlers.cursor_handler import CursorHandler
 from structures.handlers.dialogue_handler import DialogueHandler
 from structures.handlers.guide_handler import GuideHandler
@@ -37,8 +37,8 @@ class Game:
     title_modal = u.load_scale('assets/title_modal.png', factor=4)
     okay_surface = u.load_scale('assets/okay_button.png', factor=2)
 
-    globals = GlobalStore()
-    hud_object_store = GlobalStore()
+    globals = Store()
+    hud_object_store = Store()
 
     curr_dialogue = None
     in_guide = False

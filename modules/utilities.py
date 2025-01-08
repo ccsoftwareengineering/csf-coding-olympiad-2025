@@ -170,7 +170,7 @@ type RectTemplate = Callable[[Tuple[int, int]], pygame.Surface]
 
 
 def rounded_rect_template(color=(255, 255, 255),
-                          emulated_x: Optional[int | Callable] = None,
+                          emulated_x: Optional[int | Callable] = default_emulated_x,
                           radius=0,
                           outline=0,
                           outline_color=(0, 0, 0),
@@ -224,14 +224,14 @@ def empty():
     pass
 
 
-def comma_adder(amount: int):
+def comma_adder(amount: float | int):
     return f"{amount:,}"
 
 
 units = ('K', 'M', 'B', 'T', 'Qd', 'Qt', 'Sx', 'Sp', 'Oc', 'Nt', 'Dc',)
 
 
-def display_number(amount: int):
+def display_number(amount: float | int):
     return comma_adder(amount)
     # if amount < 1000:
     #     return str(amount)
@@ -273,3 +273,15 @@ ui_rect_template = rounded_rect_template(
     double_bottom=True,
     radius=7
 )
+
+
+def mw_to_h(megawatts: int):
+    return megawatts * 8760
+
+
+def display_wh(mw_hours: int):
+    if mw_hours < 1000:
+        return f'{mw_hours:,.0f} MWh'
+    else:
+        rd = round(mw_hours / 1000, 2)
+        return f'{display_number(rd)} GWh'

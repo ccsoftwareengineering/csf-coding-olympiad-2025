@@ -4,6 +4,7 @@ import pygame
 from pygame import Rect
 
 from modules.more_utilities.guide_helpers import get_curr_guide_info
+from structures.store import Store
 
 if TYPE_CHECKING:
     from structures.game import Game
@@ -19,8 +20,11 @@ class HudObject:
             parent=None,
             object_id=None,
             children_enabled=True,
+            attributes=None,
             **kwargs
     ):
+        if not attributes:
+            attributes = {}
         self.should_preserve = False
         self.to_draw_surface = None
         self.parent = None
@@ -40,6 +44,7 @@ class HudObject:
         self.on_hover_start = False
         self.on_hover_end = False
         self.children_enabled = children_enabled
+        self.attributes = Store(attributes)
 
     @property
     def current_surface(self):

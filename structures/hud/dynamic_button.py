@@ -33,7 +33,10 @@ class DynamicButton(Button):
             scale: Optional[float] = 1,
             select_cursor: Optional[str] = 'HIGHLIGHT',
             parent: Optional[HudObject] = None,
-            object_id: Optional[str] = None
+            object_id: Optional[str] = None,
+            attributes: Optional[dict[str, any]] = None,
+            wrap: Optional[int] = False,
+            max_text_width: Optional[int] = None
     ):
         self.size = size
         self.box_template = rect_template
@@ -44,9 +47,11 @@ class DynamicButton(Button):
             color=text_options.get('color'),
             outline=text_options.get('outline'),
             outline_color=text_options.get('outline_color'),
-            wrap=False
+            max_width=max_text_width,
+            wrap=wrap
         )
-        super().__init__(game, Surface((0, 0), pygame.SRCALPHA), pos, scale, select_cursor, parent, object_id)
+        super().__init__(game, Surface((0, 0), pygame.SRCALPHA), pos, scale, select_cursor, parent, object_id,
+                         attributes=attributes)
         self.surface, self.darker_surface = self.calculate_surface()
         self.rect.size = self.surface.get_size()
         self.text_object.text = text
@@ -77,7 +82,7 @@ class DynamicButton(Button):
     def predraw(self):
         if self.object_id == 'add_button':
             self.game.telemetry_handler.set_value('add_button', (self.hovering, self.on_hover_start, self.on_hover_end,
-                                                  self.on_press_start, self.on_press_end))
+                                                                 self.on_press_start, self.on_press_end))
         self.surface, self.darker_surface = self.calculate_surface()
         self.rect.size = self.surface.get_size()
         super().predraw()
