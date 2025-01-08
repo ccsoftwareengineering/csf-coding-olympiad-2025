@@ -1,10 +1,8 @@
-from math import ceil
-
 import pygame
 from pygame import Surface
 
 from modules import utilities as u
-from modules.constants import default_emulated_x, dims, ui_color_light, red, white
+from modules.constants import default_emulated_x, dims, ui_color_light, red, white, green
 from modules.info.info import info_map
 from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment
 from modules.utilities import display_number
@@ -168,8 +166,8 @@ class MainScene(Scene):
             emulated_x=lambda xy: xy[0] * 4,
             behavior='in')
 
-        self.placement_template = manufacture_placement_template((145, 247, 116))
-        self.placement_template_invalid = manufacture_placement_template(red)
+        self.placement_color = green
+        self.placement_color = red
 
         # To make introduction dialogue see it
         self.tr_ui.predraw()
@@ -205,11 +203,17 @@ class MainScene(Scene):
     def draw(self):
         if self.game.input_handler.key_on_down.get(pygame.K_ESCAPE):
             self.game.placement_info = None
+
+        if self.game.input_handler.mouse_on_down.get(1) and self.game.placement_info is not None:
+            print(f'handle placement of {
+            self.game.placement_info['type'].value[0]}')
+            # handle suffering here
         self.draw_map()
-        if self.game.input_handler.in_placement:
+        if self.game.placement_info is not None:
             size = info_map[self.game.placement_info['category']][self.game.placement_info['type']]['size']
-            place_surf = pygame.transform.scale_by(self.placement_template(size), self.zoom_factor)
-            place_surf.set_colorkey(white)
+            place_surf = pygame.transform.scale_by(Surface(size, pygame.SRCALPHA), self.zoom_factor / 2)
+            place_surf.fill(green)
+            place_surf.set_alpha(155)
             rect = place_surf.get_rect()
             rect.center = pygame.mouse.get_pos()
             self.game.screen.blit(place_surf, rect)

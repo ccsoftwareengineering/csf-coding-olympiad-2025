@@ -166,7 +166,9 @@ def rounded_rect(
                        pygame.SRCALPHA)
         size: pygame.Rect = surf.get_rect().copy()
         pygame.draw.rect(surf, outline_color, size, border_radius=radius)
-        size.size = (size.w - scaled_outline_2x, size.h - scaled_outline_2x - change)
+        size.size = (
+            size.w - scaled_outline_2x,# - (1 if scaled_xy[0] - size.w - scaled_outline_2x == 0 else 0),
+            size.h - scaled_outline_2x)# - (1 if scaled_xy[1] - size.h - scaled_outline_2x == 0 else 0) - change)
         size.topleft = (scaled_outline, scaled_outline)
         pygame.draw.rect(surf, color, size, border_radius=radius)
     if scale == 1:
