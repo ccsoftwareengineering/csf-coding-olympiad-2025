@@ -1,8 +1,11 @@
+from math import ceil
+
 import pygame
 from pygame import Surface
 
 from modules import utilities as u
-from modules.constants import default_emulated_x, dims, ui_color_light
+from modules.constants import default_emulated_x, dims, ui_color_light, red, white
+from modules.info.info import info_map
 from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment
 from modules.utilities import display_number
 from scenes.main_ui.money_display import MoneyDisplay
@@ -158,6 +161,16 @@ class MainScene(Scene):
 
         self.selector_prompts = None
 
+        manufacture_placement_template = lambda outline_color: u.rounded_rect_template(
+            white, outline=2,
+            emulate_outline=True,
+            outline_color=outline_color,
+            emulated_x=lambda xy: xy[0] * 4,
+            behavior='in')
+
+        self.placement_template = manufacture_placement_template((145, 247, 116))
+        self.placement_template_invalid = manufacture_placement_template(red)
+
         # To make introduction dialogue see it
         self.tr_ui.predraw()
         self.bl_ui.predraw()
@@ -190,7 +203,16 @@ class MainScene(Scene):
         self.tc_ui.draw()
 
     def draw(self):
+        if self.game.input_handler.key_on_down.get(pygame.K_ESCAPE):
+            self.game.placement_info = None
         self.draw_map()
+        if self.game.input_handler.in_placement:
+            size = info_map[self.game.placement_info['category']][self.game.placement_info['type']]['size']
+            place_surf = pygame.transform.scale_by(self.placement_template(size), self.zoom_factor)
+            place_surf.set_colorkey(white)
+            rect = place_surf.get_rect()
+            rect.center = pygame.mouse.get_pos()
+            self.game.screen.blit(place_surf, rect)
         self.draw_ui()
 
     def init(self):

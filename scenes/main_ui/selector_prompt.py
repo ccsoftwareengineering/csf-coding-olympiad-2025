@@ -2,9 +2,8 @@ from typing import TYPE_CHECKING
 
 import pygame
 
-from modules.constants import white, black, ui_color_light, ui_color_dark
-from modules.info.infra import infra
-from modules.info.plants import plants
+from modules.constants import white, black, ui_color_light, ui_color_dark, red
+from modules.info.info import info_map
 from modules.more_utilities.enums import Direction, AnchorPoint
 from structures.hud.dynamic_button import DynamicButton
 from structures.hud.dynamic_hud_object import DynamicHudObject
@@ -16,12 +15,6 @@ if TYPE_CHECKING:
     from structures.game import Game
 
 import modules.utilities as u
-
-info_map = {
-    'plant': plants,
-    'infra': infra,
-    # 'campaign': {}
-}
 
 
 class SelectorPrompt(DynamicHudObject):
@@ -85,7 +78,7 @@ class SelectorPrompt(DynamicHudObject):
             text="SELECT!"
         )
 
-        red_template = u.quick_template((207, 58, 48))
+        red_template = u.quick_template(red)
 
         self.cannot_afford = DynamicTextBox(
             game,
@@ -154,7 +147,8 @@ class SelectorPrompt(DynamicHudObject):
 
     def predraw(self):
         if self.select_button.on_press_start:
-            self.game.se
+            self.game.placement_info = {"category": self.which, "type": self.selected[0]}
+            self.game.modal_handler.cancel_modal()
         if self.game.input_handler.key_on_down.get(pygame.K_DOWN):
             self.selected_index += 1
         elif self.game.input_handler.key_on_down.get(pygame.K_UP):

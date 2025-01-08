@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 import pygame
 import pygame._sdl2 as pg_sdl2
@@ -7,7 +8,6 @@ from modules import utilities as u
 from modules.constants import dims
 from modules.dialogue import dialogues
 from modules.more_utilities.enums import GameState
-from structures.store import Store
 from structures.handlers.cursor_handler import CursorHandler
 from structures.handlers.dialogue_handler import DialogueHandler
 from structures.handlers.guide_handler import GuideHandler
@@ -16,6 +16,7 @@ from structures.handlers.loading_handler import LoadingHandler
 from structures.handlers.modal_handler import ModalHandler
 from structures.handlers.telemetry_handler import TelemetryHandler
 from structures.scene import Scene
+from structures.store import Store
 
 pygame.init()
 
@@ -49,7 +50,9 @@ class Game:
     on_press_end = {}
 
     running = True
+
     player = None
+    placement_info: Optional[dict[str, any]] = None
 
     def __init__(self, show_fps=False):
         pygame.display.set_caption("Power Island")

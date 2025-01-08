@@ -4,7 +4,7 @@ import pygame
 from pygame import Surface, K_RETURN
 
 import modules.utilities as u
-from modules.constants import default_emulated_x
+from modules.constants import default_emulated_x, transparent
 from modules.more_utilities.enums import Direction, VerticalAlignment, HorizontalAlignment
 from modules.more_utilities.guide_helpers import get_curr_guide_info, GuideInfo
 from structures.hud.dynamic_button import DynamicButton
@@ -31,7 +31,7 @@ class GuideHandler:
             (100, 30),
             text_options={'size': 10, 'color': (255, 255, 255)},
             rect_template=u.rounded_rect_template(
-                color=(0, 0, 0, 0),
+                color=transparent,
                 emulated_x=default_emulated_x,
                 radius=4, outline=1,
                 outline_color=(255, 255, 255)

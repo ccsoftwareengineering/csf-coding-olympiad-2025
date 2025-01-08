@@ -11,8 +11,6 @@ if TYPE_CHECKING:
 
 def starting_tutorial(game: 'Game'):
     main_scene: 'MainScene' = cast(any, game.scenes[GameState.MAIN])
-    f = u.expand_rect_outline(main_scene.bl_ui.rect, 5)
-    print(f.size, f.left, f.top, f.right, f.bottom)
     return (
         [
             (

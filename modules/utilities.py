@@ -112,6 +112,10 @@ def relative_pos(screen_size: (int, int), xy: (int, int) = (0, 0), pu: (int, int
     return x + x_offset, y + y_offset
 
 
+def round_div(a, b):
+    return int(round(a / b))
+
+
 # Generates a rounded rectangle with an outline (optionally)
 # You may see parameters talking about "emulated"
 # Emulated is simply saying what should it's resolution be
@@ -120,7 +124,7 @@ def relative_pos(screen_size: (int, int), xy: (int, int) = (0, 0), pu: (int, int
 # (first param). The emulated outline boolean is if it should divide the outline by the scale factor (x / emulated_x)
 # Similar concept for emulated radius
 def rounded_rect(
-        xy: (int, int),
+        xy: tuple[int, int],
         color=(255, 255, 255),
         emulated_x=None,
         radius: int = 0,
@@ -129,18 +133,20 @@ def rounded_rect(
         emulate_outline=False,
         emulate_radius=False,
         double_bottom=False,
-        behavior: Literal['out'] | Literal['in'] = 'in'
+        behavior: Literal['out', 'in'] = 'in'
 ):
     # Make emulated x just the x if you don't want a pixelated look
     if not emulated_x:
         emulated_x = xy[0]
 
     scale = xy[0] / emulated_x
-    scaled_xy = (emulated_x, xy[1] // scale)
+    scaled_xy = (emulated_x, round_div(xy[1], scale)) if xy[0] != xy[1] else (emulated_x, emulated_x)
 
-    scaled_outline = emulate_outline and outline // scale or outline
+    scaled_outline = round_div(outline, scale) if emulate_outline else outline
     scaled_outline_2x = scaled_outline * 2
-    radius = emulate_radius and radius // scale or radius
+    scaled_radius = round_div(radius, scale) if emulate_radius else radius
+
+    # print(scaled_outline, scaled_outline_2x, radius)
 
     change = (1 if double_bottom else 0)
 
@@ -150,11 +156,11 @@ def rounded_rect(
                        pygame.SRCALPHA)
         size: pygame.Rect = surf.get_rect().copy()
         size.size = (size.w, size.h - change)
-        pygame.draw.rect(surf, outline_color, size, border_radius=radius)
+        pygame.draw.rect(surf, outline_color, size, border_radius=scaled_radius)
         size.top += change
-        pygame.draw.rect(surf, outline_color, size, border_radius=radius)
+        pygame.draw.rect(surf, outline_color, size, border_radius=scaled_radius)
         pygame.draw.rect(surf, color, (scaled_outline, scaled_outline, scaled_xy[0], scaled_xy[1]),
-                         border_radius=radius)
+                         border_radius=scaled_radius)
     elif behavior == 'in':
         surf = Surface((scaled_xy[0], scaled_xy[1]),
                        pygame.SRCALPHA)
@@ -163,6 +169,8 @@ def rounded_rect(
         size.size = (size.w - scaled_outline_2x, size.h - scaled_outline_2x - change)
         size.topleft = (scaled_outline, scaled_outline)
         pygame.draw.rect(surf, color, size, border_radius=radius)
+    if scale == 1:
+        return surf
     return pygame.transform.scale(surf, (xy[0], xy[1]))
 
 
@@ -170,18 +178,16 @@ type RectTemplate = Callable[[Tuple[int, int]], pygame.Surface]
 
 
 def rounded_rect_template(color=(255, 255, 255),
-                          emulated_x: Optional[int | Callable] = default_emulated_x,
+                          emulated_x: Optional[Callable] = default_emulated_x,
                           radius=0,
                           outline=0,
                           outline_color=(0, 0, 0),
                           emulate_outline=False,
                           emulate_radius=False,
-                          double_bottom=False) -> RectTemplate:
-    if type(emulate_outline) is int:
-        old_x = emulated_x
-        emulated_x = lambda _: old_x
+                          double_bottom=False,
+                          behavior: Literal['out'] | Literal['in'] = 'in') -> RectTemplate:
     return lambda xy: rounded_rect(xy, color, emulated_x(xy), radius, outline, outline_color, emulate_outline,
-                                   emulate_radius, double_bottom)
+                                   emulate_radius, double_bottom, behavior=behavior)
 
 
 def quick_template(color, radius=7, dark=False):

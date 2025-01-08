@@ -66,6 +66,8 @@ class CursorHandler:
             self._cursor = 'NORMAL'
 
     def draw(self):
+        if self.game.placement_info:
+            return
         pos = pygame.mouse.get_pos()
         self.game.screen.blit(self.game.cursor_handler.cursor_icon,
                               (pos[0] + self.cursor_offset[0], pos[1] + self.cursor_offset[1]))

@@ -39,6 +39,10 @@ class InputHandler(EventEmitter):
             final.append(pygame.key.name(key))
         return final
 
+    @property
+    def in_placement(self):
+        return self.game.placement_info is not None
+
     def handle_event(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN:
             if self.selected_input_box is not None:

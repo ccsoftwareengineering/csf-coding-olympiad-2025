@@ -18,7 +18,7 @@ plants = {
         "location_constraints": "None (Can be placed anywhere)",
         "description": "Generates reliable energy at a low upfront cost. However, it produces high levels of "
                        "pollution and contributes to environmental degradation.",
-        "size": 10,
+        "size": (5, 5),
         "upkeep": 100_000
     },
     PlantType.SOLAR: {
@@ -27,7 +27,7 @@ plants = {
         "pollution_tco2e": 0,
         "description": "Produces clean, renewable energy with minimal pollution. Its energy output is "
                        "limited and can fluctuate depending on weather conditions.",
-        "size": 8,
+        "size": (8, 8),
         "upkeep": 50_000
     },
     PlantType.WIND: {
@@ -36,7 +36,7 @@ plants = {
         "pollution_tco2e": 0,
         "description": "Provides renewable energy with zero emissions. Energy production is less predictable "
                        "and depends on wind availability.",
-        "size": 30,
+        "size": (15, 15),
         "upkeep": 80_000
     },
     PlantType.GEOTHERMAL: {
@@ -45,7 +45,7 @@ plants = {
         "pollution_tco2e": 5,
         "description": "Delivers consistent energy with minimal pollution. High initial costs make it an "
                        "expensive investment.",
-        "size": 15,
+        "size": (8, 8),
         "upkeep": 150_000
     },
     PlantType.HYDROPOWER: {
@@ -54,7 +54,7 @@ plants = {
         "pollution_tco2e": 2,
         "description": "Generates efficient, renewable energy with very low emissions. Its construction is "
                        "costly and requires significant infrastructure.",
-        "size": 25,
+        "size": (5, 10),
         "upkeep": 200_000
     },
     PlantType.NUCLEAR: {
@@ -63,7 +63,7 @@ plants = {
         "pollution_tco2e": 50,
         "description": "Offers a massive energy output and low greenhouse gas emissions. It comes with high "
                        "costs, radioactive waste, and safety concerns.",
-        "size": 20,
+        "size": (10, 10),
         "upkeep": 500_000
     }
 }

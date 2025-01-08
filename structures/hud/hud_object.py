@@ -107,7 +107,11 @@ class HudObject:
             curr_guide_info = get_curr_guide_info(self.game)
             if not curr_guide_info['rect'].colliderect(self.absolute_rect) or not curr_guide_info['gui_enabled']:
                 return False
-        return True and self.visible and not self.game.loading_handler.is_transitioning
+        return (
+                True and self.visible and
+                not self.game.loading_handler.is_transitioning and
+                self.game.placement_info is None
+        )
 
     def predraw(self):
         if self.absolute_rect.collidepoint(pygame.mouse.get_pos()):
