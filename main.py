@@ -3,7 +3,7 @@ from scenes.home_scene import HomeScene
 from scenes.main_scene import MainScene
 from structures.game import *
 from structures.player import Player
-#start page
+
 game = Game(show_fps=True)
 game.set_scenes({
     GameState.HOME: HomeScene(game),
