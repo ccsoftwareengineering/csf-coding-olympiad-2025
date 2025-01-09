@@ -1,9 +1,13 @@
+from enum import Enum
+from typing import cast
+
 import pygame
 from pygame import Surface
 
 from modules import utilities as u
-from modules.constants import default_emulated_x, dims, ui_color_light, red, white, green
+from modules.constants import default_emulated_x, dims, ui_color_light, red, green
 from modules.info.info import info_map
+from modules.info.plants import PlantType
 from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment
 from modules.utilities import display_number
 from scenes.main_ui.money_display import MoneyDisplay
@@ -16,6 +20,7 @@ from structures.hud.dynamic_text_box import DynamicTextBox
 from structures.hud.hud_object import HudObject
 from structures.hud.list_layout import ListLayout
 from structures.hud.text import Text
+from structures.plant import Plant
 from structures.scene import Scene
 
 
@@ -35,7 +40,8 @@ class MainScene(Scene):
     main_surface = Surface((fs * 50, fs * 50), pygame.SRCALPHA, 32)
     country_waves = u.load_scale('assets/country_waves.png', factor=country_factor)
     country_waves.set_alpha(70)
-    zoom_factor = 4
+    initial_zoom_factor = 4
+    zoom_factor = initial_zoom_factor
 
     settings_icon = u.load_scale('assets/ui/icons/settings.png', factor=1.5)
     info_icon = u.load_scale('assets/ui/icons/info.png', factor=1.5)
@@ -159,15 +165,17 @@ class MainScene(Scene):
 
         self.selector_prompts = None
 
-        manufacture_placement_template = lambda outline_color: u.rounded_rect_template(
-            white, outline=2,
-            emulate_outline=True,
-            outline_color=outline_color,
-            emulated_x=lambda xy: xy[0] * 4,
-            behavior='in')
+        # manufacture_placement_template = lambda outline_color: u.rounded_rect_template(
+        #     white, outline=2,
+        #     emulate_outline=True,
+        #     outline_color=outline_color,
+        #     emulated_x=lambda xy: xy[0] * 4,
+        #     behavior='in')
 
         self.placement_color = green
         self.placement_color = red
+
+        self.placement_data: None | tuple[Enum, dict[str, any]] = None
 
         # To make introduction dialogue see it
         self.tr_ui.predraw()
@@ -181,9 +189,13 @@ class MainScene(Scene):
     def define_game_variables(self):
         return {}
 
+    @property
+    def fixed_zoom_factor(self):
+        return self.zoom_factor / self.initial_zoom_factor
+
     def mouse_scroll(self, ev: pygame.event.Event):
         self.zoom_factor += ev.y * (self.zoom_factor < 0.1 and 0.1 or self.zoom_factor > 2 and 0.2 or 0.08)
-        self.zoom_factor = round(u.clamp(self.zoom_factor, 0.46, 6), 2)
+        self.zoom_factor = round(u.clamp(self.zoom_factor, 0.46, 8), 2)
         self.game.telemetry_handler.set_value('zoom', self.zoom_factor)
 
     def draw_map(self):
@@ -193,6 +205,8 @@ class MainScene(Scene):
         u.center_blit(self.main_surface, self.country)
         scaled = u.rescale(self.main_surface, factor=self.zoom_factor)
         u.center_blit(self.game.screen, scaled)
+        if len(self.game.player.plants) > 0:
+            Plant.draw_all(self.game.player.plants.values(), self.zoom_factor, self.game.screen, self.fixed_zoom_factor)
 
     def draw_ui(self):
         self.tr_ui.draw()
@@ -200,15 +214,47 @@ class MainScene(Scene):
         self.bl_ui.draw()
         self.tc_ui.draw()
 
+    def create(self, name, pos: tuple[int, int]):
+        if name in self.game.player.plants:
+            self.game.modal_handler.show_simple_modal('A plant with that name already exists! '
+                                                      'Please rename the pre-existing one or choose another name.')
+            self.game.player.budget += self.placement_data[1]['cost']
+            return
+        self.game.player.plants[name] = Plant(self.game, name, self.placement_data[1],
+                                              cast(PlantType, self.placement_data[0]), pos)
+        print(f'Creating {name} of type {self.placement_data[0].value[0]}')
+
+    def placement_click(self, event: pygame.event.Event):
+        if event.button != 1:
+            return
+        t_pos = u.get_distance_from_centre(dims, pygame.mouse.get_pos())
+        if self.game.placement_info is not None:
+            # if self.game.placement_info['type'] != InfraType.TRANSMISSION_LINE
+            self.placement_data = (self.game.placement_info['type'],
+                                   info_map[self.game.placement_info['category']][self.game.placement_info['type']])
+            self.game.placement_info = None
+            self.game.player.budget -= self.placement_data[1]['cost']
+            self.game.modal_handler.show_simple_modal(
+                'What do you want to name it?',
+                f'Creation',
+                on_close=lambda: self.create(self.game.modal_handler.input_box.data, t_pos),
+                input_visible=True)
+
     def draw(self):
+        if self.game.placement_info is not None:
+            self.game.input_handler.on('mouse_on_up', self.placement_click, 'main_click')
+        else:
+            self.game.input_handler.off('mouse_on_up', 'main_click')
         if self.game.input_handler.key_on_down.get(pygame.K_ESCAPE):
             self.game.placement_info = None
+            # self.game.player.plants
 
-        if self.game.input_handler.mouse_on_down.get(1) and self.game.placement_info is not None:
-            print(f'handle placement of {
-            self.game.placement_info['type'].value[0]}')
             # handle suffering here
         self.draw_map()
+        self.draw_placement()
+        self.draw_ui()
+
+    def draw_placement(self):
         if self.game.placement_info is not None:
             size = info_map[self.game.placement_info['category']][self.game.placement_info['type']]['size']
             place_surf = pygame.transform.scale_by(Surface(size, pygame.SRCALPHA), self.zoom_factor / 2)
@@ -217,10 +263,15 @@ class MainScene(Scene):
             rect = place_surf.get_rect()
             rect.center = pygame.mouse.get_pos()
             self.game.screen.blit(place_surf, rect)
-        self.draw_ui()
 
     def init(self):
         self.game.input_handler.on('mouse_wheel', self.mouse_scroll, 'main_zoom')
+
+        def on_advance(_):
+            self.game.player.replenish()
+            self.tc_ui.text_object.text = f'YEAR {self.game.player.year}'
+
+        self.advance.on('on_press_end', on_advance, 'replenish')
         self.tc_ui.text_object.text = f'YEAR {self.game.player.year}'
         self.budget_display.text = f'Annual Budget Allocation: ${display_number(self.game.player.budget_increase)}'
         if not self.game.player.did_tutorial:
@@ -236,3 +287,4 @@ class MainScene(Scene):
 
     def cleanup(self):
         self.game.input_handler.off('mouse_wheel', 'main_zoom')
+        self.game.input_handler.off('mouse_on_up', 'main_click')

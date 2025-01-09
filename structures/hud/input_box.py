@@ -30,11 +30,11 @@ class InputBox(HudObject):
     def __init__(self,
                  game: 'Game',
                  size: tuple[int, int],
-                 color: tuple[int, int, int, int] = (255, 162, 112, 255),
-                 outline_color: tuple[int, int, int, int] = (211, 70, 0, 255),
-                 selected_color: tuple[int, int, int, int] = (54, 65, 99, 255),
-                 text_color: tuple[int, int, int, int] = (0, 0, 0, 255),
-                 error_color: tuple[int, int, int, int] = (150, 0, 0, 255),
+                 color: tuple[int, int, int, int] | tuple[int, int, int] = (255, 162, 112, 255),
+                 outline_color: tuple[int, int, int, int] | tuple[int, int, int] = (211, 70, 0, 255),
+                 selected_color: tuple[int, int, int, int] | tuple[int, int, int] = (54, 65, 99, 255),
+                 text_color: tuple[int, int, int, int] | tuple[int, int, int] = (0, 0, 0, 255),
+                 error_color: tuple[int, int, int, int] | tuple[int, int, int] = (150, 0, 0, 255),
                  error_text_size: int = 12,
                  error_expiry_time: int = 2,
                  text_size: int = 20,
@@ -92,6 +92,10 @@ class InputBox(HudObject):
         else:
             self.error_set_time = None
             self.error_text_surface = None
+
+    def clear_text(self):
+        self.text.text = ""
+        self.data = ""
 
     def on_mouse_up(self, event):
         if event.button != 1:

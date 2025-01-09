@@ -33,7 +33,7 @@ class Text(HudObject):
         self.end_padding = end_padding
         self.max_width = max_width
         self._size = size
-        self.text = text
+        self.text = text or ""
         self.wrap = wrap
         self.align = align
         self.outline = outline or 0
@@ -55,7 +55,7 @@ class Text(HudObject):
             color = self.color
         if not self.wrap:
             return self.font.render(self.text, False, color)
-        words = self.text.split(' ')
+        words = (self.text or '').split(' ')
         allowed_width = self.max_width or (self.game.screen.get_width() - self.rect.x - self.end_padding)
         if self.parent is not None:
             allowed_width = self.max_width or (self.parent.surface.get_width() - self.rect.x - self.end_padding)

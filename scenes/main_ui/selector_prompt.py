@@ -146,7 +146,7 @@ class SelectorPrompt(DynamicHudObject):
         return self.list[self.selected_index]
 
     def predraw(self):
-        if self.select_button.on_press_start:
+        if self.select_button.on_press_end:
             self.game.placement_info = {"category": self.which, "type": self.selected[0]}
             self.game.modal_handler.cancel_modal()
         if self.game.input_handler.key_on_down.get(pygame.K_DOWN):

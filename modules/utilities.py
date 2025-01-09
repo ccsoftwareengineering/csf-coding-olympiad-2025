@@ -1,5 +1,6 @@
 import os
 import sys
+from random import uniform
 from typing import Optional, Callable, Tuple, Literal
 
 import pygame.transform
@@ -167,8 +168,8 @@ def rounded_rect(
         size: pygame.Rect = surf.get_rect().copy()
         pygame.draw.rect(surf, outline_color, size, border_radius=radius)
         size.size = (
-            size.w - scaled_outline_2x,# - (1 if scaled_xy[0] - size.w - scaled_outline_2x == 0 else 0),
-            size.h - scaled_outline_2x)# - (1 if scaled_xy[1] - size.h - scaled_outline_2x == 0 else 0) - change)
+            size.w - scaled_outline_2x,  # - (1 if scaled_xy[0] - size.w - scaled_outline_2x == 0 else 0),
+            size.h - scaled_outline_2x)  # - (1 if scaled_xy[1] - size.h - scaled_outline_2x == 0 else 0) - change)
         size.topleft = (scaled_outline, scaled_outline)
         pygame.draw.rect(surf, color, size, border_radius=radius)
     if scale == 1:
@@ -216,7 +217,16 @@ def get_main_font(size: int) -> pygame.font.Font:
                                                                              round(size * text_multiplier))
 
 
+def fix_color(color):
+    if len(color) < 4:
+        return (color[0], color[1], color[2], 255)
+    else:
+        return color
+
+
 def lerp_colors(color1, color2, t) -> (int, int, int, int):
+    color1 = fix_color(color1)
+    color2 = fix_color(color2)
     r = round(color1[0] + (color2[0] - color1[0]) * t)
     g = round(color1[1] + (color2[1] - color1[1]) * t)
     b = round(color1[2] + (color2[2] - color1[2]) * t)
@@ -293,3 +303,18 @@ def display_wh(mw_hours: int):
     else:
         rd = round(mw_hours / 1000, 2)
         return f'{display_number(rd)} GWh'
+
+
+def get_distance_from_centre(outer_dims: tuple[int, int], pos: tuple[int, int]) -> tuple[int, int]:
+    center_x = outer_dims[0] // 2
+    center_y = outer_dims[1] // 2
+    return pos[0] - center_x, pos[1] - center_y
+
+
+def scale_vec2(vec2, v):
+    return vec2[0] * v, vec2[1] * v
+
+
+def percentage_chance(self, percent):
+    random_number = uniform(0, 100)
+    return random_number < percent

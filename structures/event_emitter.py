@@ -16,6 +16,8 @@ class EventEmitter:
         return self
 
     def off(self, event, event_id="default"):
+        if event not in self.events or event_id not in self.events[event]:
+            return
         self.events[event][event_id] = None
         return self
 

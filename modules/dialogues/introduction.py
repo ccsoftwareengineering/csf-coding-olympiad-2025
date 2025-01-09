@@ -20,7 +20,13 @@ def developer_name_comment(name: str):
 introduction = lambda game: (
     [
         ("Welcome to Power Island!", {}),
-        ("In this game, you are tasked with managing a country's energy resources.", {}),
+        ("In this game, you are elected the new head of the energy department of a fictional country.", {}),
+        ("This country's people are tired of the poor energy systems of the past. As their country develops"
+         " they need a responsible energy department that can adapt with them!", {}),
+        ("One that introduces a system that is both environmentally friendly and robust,"
+         " both resistant and tolerant to whatever may betide.", {}),
+        ("So they put you in charge to shake things up. Keep the people happy by keeping emissions low whilst "
+         " meeting their energy needs!", {}),
         ("Before you start playing, we want to know a few things...", {}),
         ("What is your name? ", {
             "input": input_data("name", placeholder="Write your name here",

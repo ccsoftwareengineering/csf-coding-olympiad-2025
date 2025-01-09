@@ -15,6 +15,7 @@ from structures.handlers.input_handler import InputHandler
 from structures.handlers.loading_handler import LoadingHandler
 from structures.handlers.modal_handler import ModalHandler
 from structures.handlers.telemetry_handler import TelemetryHandler
+from structures.player import Player
 from structures.scene import Scene
 from structures.store import Store
 
@@ -51,7 +52,7 @@ class Game:
 
     running = True
 
-    player = None
+    player: Player = None
     placement_info: Optional[dict[str, any]] = None
 
     def __init__(self, show_fps=False):

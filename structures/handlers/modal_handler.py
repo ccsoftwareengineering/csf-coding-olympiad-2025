@@ -5,10 +5,11 @@ import pygame
 from pygame import Surface
 
 import modules.utilities as u
-from modules.constants import default_emulated_x
+from modules.constants import default_emulated_x, ui_color, white, black
 from modules.utilities import empty
 from structures.hud.dynamic_button import DynamicButton
 from structures.hud.hud_object import HudObject
+from structures.hud.input_box import InputBox
 from structures.hud.text import Text
 
 if TYPE_CHECKING:
@@ -35,6 +36,17 @@ class ModalHandler:
             pygame.SRCALPHA
         )
         self.modal_object = HudObject(game, self.modal_surface)
+        self.input_box = InputBox(
+            game,
+            (250, 40),
+            (131, 177, 236),
+            ui_color,
+            white,
+            black,
+            text_size=18,
+            override_y=True,
+            parent=self.modal_object)
+        self.input_box.visible = False
         center_pos = u.center_blit_pos(game.screen, self.regular_modal)
         self.modal_object.rect.topleft = center_pos
         self.title = Text(game, size=28, color=(255, 255, 255), wrap=False, parent=self.modal_object)
@@ -59,12 +71,16 @@ class ModalHandler:
             pos=ok_button_pos,
             parent=self.modal_object,
         )
+        self.input_gap = 20
 
-    def show_simple_modal(self, body: str, title=None, on_close=empty):
-        self.curr_modal = {"body": body, "title": title, "on_close": on_close, "type": ModalType.SIMPLE}
+    def show_simple_modal(self, body: str, title=None, on_close=empty, input_visible=False):
+        self.curr_modal = {"body": body, "title": title, "on_close": on_close, "type": ModalType.SIMPLE,
+                           "input_visible": input_visible}
         self.title.visible = title is not None
         self.title.text = title
         self.body.text = body
+        if input_visible:
+            self.input_box.visible = True
         if not title:
             self.body.rect.topleft = (20, 40)
         else:
@@ -92,6 +108,8 @@ class ModalHandler:
         self.game.input_handler.modal = None
         self.game.just_ended_modal = True
         self.to_cancel = False
+        self.input_box.visible = False
+        self.input_box.clear_text()
 
     def draw(self):
         if self.curr_modal and not self.game.loading_handler.is_transitioning:
@@ -101,6 +119,9 @@ class ModalHandler:
                     self.curr_modal['on_close']()
                     self.modal_cleanup()
                     return
+                if self.curr_modal['input_visible']:
+                    self.input_box.rect.topleft = (
+                    self.body.rect.left, self.body.rect.top + self.body.rect.height + self.input_gap)
                 self.modal_object.draw()
             elif self.curr_modal['type'] == ModalType.CUSTOM:
                 if self.to_cancel:

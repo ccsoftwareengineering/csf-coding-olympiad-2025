@@ -134,4 +134,3 @@ class HudObject:
         # else:
         #     self.game.screen.blit(surf, self.rect)
         self.to_draw_surface = None
-        self.cached_abs_rect = None
