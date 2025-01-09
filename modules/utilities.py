@@ -311,8 +311,12 @@ def get_distance_from_centre(outer_dims: tuple[int, int], pos: tuple[int, int]) 
     return pos[0] - center_x, pos[1] - center_y
 
 
-def scale_vec2(vec2, v):
+def mult_vec2(vec2, v):
     return vec2[0] * v, vec2[1] * v
+
+
+def div_vec2(vec2, v):
+    return vec2[0] / v, vec2[1] / v
 
 
 def percentage_chance(self, percent):

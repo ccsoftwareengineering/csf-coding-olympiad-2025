@@ -21,7 +21,8 @@ class Plant:
         self.object = Button(game, self.image, (0, 0), select_cursor='POINT_QUESTION')
 
     def update_pos(self, zf):
-        a = u.rescale(self.image, factor=self.ratio * zf)
+        a = rescale_cache.get((self.type, zf)) or u.rescale(self.image, factor=self.ratio * zf)
+        rescale_cache[(self.type, zf)] = a
         self.object.surface = a
         self.object.darker_surface = a
         # rescale_cache[(self.type, zf)] = self.object.surface

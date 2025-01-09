@@ -17,7 +17,7 @@ class Player:
         self.popularity = 3
         self.emissions = 0
         self.year = 1
-        self.plants: dict[PlantType, Plant] = {}
+        self.plants: dict[str, Plant] = {}
         self.plants_construction_pending = {}
         self.island_name = ""
         self.introduced = False

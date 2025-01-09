@@ -1,3 +1,4 @@
+import datetime
 from enum import Enum
 from typing import TYPE_CHECKING
 
@@ -104,12 +105,13 @@ class ModalHandler:
 
     def modal_cleanup(self):
         self.curr_modal = None
-        self.game.cursor_handler.cursor = "NORMAL"
         self.game.input_handler.modal = None
         self.game.just_ended_modal = True
         self.to_cancel = False
         self.input_box.visible = False
         self.input_box.clear_text()
+        self.okay_button.predraw()
+        self.game.cursor_handler.cursor = "NORMAL"
 
     def draw(self):
         if self.curr_modal and not self.game.loading_handler.is_transitioning:

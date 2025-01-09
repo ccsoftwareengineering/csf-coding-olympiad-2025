@@ -1,3 +1,6 @@
+import datetime
+import random
+import string
 from enum import Enum
 from typing import cast
 
@@ -144,6 +147,7 @@ class MainScene(Scene):
             gap=10,
             padding=button_dropdown_space
         )
+
         manufacture_button = lambda text, mtype: DynamicButton(
             game,
             (300 - button_dropdown_space * 2, 38),
@@ -182,6 +186,40 @@ class MainScene(Scene):
         self.bl_ui.predraw()
         self.tc_ui.predraw()
 
+        self.gap = 1000
+        self.og = datetime.datetime.now()
+
+    def draw(self):
+        # ok remember this
+        # the positioning calculation is FINE
+        # it's the issue with determining what the position is supposed to be
+        # im thinkin I change it to divide by four then multiply by corrected zoom factor
+        # skibidi
+        if datetime.datetime.now() - self.og > datetime.timedelta(seconds=self.gap):
+            plants = (PlantType.WIND, PlantType.SOLAR, PlantType.FOSSIL_FUEL)
+            skibidi = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+            choice = random.choice(plants)
+            self.game.player.plants[skibidi] = Plant(
+                self.game,
+                skibidi,
+                info_map['plant'][choice],
+                choice,
+                (random.randint(-300, 300), random.randint(-300, 300)),
+            )
+            self.og = datetime.datetime.now()
+        if self.game.placement_info is not None:
+            self.game.input_handler.on('mouse_on_up', self.placement_click, 'main_click')
+        else:
+            self.game.input_handler.off('mouse_on_up', 'main_click')
+        if self.game.input_handler.key_on_down.get(pygame.K_ESCAPE):
+            self.game.placement_info = None
+            # self.game.player.plants
+
+            # handle suffering here
+        self.draw_map()
+        self.draw_placement()
+        self.draw_ui()
+
     def create_selector_prompt(self, which):
         self.add_dropdown.selected = False
         self.game.modal_handler.show_custom_modal(self.selector_prompts[which])
@@ -197,6 +235,8 @@ class MainScene(Scene):
         self.zoom_factor += ev.y * (self.zoom_factor < 0.1 and 0.1 or self.zoom_factor > 2 and 0.2 or 0.08)
         self.zoom_factor = round(u.clamp(self.zoom_factor, 0.46, 8), 2)
         self.game.telemetry_handler.set_value('zoom', self.zoom_factor)
+        self.game.telemetry_handler.set_value('fixed zoom', self.fixed_zoom_factor)
+        self.game.telemetry_handler.set_value('inverted fzoom', round(1 / self.fixed_zoom_factor, 2))
 
     def draw_map(self):
         self.game.screen.fill((0, 132, 227))
@@ -221,38 +261,26 @@ class MainScene(Scene):
             self.game.player.budget += self.placement_data[1]['cost']
             return
         self.game.player.plants[name] = Plant(self.game, name, self.placement_data[1],
-                                              cast(PlantType, self.placement_data[0]), pos)
+                                              cast(PlantType, self.placement_data[0]),
+                                              pos)
         print(f'Creating {name} of type {self.placement_data[0].value[0]}')
 
     def placement_click(self, event: pygame.event.Event):
         if event.button != 1:
             return
-        t_pos = u.get_distance_from_centre(dims, pygame.mouse.get_pos())
+        t_pos = u.div_vec2(u.get_distance_from_centre(dims, pygame.mouse.get_pos()), self.fixed_zoom_factor)
         if self.game.placement_info is not None:
             # if self.game.placement_info['type'] != InfraType.TRANSMISSION_LINE
             self.placement_data = (self.game.placement_info['type'],
                                    info_map[self.game.placement_info['category']][self.game.placement_info['type']])
             self.game.placement_info = None
             self.game.player.budget -= self.placement_data[1]['cost']
+            print('showing placement modal')
             self.game.modal_handler.show_simple_modal(
                 'What do you want to name it?',
                 f'Creation',
                 on_close=lambda: self.create(self.game.modal_handler.input_box.data, t_pos),
                 input_visible=True)
-
-    def draw(self):
-        if self.game.placement_info is not None:
-            self.game.input_handler.on('mouse_on_up', self.placement_click, 'main_click')
-        else:
-            self.game.input_handler.off('mouse_on_up', 'main_click')
-        if self.game.input_handler.key_on_down.get(pygame.K_ESCAPE):
-            self.game.placement_info = None
-            # self.game.player.plants
-
-            # handle suffering here
-        self.draw_map()
-        self.draw_placement()
-        self.draw_ui()
 
     def draw_placement(self):
         if self.game.placement_info is not None:
