@@ -83,7 +83,8 @@ class HudObject:
             self.should_preserve = False
 
     def destroy(self):
-        self.parent.remove_child(self)
+        if self.parent:
+            self.parent.remove_child(self)
         del self
 
     def draw_children(self, surface: pygame.Surface = None, predraw=True):
