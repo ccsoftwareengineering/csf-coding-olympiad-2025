@@ -3,6 +3,7 @@ from typing import Optional
 from pygame import K_RETURN
 
 import modules.utilities as u
+from modules.constants import white
 from structures.hud.button import Button
 from structures.hud.hud_object import HudObject
 from structures.hud.input_box import InputBox
@@ -38,7 +39,7 @@ class DialogueScene(Scene):
         game, text, dialogue_box, okay, box_w = (
             self.game, self.g_vars['text'], self.g_vars['dialogue_box'], self.g_vars['okay'], self.g_vars['box_w'])
         u.draw_tiles(game.screen, game.bg_tile_scaled, game.tile_offset)
-        game.tile_offset += 0.5
+        game.tile_offset += game.tile_increase
         if game.tile_offset == 64:
             game.tile_offset = 0
 
@@ -59,7 +60,8 @@ class DialogueScene(Scene):
                     parent=dialogue_box,
                     pos=(20, text.rect.top + text.surface.get_height() + 20),
                     object_id=curr_input_data["object_id"],
-                    data=curr_input_data
+                    data=curr_input_data,
+                    color=(255, 255, 255, 100)
                 )
 
             if okay.on_press_end or game.input_handler.key_on_down.get(K_RETURN):

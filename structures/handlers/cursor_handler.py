@@ -37,7 +37,8 @@ class CursorHandler:
             'INPUT': self.get_cursor_and_offsets((7, 1)),
             'NEXT': self.get_cursor_and_offsets((3, 12)),
             'ADD': self.get_cursor_and_offsets((6, 2), (-8, 0)),
-            'POINT_QUESTION': self.get_cursor_and_offsets((8, 3)),
+            'POINTER_QUESTION': self.get_cursor_and_offsets((8, 3)),
+            'POINTER_CONFIG': self.get_cursor_and_offsets((8, 5)),
             'MODIFY': self.get_cursor_and_offsets((6, 12))
         }
         self._cursor = 'NORMAL'

@@ -65,7 +65,7 @@ class ListLayout(HudObject):
             AnchorPoint.BOTTOM_CENTER: lambda x_offset, y_offset: (
                 self.rect.width / 2 + x_offset, self.rect.height + y_offset),
             AnchorPoint.BOTTOM_RIGHT: lambda x_offset, y_offset: (
-                self.rect.width + x_offset, self.rect.height + y_offset),
+                x_offset + self.rect.width - self.padding * 2, self.rect.height / 2 + y_offset + self.padding),
         }
         self.calc_function = self.anchor_calc_map[self._anchor_point]
         super().__init__(game, Surface(min_size, pygame.SRCALPHA), pos=position, object_id=object_id, parent=parent, scale=scale)

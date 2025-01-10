@@ -1,24 +1,35 @@
 from pygame import Surface
 
 import modules.utilities as u
+from modules.info.infra import InfraType
 from modules.info.plants import PlantType
+from structures.handlers.placeable_handler import PlaceableType
 from structures.hud.button import Button
 
 image_cache = {}
 rescale_cache = {}
 
 
-class Plant:
-    def __init__(self, game, name, data, plant_type: PlantType, pos):
-        self.type = plant_type
+def differenciate_type(t):
+    if isinstance(t, PlantType):
+        return PlaceableType.PLANT
+    if isinstance(t, InfraType):
+        return PlaceableType.INFRA
+
+
+class Placeable:
+    def __init__(self, game, name, data, placeable_type: PlantType, pos):
+        self.type = placeable_type
+        self.p_type = differenciate_type(placeable_type)
         self.data = data
         self.name = name
         self.pos = pos
-        cache_get = image_cache.get(plant_type) or (None, None)
-        self.image = cache_get[0] or u.load_image(f'assets/plants/{data.get('asset_id') or 'missing'}.png')
+        cache_get = image_cache.get(placeable_type) or (None, None)
+        string = 'plants' if isinstance(placeable_type, PlantType) else 'infra'
+        self.image = cache_get[0] or u.load_image(f'assets/{string}/{data.get('asset_id') or 'missing'}.png')
         self.ratio = cache_get[1] or data['size'][0] / self.image.get_width() * 0.5
-        image_cache[plant_type] = (self.image, self.ratio)
-        self.object = Button(game, self.image, (0, 0), select_cursor='POINT_QUESTION')
+        image_cache[placeable_type] = (self.image, self.ratio)
+        self.object = Button(game, self.image, (0, 0), select_cursor='POINTER_CONFIG')
 
     def update_pos(self, zf):
         a = rescale_cache.get((self.type, zf)) or u.rescale(self.image, factor=self.ratio * zf)

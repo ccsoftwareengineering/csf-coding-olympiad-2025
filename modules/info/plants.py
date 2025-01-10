@@ -57,7 +57,7 @@ plants = {
         'pollution_tco2e': 2,
         'description': 'Generates efficient, renewable energy with very low emissions. Its construction is '
                        'costly and requires significant infrastructure.',
-        'size': (5, 10),
+        'size': (10, 5),
         'upkeep': 200_000
     },
     PlantType.NUCLEAR: {

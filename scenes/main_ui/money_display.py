@@ -15,7 +15,7 @@ class MoneyDisplay(HudObject):
         self.money_size = (scaled_money, scaled_money)
         self.half_money = scaled_money // 2
         self.distance = self.size // 3.5
-        self.text = Text(self.game, size=kwargs.get('size'), wrap=False, color=(255, 255, 255), outline=2)
+        self.text = Text(self.game, size=kwargs.get('size'), wrap=False, color=(255, 255, 255), outline=1)
 
     def predraw(self):
         self.text.text = u.display_number(self.game.player.budget if self.game.player else 0)

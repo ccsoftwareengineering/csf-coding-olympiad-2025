@@ -1,6 +1,6 @@
-import datetime
-import random
-import string
+# import datetime
+# import random
+# import string
 from enum import Enum
 from typing import cast
 
@@ -8,7 +8,7 @@ import pygame
 from pygame import Surface
 
 from modules import utilities as u
-from modules.constants import default_emulated_x, dims, ui_color_light, red, green
+from modules.constants import default_emulated_x, dims, ui_color_light, red, green, black, white
 from modules.info.info import info_map
 from modules.info.plants import PlantType
 from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment
@@ -23,7 +23,7 @@ from structures.hud.dynamic_text_box import DynamicTextBox
 from structures.hud.hud_object import HudObject
 from structures.hud.list_layout import ListLayout
 from structures.hud.text import Text
-from structures.plant import Plant
+from structures.placeable import Placeable
 from structures.scene import Scene
 
 
@@ -68,7 +68,7 @@ class MainScene(Scene):
         self.tc_ui = DynamicTextBox(
             self.game,
             (300, 150),
-            {"color": (255, 255, 255), "size": 32, "outline": 2, "outline_color": (0, 0, 0), "xy": (None, 20)},
+            {"color": (255, 255, 255), "size": 32, "outline": 0, "outline_color": (0, 0, 0), "xy": (None, 20)},
             rect_template=u.ui_rect_template,
             text=f'YEAR X',
         )
@@ -102,7 +102,7 @@ class MainScene(Scene):
             max_size=(300, 10_000),
         )
 
-        self.budget_display = Text(self.game, wrap=True, outline=1, size=15, parent=self.bl_ui, max_width=300)
+        self.budget_display = Text(self.game, wrap=True, outline=0, size=15, parent=self.bl_ui, max_width=300)
         self.money_display = MoneyDisplay(game=self.game, parent=self.bl_ui, size=28)
 
         white_template = u.rounded_rect_template(
@@ -159,10 +159,37 @@ class MainScene(Scene):
             attributes={"type": mtype}
         )
         self.add_dropdown_button_list = (dbl, (
-            manufacture_button('Plant', 'plant'),
+            manufacture_button('Placeable', 'plant'),
             # 'campaign': manufacture_button('Campaign'),
             manufacture_button('Infrastructure', 'infra'),
         ))
+
+        self.br_ui = ListLayout(
+            game,
+            direction=Direction.UP,
+            side=HorizontalAlignment.LEFT,
+            padding=20,
+            anchor_point=AnchorPoint.BOTTOM_RIGHT,
+            position=u.relative_pos(dims, (10, 10), from_xy='right-bottom'),
+            rect_template=u.ui_rect_template,
+            gap=10,
+        )
+
+        manufacture_text = lambda t: Text(
+            game,
+            18,
+            t,
+            color=white,
+            # outline=1,
+            outline_color=black,
+            wrap=False,
+            parent=self.br_ui
+        )
+
+        self.br_ui_elements = {
+            'er': manufacture_text(''),
+            'pr': manufacture_text('')
+        }
 
         for btn in self.add_dropdown_button_list[1]:
             btn.on('on_press_end', lambda b: self.create_selector_prompt(b.attributes.get('type')))
@@ -186,27 +213,31 @@ class MainScene(Scene):
         self.bl_ui.predraw()
         self.tc_ui.predraw()
 
-        self.gap = 1000
-        self.og = datetime.datetime.now()
+        # this for random generation of thingy to test placement :)
+        # self.gap = 0.1
+        # self.og = datetime.datetime.now()
+        self.map_cache = {}
+
+        self.pm = None
 
     def draw(self):
-        # ok remember this
-        # the positioning calculation is FINE
-        # it's the issue with determining what the position is supposed to be
-        # im thinkin I change it to divide by four then multiply by corrected zoom factor
-        # skibidi
-        if datetime.datetime.now() - self.og > datetime.timedelta(seconds=self.gap):
-            plants = (PlantType.WIND, PlantType.SOLAR, PlantType.FOSSIL_FUEL)
-            skibidi = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-            choice = random.choice(plants)
-            self.game.player.plants[skibidi] = Plant(
-                self.game,
-                skibidi,
-                info_map['plant'][choice],
-                choice,
-                (random.randint(-300, 300), random.randint(-300, 300)),
-            )
-            self.og = datetime.datetime.now()
+        if pygame.K_o in self.game.input_handler.key_down:
+            self.update_zoom_factor(0.5)
+        elif pygame.K_i in self.game.input_handler.key_down:
+            self.update_zoom_factor(-0.5)
+        # this was for generating random placement.... might be useful, so I commented it out :)
+        # if datetime.datetime.now() - self.og > datetime.timedelta(seconds=self.gap):
+        #     plants = (PlantType.WIND, PlantType.SOLAR, PlantType.FOSSIL_FUEL)
+        #     random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+        #     choice = random.choice(plants)
+        #     self.game.player.plants[random_name] = Placeable(
+        #         self.game,
+        #         random_name,
+        #         info_map['plant'][choice],
+        #         choice,
+        #         (random.randint(-300, 300), random.randint(-300, 300)),
+        #     )
+        #     self.og = datetime.datetime.now()
         if self.game.placement_info is not None:
             self.game.input_handler.on('mouse_on_up', self.placement_click, 'main_click')
         else:
@@ -214,8 +245,6 @@ class MainScene(Scene):
         if self.game.input_handler.key_on_down.get(pygame.K_ESCAPE):
             self.game.placement_info = None
             # self.game.player.plants
-
-            # handle suffering here
         self.draw_map()
         self.draw_placement()
         self.draw_ui()
@@ -231,38 +260,60 @@ class MainScene(Scene):
     def fixed_zoom_factor(self):
         return self.zoom_factor / self.initial_zoom_factor
 
-    def mouse_scroll(self, ev: pygame.event.Event):
-        self.zoom_factor += ev.y * (self.zoom_factor < 0.1 and 0.1 or self.zoom_factor > 2 and 0.2 or 0.08)
+    def update_zoom_factor(self, multiplier):
+        self.zoom_factor += multiplier * (self.zoom_factor < 0.1 and 0.1 or self.zoom_factor > 2 and 0.2 or 0.08)
         self.zoom_factor = round(u.clamp(self.zoom_factor, 0.46, 8), 2)
         self.game.telemetry_handler.set_value('zoom', self.zoom_factor)
         self.game.telemetry_handler.set_value('fixed zoom', self.fixed_zoom_factor)
-        self.game.telemetry_handler.set_value('inverted fzoom', round(1 / self.fixed_zoom_factor, 2))
+        self.game.telemetry_handler.set_value('inverted fixed zoom', round(1 / self.fixed_zoom_factor, 2))
+
+    def mouse_scroll(self, ev: pygame.event.Event):
+        self.update_zoom_factor(ev.y)
 
     def draw_map(self):
-        self.game.screen.fill((0, 132, 227))
-        self.main_surface.fill((0, 132, 227))
-        u.center_blit(self.main_surface, self.country_waves)
-        u.center_blit(self.main_surface, self.country)
-        scaled = u.rescale(self.main_surface, factor=self.zoom_factor)
-        u.center_blit(self.game.screen, scaled)
-        if len(self.game.player.plants) > 0:
-            Plant.draw_all(self.game.player.plants.values(), self.zoom_factor, self.game.screen, self.fixed_zoom_factor)
+        cached = self.map_cache.get(self.zoom_factor)
+        if not cached:
+            self.game.screen.fill((0, 132, 227))
+            self.main_surface.fill((0, 132, 227))
+            u.center_blit(self.main_surface, self.country_waves)
+            u.center_blit(self.main_surface, self.country)
+            scaled = u.rescale(self.main_surface, factor=self.zoom_factor)
+            u.center_blit(self.game.screen, scaled)
+            self.map_cache[self.zoom_factor] = self.game.screen.copy()
+        else:
+            self.game.screen.blit(cached, (0, 0))
+        if self.pm.plants.size > 0:
+            self.pm.draw_all(self.zoom_factor, self.game.screen, self.fixed_zoom_factor)
 
     def draw_ui(self):
+        self.br_ui_elements['er'].text = f'Yearly Energy Requirement: {
+        u.display_number(self.game.player.energy_requirements)} GWh'
+        self.br_ui_elements['pr'].text = f'Yearly Energy Output: {u.display_wh(u.mw_to_h(self.pm.total_output))}'
+        self.br_ui_elements['pr'].color = (200, 255, 200) if u.mw_to_h(
+            self.pm.total_output) / 1000 >= self.game.player.energy_requirements else (255, 200, 200)
+        self.br_ui.draw()
         self.tr_ui.draw()
         self.add_dropdown.draw()
         self.bl_ui.draw()
         self.tc_ui.draw()
 
     def create(self, name, pos: tuple[int, int]):
-        if name in self.game.player.plants:
+        placeable = Placeable(
+            self.game,
+            name,
+            self.placement_data[1],
+            cast(PlantType, self.placement_data[0]),
+            pos
+        )
+        added = self.pm.add_placeable(placeable)
+        if not added:
             self.game.modal_handler.show_simple_modal('A plant with that name already exists! '
                                                       'Please rename the pre-existing one or choose another name.')
             self.game.player.budget += self.placement_data[1]['cost']
             return
-        self.game.player.plants[name] = Plant(self.game, name, self.placement_data[1],
-                                              cast(PlantType, self.placement_data[0]),
-                                              pos)
+        # self.game.player.plants[name] = Placeable(self.game, name, self.placement_data[1],
+        #                                           cast(PlantType, self.placement_data[0]),
+        #                                           pos)
         print(f'Creating {name} of type {self.placement_data[0].value[0]}')
 
     def placement_click(self, event: pygame.event.Event):
@@ -286,14 +337,26 @@ class MainScene(Scene):
         if self.game.placement_info is not None:
             size = info_map[self.game.placement_info['category']][self.game.placement_info['type']]['size']
             place_surf = pygame.transform.scale_by(Surface(size, pygame.SRCALPHA), self.zoom_factor / 2)
-            place_surf.fill(green)
-            place_surf.set_alpha(155)
             rect = place_surf.get_rect()
             rect.center = pygame.mouse.get_pos()
+            # if rect
+            place_surf.fill(green)
+            place_surf.set_alpha(155)
+
             self.game.screen.blit(place_surf, rect)
 
     def init(self):
+        self.pm = self.game.player.placeable_manager
         self.game.input_handler.on('mouse_wheel', self.mouse_scroll, 'main_zoom')
+
+        self.tr_buttons['info_button'].on('on_press_end', lambda _: self.game.modal_handler.show_simple_modal(
+            f'Player Name: {self.game.player.name}\n'
+            f'Island Name: {self.game.player.island_name}\n'
+            f'No. of Plants: {self.pm.plants.size}\n'
+            f'No. of Infra: 0\n'
+            'v0.0.0-alpha',
+            title="Info"
+        ))
 
         def on_advance(_):
             self.game.player.replenish()

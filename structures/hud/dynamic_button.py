@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from structures.game import Game
 
 
+# extract to elsewhere asap
 class TextOptions(TypedDict):
     color: NotRequired[u.TupleColor]
     outline: NotRequired[int]
@@ -19,6 +20,16 @@ class TextOptions(TypedDict):
     size: int
     offsets: NotRequired[tuple[int | None, int | None]]
     xy: NotRequired[tuple[int | None, int | None]]
+
+
+def create_text_from_options(game, text_options: TextOptions) -> Text:
+    return Text(
+        game,
+        size=text_options['size'],
+        color=text_options.get('color'),
+        outline=text_options.get('outline'),
+        outline_color=text_options.get('outline_color'),
+    )
 
 
 class DynamicButton(Button):

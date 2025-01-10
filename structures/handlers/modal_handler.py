@@ -52,7 +52,7 @@ class ModalHandler:
         self.modal_object.rect.topleft = center_pos
         self.title = Text(game, size=28, color=(255, 255, 255), wrap=False, parent=self.modal_object)
         self.body = Text(game, size=18, color=(0, 0, 0), pos=(18, 100), wrap=True, parent=self.modal_object,
-                         end_padding=18)
+                         end_padding=18, max_width=self.box_size[0]-18*2)
         ok_button_pos = u.relative_pos(self.regular_modal.get_size(), (-self.button_offset[0], self.button_offset[1]),
                                        from_xy="center-bottom")
         self.title_surface = Surface((self.box_size[0], 70), pygame.SRCALPHA)

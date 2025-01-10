@@ -1,7 +1,9 @@
+from math import log2
 from typing import TYPE_CHECKING, Optional
 
 from modules.info.plants import PlantType
-from structures.plant import Plant
+from structures.handlers.placeable_handler import PlaceableManager
+from structures.placeable import Placeable
 
 if TYPE_CHECKING:
     from structures.game import Game
@@ -17,8 +19,10 @@ class Player:
         self.popularity = 3
         self.emissions = 0
         self.year = 1
-        self.plants: dict[str, Plant] = {}
+        self.plants: dict[str, Placeable] = {}
         self.plants_construction_pending = {}
+        self.placeable_manager = PlaceableManager(self.game)
+        self.energy_requirements = 400
         self.island_name = ""
         self.introduced = False
         self.natural_disaster_chance = 1
@@ -47,4 +51,6 @@ class Player:
             self.budget_increase_multiplier *= 1.2
             self.budget_increase_multiplier = round(self.budget_increase_multiplier, 2)
             self.budget_increase *= self.budget_increase_multiplier
+        self.energy_requirements += 400 * log2(self.year)
+        self.energy_requirements = round(self.energy_requirements)
         self.natural_disaster_chance *= 2

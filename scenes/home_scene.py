@@ -38,7 +38,7 @@ class HomeScene(Scene):
         u.draw_tiles(game.screen, game.bg_tile_scaled, game.tile_offset)
         u.center_blit(game.screen, rescaled_country, offsets=(None, 20))
         u.center_blit(game.screen, rescaled_title, offsets=(None, -0.6 / 3))
-        game.tile_offset += 0.5
+        game.tile_offset += game.tile_increase
         if game.tile_offset == 64:
             game.tile_offset = 0
         play_button.draw()

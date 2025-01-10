@@ -20,7 +20,7 @@ class LoadingHandler:
         self.loading_surface = pygame.Surface(game.screen.get_size(), pygame.SRCALPHA)
         self.loading_surface.fill((255, 255, 255))
         self.title = u.rescale(game.title, factor=1)
-        self.transition_length = 70
+        self.transition_length = round(70 * (self.game.ideal_fps / 60))
         # self.easing_function = lambda x: easings.stepwise(x, 10)
         self.easing_function = easings.ease_in_out
         self.is_transitioning = False

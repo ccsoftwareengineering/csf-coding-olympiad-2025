@@ -14,6 +14,7 @@ from structures.handlers.guide_handler import GuideHandler
 from structures.handlers.input_handler import InputHandler
 from structures.handlers.loading_handler import LoadingHandler
 from structures.handlers.modal_handler import ModalHandler
+from structures.handlers.placeable_handler import PlaceableManager
 from structures.handlers.telemetry_handler import TelemetryHandler
 from structures.player import Player
 from structures.scene import Scene
@@ -51,6 +52,9 @@ class Game:
     on_press_end = {}
 
     running = True
+
+    ideal_fps = 60
+    tile_increase = round(0.5 / round(ideal_fps / 60), 2)
 
     player: Player = None
     placement_info: Optional[dict[str, any]] = None
@@ -116,7 +120,7 @@ class Game:
         self.loading_handler.draw()
         self.post_loop()
         pygame.display.flip()
-        self.clock.tick(60)
+        self.clock.tick(self.ideal_fps)
 
     def initiate_dialogue(self, dialogue_id):
         self.curr_dialogue = DialogueHandler(self, dialogue_id, speed=0.018)
