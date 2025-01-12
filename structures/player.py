@@ -1,4 +1,4 @@
-from math import log2
+from math import log2, inf
 from typing import TYPE_CHECKING, Optional
 
 from modules.info.plants import PlantType
@@ -16,13 +16,17 @@ class Player:
         self.budget = 0
         self.budget_increase = 1_000_000
         self.budget_increase_multiplier = 1
-        self.popularity = 3
+        self.approval = 3
         self.emissions = 0
         self.year = 1
         self.plants: dict[str, Placeable] = {}
         self.plants_construction_pending = {}
         self.placeable_manager = PlaceableManager(self.game)
         self.energy_requirements = 400
+        self.pollution_multipliers = (
+            (100, 600, inf),
+            ((200, 255, 200), (255, 255, 200), (255, 200, 200)),
+        )
         self.island_name = ""
         self.introduced = False
         self.natural_disaster_chance = 1
@@ -44,7 +48,7 @@ class Player:
     def replenish(self):
         self.initial_replenish()
         self.year += 1
-        if self.popularity == 5:
+        if self.approval == 5:
             self.super_popular_count += 1
         if self.super_popular_count > 3:
             self.super_popular_count = 0

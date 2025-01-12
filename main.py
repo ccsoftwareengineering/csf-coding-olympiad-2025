@@ -4,7 +4,7 @@ from scenes.main_scene import MainScene
 from structures.game import *
 from structures.player import Player
 
-game = Game(show_fps=True)
+game = Game(show_fps=False)
 game.set_scenes({
     GameState.HOME: HomeScene(game),
     GameState.DIALOGUE: DialogueScene(game),

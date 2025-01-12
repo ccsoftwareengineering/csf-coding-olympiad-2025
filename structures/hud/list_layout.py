@@ -29,11 +29,14 @@ class ListLayout(HudObject):
             anchor_point: Optional[AnchorPoint] = AnchorPoint.TOP_LEFT,
             rect_template: Optional[u.RectTemplate] = None,
             padding: Optional[int] = 0,
+            x_padding: Optional[int] = 0,
+            y_padding: Optional[int] = 0,
     ):
         self.direction = direction
         self._anchor_point = anchor_point
         self.gap = gap
-        self.padding = padding
+        self.x_padding = padding or x_padding
+        self.y_padding = padding or y_padding
         self.min_size = min_size
         self.max_size = max_size
         if size:
@@ -47,10 +50,10 @@ class ListLayout(HudObject):
         self.child_anchor_point = 'topleft' if side == HorizontalAlignment.RIGHT else 'topright'
         if self.vertical:
             self.axis_function = 'get_height'
-            self.axis_value_placement = lambda v: (self.padding, v + self.padding * self.direction_multiplier)
+            self.axis_value_placement = lambda v: (self.x_padding, v * self.direction_multiplier + self.y_padding)
         else:
             self.axis_function = 'get_width'
-            self.axis_value_placement = lambda v: (v + self.padding * self.direction_multiplier, self.padding)
+            self.axis_value_placement = lambda v: (v * self.direction_multiplier + self.x_padding, self.y_padding)
         self.anchor_calc_map = {
             AnchorPoint.TOP_LEFT: lambda x_offset, y_offset: (x_offset, y_offset),
             AnchorPoint.TOP_CENTER: lambda x_offset, y_offset: (self.rect.width / 2 + x_offset, y_offset),
@@ -61,14 +64,15 @@ class ListLayout(HudObject):
             AnchorPoint.MID_RIGHT: lambda x_offset, y_offset: (
                 self.rect.width + x_offset, self.rect.height / 2 + y_offset),
             AnchorPoint.BOTTOM_LEFT: lambda x_offset, y_offset: (
-                x_offset, self.rect.height / 2 + y_offset + self.padding),
+                x_offset, self.rect.height / 2 + y_offset + self.y_padding),
             AnchorPoint.BOTTOM_CENTER: lambda x_offset, y_offset: (
                 self.rect.width / 2 + x_offset, self.rect.height + y_offset),
             AnchorPoint.BOTTOM_RIGHT: lambda x_offset, y_offset: (
-                x_offset + self.rect.width - self.padding * 2, self.rect.height / 2 + y_offset + self.padding),
+                x_offset + self.rect.width - self.x_padding * 2, self.rect.height / 2 + y_offset + self.y_padding * 2),
         }
         self.calc_function = self.anchor_calc_map[self._anchor_point]
-        super().__init__(game, Surface(min_size, pygame.SRCALPHA), pos=position, object_id=object_id, parent=parent, scale=scale)
+        super().__init__(game, Surface(min_size, pygame.SRCALPHA), pos=position, object_id=object_id, parent=parent,
+                         scale=scale)
         setattr(self.rect, anchor_map[anchor_point.value], position)  # type: ignore[int]
 
         # supposed to be able to list elements with a gap in any direction and work regardless of the lists anchor point
@@ -115,8 +119,8 @@ class ListLayout(HudObject):
                 total_height = max(total_height, child_size[1])
                 total_width += child_size[0]
 
-        total_width = max(self.min_size[0], min(total_width + self.padding * 2, self.max_size[0]))
-        total_height = max(self.min_size[1], min(total_height + self.padding * 2, self.max_size[1]))
+        total_width = max(self.min_size[0], min(total_width + self.x_padding * 2, self.max_size[0]))
+        total_height = max(self.min_size[1], min(total_height + self.y_padding * 2, self.max_size[1]))
 
         return total_width, total_height
 

@@ -4,9 +4,9 @@ import pygame
 from pygame import Surface
 
 import modules.utilities as u
-from structures.hud.dynamic_button import TextOptions
+from modules.more_utilities.text import TextOptions
 from structures.hud.hud_object import HudObject
-from structures.hud.text import Text
+from structures.hud.types import Text
 
 if TYPE_CHECKING:
     from structures.game import Game

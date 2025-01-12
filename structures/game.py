@@ -8,7 +8,9 @@ from modules import utilities as u
 from modules.constants import dims
 from modules.dialogue import dialogues
 from modules.more_utilities.enums import GameState
+from structures.handlers.asset_handler import AssetHandler
 from structures.handlers.cursor_handler import CursorHandler
+from structures.handlers.delay_handler import DelayHandler
 from structures.handlers.dialogue_handler import DialogueHandler
 from structures.handlers.guide_handler import GuideHandler
 from structures.handlers.input_handler import InputHandler
@@ -77,6 +79,8 @@ class Game:
         self.in_guide = False
         self.dialogues = None
         self.just_ended_modal = False
+        self.delay_handler = DelayHandler(self)
+        self.asset_handler = AssetHandler(self)
         self.loading_handler = LoadingHandler(self)
         self.cursor_handler = CursorHandler(self)
         self.guide_handler = GuideHandler(self)
@@ -108,6 +112,7 @@ class Game:
 
     def update(self):
         self.pre_loop()
+        self.delay_handler.run_all()
         for event in pygame.event.get():
             self.handle_event(event)
         self.telemetry_handler.set_value('Mouse Pos', pygame.mouse.get_pos())

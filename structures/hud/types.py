@@ -6,6 +6,7 @@ from pygame import Surface
 from modules import utilities as u
 from modules.constants import text_multiplier
 from modules.more_utilities.enums import HorizontalAlignment
+from modules.more_utilities.text import TextOptions, TextDefaults
 
 if typing.TYPE_CHECKING:
     from structures.game import Game
@@ -49,6 +50,17 @@ class Text(HudObject):
     def size(self, value):
         self._size = value
         self.font = u.get_main_font(value)
+
+    @staticmethod
+    def from_options(game: 'Game', options: TextOptions, default: TextDefaults) -> 'Text':
+        return Text(
+            game,
+            size=options['size'],
+            color=options.get('color') or default.get('color'),
+            outline=options.get('outline') or default.get('outline'),
+            outline_color=options.get('outline_color') or default.get('outline_color'),
+        )
+
 
     def calculate_surface(self, color=None):
         if not color:

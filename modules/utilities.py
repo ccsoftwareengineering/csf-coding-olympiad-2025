@@ -169,7 +169,8 @@ def rounded_rect(
         pygame.draw.rect(surf, outline_color, size, border_radius=radius)
         size.size = (
             size.w - scaled_outline_2x,  # - (1 if scaled_xy[0] - size.w - scaled_outline_2x == 0 else 0),
-            size.h - scaled_outline_2x)  # - (1 if scaled_xy[1] - size.h - scaled_outline_2x == 0 else 0) - change)
+            size.h - scaled_outline_2x - change)  # - (1 if scaled_xy[1] - size.h - scaled_outline_2x == 0 else 0) -
+        # change)
         size.topleft = (scaled_outline, scaled_outline)
         pygame.draw.rect(surf, color, size, border_radius=radius)
     if scale == 1:
@@ -203,7 +204,7 @@ def quick_template(color, radius=7, dark=False):
     )
 
 
-# if a pos (x, y) is in a rect
+# if a position (x, y) is in a rect
 def pos_in_rect(xy: (int, int), rect: pygame.Rect):
     return rect.left < xy[0] < rect.right and rect.top < xy[1] < rect.bottom
 
@@ -285,7 +286,17 @@ def rect_from_to(pos1: tuple[int, int], pos2: tuple[int, int]) -> pygame.Rect:
 
 
 ui_rect_template = rounded_rect_template(
+    color=(0, 97, 183, 150),  # (255, 162, 112),
+    outline_color=(0, 0, 0, 255),
+    emulated_x=default_emulated_x,
+    outline=1,
+    double_bottom=True,
+    radius=7
+)
+
+ui_rect_template_solid = rounded_rect_template(
     color=(0, 97, 183),  # (255, 162, 112),
+    outline_color=(0, 0, 0),
     emulated_x=default_emulated_x,
     outline=1,
     double_bottom=True,
@@ -322,3 +333,21 @@ def div_vec2(vec2, v):
 def percentage_chance(self, percent):
     random_number = uniform(0, 100)
     return random_number < percent
+
+
+class Time:
+    @staticmethod
+    def ms(t: int):
+        return t * 1000
+
+    @staticmethod
+    def s(t: int):
+        return t * 1_000_000
+
+    @staticmethod
+    def m(t: int):
+        return t * 60_000_000
+
+    @staticmethod
+    def h(t: int):
+        return t * 3_600_000_000

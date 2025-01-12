@@ -1,13 +1,18 @@
+from typing import TYPE_CHECKING
+
 from modules import utilities as u
 from modules.constants import dims
 from modules.more_utilities.enums import GameState
+if TYPE_CHECKING:
+    from structures.game import Game
 from structures.hud.button import Button
 from structures.scene import Scene
 
 
 class HomeScene(Scene):
-    def __init__(self, g):
-        self.play_button_surface = u.load_scale('assets/play_button.png', None, 1.6)
+    def __init__(self, g: 'Game'):
+        self.play_button_surface = g.asset_handler(1.6)['assets/play_button.png']
+        # self.play_button_surface = u.load_scale('assets/play_button.png', None, 1.6)
         self.programmed_by_pos = u.relative_pos(dims, (10, 10), from_xy='left-bottom')
         super().__init__(g)
 

@@ -3,7 +3,7 @@ from pygame import Surface
 
 import modules.utilities as u
 from structures.hud.hud_object import HudObject
-from structures.hud.text import Text
+from structures.hud.types import Text
 
 
 class MoneyDisplay(HudObject):

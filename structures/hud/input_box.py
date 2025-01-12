@@ -7,7 +7,7 @@ from pygame import Surface
 import modules.utilities as u
 from modules.utilities import get_main_font, lerp_colors
 from structures.hud.hud_object import HudObject
-from structures.hud.text import Text
+from structures.hud.types import Text
 
 if TYPE_CHECKING:
     from structures.game import Game
@@ -149,7 +149,7 @@ class InputBox(HudObject):
                 datetime.datetime.now() - self.error_set_time).total_seconds() >= self.error_expiry_time:
             self.error = None
 
-        if self.hovering:
+        if self.hovering and self.enabled:
             if self.on_hover_start:
                 self.game.cursor_handler.cursor = 'INPUT'
             if pygame.mouse.get_pressed()[0]:

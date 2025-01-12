@@ -7,7 +7,7 @@ from modules.constants import white
 from structures.hud.button import Button
 from structures.hud.hud_object import HudObject
 from structures.hud.input_box import InputBox
-from structures.hud.text import Text
+from structures.hud.types import Text
 from structures.scene import Scene
 
 
@@ -19,7 +19,7 @@ class DialogueScene(Scene):
         dialogue_box = HudObject(self.game, self.game.modal, object_id="DialogueBox")
         dialogue_box.rect.topleft = u.cbp(self.game.screen, dialogue_box.surface)
 
-        # info_box = HudObject(game, info_icon, parent=dialogue_box, pos=(40, 40), object_id="InfoBox")
+        # info_box = HudObject(game, info_icon, parent=dialogue_box, position=(40, 40), object_id="InfoBox")
         text = Text(self.game, 20, pos=(20, 80), parent=dialogue_box, color=(33, 0, 43))
         text.end_padding = 20
         text.wrap = True

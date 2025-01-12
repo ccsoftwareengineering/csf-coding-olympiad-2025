@@ -8,21 +8,23 @@ import pygame
 from pygame import Surface
 
 from modules import utilities as u
-from modules.constants import default_emulated_x, dims, ui_color_light, red, green, black, white
+from modules.constants import default_emulated_x, dims, ui_color_light, red, green, center_dims
 from modules.info.info import info_map
 from modules.info.plants import PlantType
 from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment
 from modules.utilities import display_number
+from scenes.main_ui.icon_value import IconValue
 from scenes.main_ui.money_display import MoneyDisplay
 from scenes.main_ui.selector_prompt import SelectorPrompt
 from structures.game import Game
+from structures.handlers.placeable_handler import PlaceableManager
 from structures.hud.button import Button
 from structures.hud.dropdown import Dropdown
 from structures.hud.dynamic_button import DynamicButton
 from structures.hud.dynamic_text_box import DynamicTextBox
 from structures.hud.hud_object import HudObject
 from structures.hud.list_layout import ListLayout
-from structures.hud.text import Text
+from structures.hud.types import Text
 from structures.placeable import Placeable
 from structures.scene import Scene
 
@@ -54,25 +56,25 @@ class MainScene(Scene):
         super().__init__(game)
         self.country = u.rescale(self.game.country_detail, factor=self.country_factor)
 
-        self.tr_ui = ListLayout(
+        self.cr_ui = ListLayout(
             self.game,
-            anchor_point=AnchorPoint.TOP_RIGHT,
-            direction=Direction.LEFT,
+            anchor_point=AnchorPoint.TOP_LEFT,
+            direction=Direction.DOWN,
             gap=15,
             padding=13,
-            side=HorizontalAlignment.LEFT,
+            side=HorizontalAlignment.RIGHT,
             position=u.relative_pos(self.game.screen.get_size(), (10, 10), from_xy='right-top'),
             rect_template=u.ui_rect_template
         )
 
         self.tc_ui = DynamicTextBox(
             self.game,
-            (300, 150),
+            (300, 140),
             {"color": (255, 255, 255), "size": 32, "outline": 0, "outline_color": (0, 0, 0), "xy": (None, 20)},
             rect_template=u.ui_rect_template,
             text=f'YEAR X',
         )
-        self.tc_ui.rect.midtop = u.relative_pos(dims, (0, 10), from_xy='center-top')
+        self.tc_ui.rect.topright = u.relative_pos(dims, (10, 10), from_xy='right-top')
 
         self.advance = DynamicButton(
             game,
@@ -90,20 +92,20 @@ class MainScene(Scene):
         )
         self.advance.rect.midbottom = u.relative_pos(self.tc_ui.size, (0, 20), from_xy='center-bottom')
 
-        self.bl_ui = ListLayout(
+        self.tl_ui = ListLayout(
             self.game,
-            anchor_point=AnchorPoint.BOTTOM_LEFT,
-            direction=Direction.UP,
+            anchor_point=AnchorPoint.TOP_LEFT,
+            direction=Direction.DOWN,
             side=HorizontalAlignment.RIGHT,
             gap=5,
             padding=20,
-            position=u.relative_pos(self.game.screen.get_size(), (20, 20), from_xy='left-bottom'),
+            position=u.relative_pos(dims, (20, 20), from_xy='left-top'),
             rect_template=u.ui_rect_template,
-            max_size=(300, 10_000),
+            size=(300, 140),
         )
 
-        self.budget_display = Text(self.game, wrap=True, outline=0, size=15, parent=self.bl_ui, max_width=300)
-        self.money_display = MoneyDisplay(game=self.game, parent=self.bl_ui, size=28)
+        self.money_display = MoneyDisplay(game=self.game, parent=self.tl_ui, size=28)
+        self.budget_display = Text(self.game, wrap=True, outline=0, size=15, parent=self.tl_ui, max_width=300)
 
         white_template = u.rounded_rect_template(
             color=(255, 255, 255),  # (255, 162, 112),
@@ -111,26 +113,38 @@ class MainScene(Scene):
             outline=1,
             radius=20,
         )
-        self.tr_buttons = {
-            'settings_button': Button(self.game, self.settings_icon, object_id="settings_button", parent=self.tr_ui),
-            'info_button': Button(self.game, self.info_icon, object_id="info_button", parent=self.tr_ui),
-            'add_button': DynamicButton(
-                self.game,
-                (150, 50),
-                {"color": (0, 0, 0), "size": 18},
-                rect_template=white_template,
-                text='CREATE...',
-                select_cursor='ADD',
-                parent=self.tr_ui,
-                object_id="create_button"
-            )
-            # Button(self.game, self.add_icon, object_id="add_button", parent=self.tr_ui),
+        manufacture_icon_button = lambda icon, object_id=None: Button(
+            self.game,
+            game.asset_handler(1.8, 'assets/ui/icons/')[icon + '.png'],
+            object_id=object_id or f'{icon}_button',
+            parent=self.cr_ui
+        )
+
+        # DynamicButton(
+        #     self.game,
+        #     (150, 50),
+        #     {"color": (0, 0, 0), "size": 18},
+        #     rect_template=white_template,
+        #     text='CREATE...',
+        #     select_cursor='ADD',
+        #     parent=self.cr_ui,
+        #     object_id="create_button"
+        # )
+
+        self.cr_buttons = {
+            'add_button': manufacture_icon_button('add'),
+            'trash_button': manufacture_icon_button('trash'),
+            'wrench_button': manufacture_icon_button('wrench'),
+            'info_button': manufacture_icon_button('info'),
+            'settings_button': manufacture_icon_button('settings'),
+            # Button(self.game, self.add_icon, object_id="add_button", parent=self.cr_ui),
         }
 
         self.add_dropdown = Dropdown(
             game,
-            (300, 300),
-            button=self.tr_buttons['add_button'],
+            (300, 108),
+            button=self.cr_buttons['add_button'],
+            direction=Direction.LEFT
             # rect_template=self.ui_rect_template
         )
 
@@ -159,36 +173,46 @@ class MainScene(Scene):
             attributes={"type": mtype}
         )
         self.add_dropdown_button_list = (dbl, (
-            manufacture_button('Placeable', 'plant'),
+            manufacture_button('Plant', 'plant'),
             # 'campaign': manufacture_button('Campaign'),
             manufacture_button('Infrastructure', 'infra'),
         ))
 
+        dbl.predraw()
+        dbl.rect.midright = u.relative_pos(self.add_dropdown.size, (0, 0), from_xy='right-center')
+
         self.br_ui = ListLayout(
             game,
-            direction=Direction.UP,
-            side=HorizontalAlignment.LEFT,
-            padding=20,
-            anchor_point=AnchorPoint.BOTTOM_RIGHT,
-            position=u.relative_pos(dims, (10, 10), from_xy='right-bottom'),
+            direction=Direction.RIGHT,
+            x_padding=20,
+            y_padding=30,
+            anchor_point=AnchorPoint.TOP_LEFT,
+            position=(0, 0),
             rect_template=u.ui_rect_template,
-            gap=10,
+            gap=50,
         )
 
-        manufacture_text = lambda t: Text(
-            game,
-            18,
-            t,
-            color=white,
-            # outline=1,
-            outline_color=black,
-            wrap=False,
-            parent=self.br_ui
-        )
+        game.globals['approval_icons'] = game.asset_handler(1, 'assets/opinion/').load((
+            '1.png',
+            '2.png',
+            '3.png',
+            '4.png',
+            '5.png'
+        ))
+        br_scale = 1.8
+        self.approval_upsized = tuple(u.rescale(surf, factor=br_scale) for surf in game.globals['approval_icons'])
+        self.br_icons = game.asset_handler(br_scale, 'assets/').load((
+            'bulb_small.png',
+            'energy.png',
+            'earth_small.png'
+        ))
+        manufacture_metric = lambda i: IconValue(game, {"size": 20}, i, parent=self.br_ui)
 
         self.br_ui_elements = {
-            'er': manufacture_text(''),
-            'pr': manufacture_text('')
+            'demand': manufacture_metric(self.br_icons[0]),
+            'output': manufacture_metric(self.br_icons[1]),
+            'approval': manufacture_metric(self.approval_upsized[2]),
+            'pollution': manufacture_metric(self.br_icons[2]),
         }
 
         for btn in self.add_dropdown_button_list[1]:
@@ -204,40 +228,39 @@ class MainScene(Scene):
         #     behavior='in')
 
         self.placement_color = green
-        self.placement_color = red
-
+        self.can_place_color = green
+        self.cant_place_color = red
+        self.can_place = True
         self.placement_data: None | tuple[Enum, dict[str, any]] = None
 
         # To make introduction dialogue see it
-        self.tr_ui.predraw()
-        self.bl_ui.predraw()
+
+        self.cr_ui.predraw()
+        self.cr_ui.rect.midright = u.relative_pos(dims, (20, 0), from_xy='right-center')
+        self.tl_ui.predraw()
         self.tc_ui.predraw()
+        self.br_ui.predraw()
+
+        self.game.globals['br'] = u.relative_pos(dims, (20, 20), from_xy='right-bottom')
 
         # this for random generation of thingy to test placement :)
         # self.gap = 0.1
         # self.og = datetime.datetime.now()
         self.map_cache = {}
+        self.country_mask = {
+            "mask": pygame.mask.from_surface(self.country),
+            "rect": self.country.get_rect(center=center_dims)
+        }
 
-        self.pm = None
+    @property
+    def pm(self) -> 'PlaceableManager':
+        return self.game.player.placeable_manager
 
     def draw(self):
         if pygame.K_o in self.game.input_handler.key_down:
             self.update_zoom_factor(0.5)
         elif pygame.K_i in self.game.input_handler.key_down:
             self.update_zoom_factor(-0.5)
-        # this was for generating random placement.... might be useful, so I commented it out :)
-        # if datetime.datetime.now() - self.og > datetime.timedelta(seconds=self.gap):
-        #     plants = (PlantType.WIND, PlantType.SOLAR, PlantType.FOSSIL_FUEL)
-        #     random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-        #     choice = random.choice(plants)
-        #     self.game.player.plants[random_name] = Placeable(
-        #         self.game,
-        #         random_name,
-        #         info_map['plant'][choice],
-        #         choice,
-        #         (random.randint(-300, 300), random.randint(-300, 300)),
-        #     )
-        #     self.og = datetime.datetime.now()
         if self.game.placement_info is not None:
             self.game.input_handler.on('mouse_on_up', self.placement_click, 'main_click')
         else:
@@ -286,15 +309,27 @@ class MainScene(Scene):
             self.pm.draw_all(self.zoom_factor, self.game.screen, self.fixed_zoom_factor)
 
     def draw_ui(self):
-        self.br_ui_elements['er'].text = f'Yearly Energy Requirement: {
+        self.br_ui_elements['demand'].text_object.text = f'{
         u.display_number(self.game.player.energy_requirements)} GWh'
-        self.br_ui_elements['pr'].text = f'Yearly Energy Output: {u.display_wh(u.mw_to_h(self.pm.total_output))}'
-        self.br_ui_elements['pr'].color = (200, 255, 200) if u.mw_to_h(
+        self.br_ui_elements['output'].text_object.text = f'{u.display_wh(u.mw_to_h(self.pm.total_output))}'
+        self.br_ui_elements['output'].text_object.color = (200, 255, 200) if u.mw_to_h(
             self.pm.total_output) / 1000 >= self.game.player.energy_requirements else (255, 200, 200)
+        self.br_ui_elements['pollution'].text_object.color = self.game.player.pollution_multipliers[1][
+            self.pm.pollution_level
+        ]
+        self.br_ui_elements[
+            'pollution'].text_object.text = f'{u.display_number(self.pm.total_pollution)} tCO2e'
+        self.br_ui_elements['approval'].text_object.text = f'{round(self.game.player.approval * 20)}%'
+        self.br_ui_elements['approval'].text_object.color = u.lerp_colors(
+            (255, 150, 150),
+            (150, 255, 150),
+            self.game.player.approval / 5
+        )
+        self.br_ui.rect.midbottom = u.relative_pos(dims, (0, 20), from_xy='center-bottom')
         self.br_ui.draw()
-        self.tr_ui.draw()
+        self.cr_ui.draw()
         self.add_dropdown.draw()
-        self.bl_ui.draw()
+        self.tl_ui.draw()
         self.tc_ui.draw()
 
     def create(self, name, pos: tuple[int, int]):
@@ -313,11 +348,11 @@ class MainScene(Scene):
             return
         # self.game.player.plants[name] = Placeable(self.game, name, self.placement_data[1],
         #                                           cast(PlantType, self.placement_data[0]),
-        #                                           pos)
+        #                                           position)
         print(f'Creating {name} of type {self.placement_data[0].value[0]}')
 
     def placement_click(self, event: pygame.event.Event):
-        if event.button != 1:
+        if event.button != 1 or not self.can_place:
             return
         t_pos = u.div_vec2(u.get_distance_from_centre(dims, pygame.mouse.get_pos()), self.fixed_zoom_factor)
         if self.game.placement_info is not None:
@@ -335,21 +370,31 @@ class MainScene(Scene):
 
     def draw_placement(self):
         if self.game.placement_info is not None:
+            which = self.country_waves if self.game.placement_info['type'] == PlantType.WIND else self.country
+            rescaled_country = u.rescale(which, factor=self.zoom_factor)
+            self.country_mask = {
+                "mask": pygame.mask.from_surface(rescaled_country),
+                "rect": rescaled_country.get_rect(center=center_dims)
+            }
             size = info_map[self.game.placement_info['category']][self.game.placement_info['type']]['size']
             place_surf = pygame.transform.scale_by(Surface(size, pygame.SRCALPHA), self.zoom_factor / 2)
             rect = place_surf.get_rect()
             rect.center = pygame.mouse.get_pos()
             # if rect
-            place_surf.fill(green)
+            self.can_place = not self.pm.is_colliding(rect) and PlaceableManager.in_country(
+                self.country_mask['mask'],
+                self.country_mask['rect'],
+                rect
+            )
+            self.placement_color = self.can_place_color if self.can_place else self.cant_place_color
+            place_surf.fill(self.placement_color)
             place_surf.set_alpha(155)
-
             self.game.screen.blit(place_surf, rect)
 
     def init(self):
-        self.pm = self.game.player.placeable_manager
         self.game.input_handler.on('mouse_wheel', self.mouse_scroll, 'main_zoom')
 
-        self.tr_buttons['info_button'].on('on_press_end', lambda _: self.game.modal_handler.show_simple_modal(
+        self.cr_buttons['info_button'].on('on_press_end', lambda _: self.game.modal_handler.show_simple_modal(
             f'Player Name: {self.game.player.name}\n'
             f'Island Name: {self.game.player.island_name}\n'
             f'No. of Plants: {self.pm.plants.size}\n'

@@ -14,13 +14,13 @@ plants = {
     PlantType.FOSSIL_FUEL: {
         'cost': 500_000,
         'output_mw': 50,
-        'pollution_tco2e': 150,
+        'pollution_tco2e': 5_000,
         'location_constraints': 'None (Can be placed anywhere)',
         'description': 'Generates reliable energy at a low upfront cost. However, it produces high levels of '
                        'pollution and contributes to environmental degradation.',
         'size': (5, 5),
         'upkeep': 100_000,
-        'asset_id': 'fossil-fuel'
+        'asset_id': 'fossil_fuel'
     },
     PlantType.SOLAR: {
         'cost': 750_000,
@@ -37,7 +37,7 @@ plants = {
         'output_mw': 30,
         'pollution_tco2e': 0,
         'description': 'Provides renewable energy with zero emissions. Energy production is less predictable '
-                       'and depends on wind availability.',
+                       'and depends on wind availability. Can be placed offshore.',
         'size': (15, 15),
         'upkeep': 80_000,
         'asset_id': 'wind'
@@ -45,7 +45,7 @@ plants = {
     PlantType.GEOTHERMAL: {
         'cost': 1_500_000,
         'output_mw': 40,
-        'pollution_tco2e': 5,
+        'pollution_tco2e': 350,
         'description': 'Delivers consistent energy with minimal pollution. High initial costs make it an '
                        'expensive investment.',
         'size': (8, 8),

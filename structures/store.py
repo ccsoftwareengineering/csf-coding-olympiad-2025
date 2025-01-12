@@ -10,6 +10,9 @@ class Store:
         self.main_dict[key] = value
         return value
 
+    def __getattr__(self, item):
+        return self.main_dict[item]
+
     def get(self, key: str):
         return self.main_dict.get(key)
 
@@ -18,6 +21,10 @@ class Store:
 
     def __iter__(self):
         return iter(self.main_dict)
+
+    @property
+    def values(self):
+        return self.main_dict.values()
 
     def __getitem__(self, item):
         return self.main_dict.get(item)

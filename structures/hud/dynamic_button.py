@@ -1,36 +1,16 @@
-from typing import TYPE_CHECKING, Optional, TypedDict, NotRequired
+from typing import TYPE_CHECKING, Optional
 
 import pygame
 from pygame import Surface
 
 import modules.utilities as u
+from modules.more_utilities.text import TextOptions
 from structures.hud.button import Button
 from structures.hud.hud_object import HudObject
-from structures.hud.text import Text
+from structures.hud.types import Text
 
 if TYPE_CHECKING:
     from structures.game import Game
-
-
-# extract to elsewhere asap
-class TextOptions(TypedDict):
-    color: NotRequired[u.TupleColor]
-    outline: NotRequired[int]
-    outline_color: NotRequired[u.TupleColor]
-    size: int
-    offsets: NotRequired[tuple[int | None, int | None]]
-    xy: NotRequired[tuple[int | None, int | None]]
-
-
-def create_text_from_options(game, text_options: TextOptions) -> Text:
-    return Text(
-        game,
-        size=text_options['size'],
-        color=text_options.get('color'),
-        outline=text_options.get('outline'),
-        outline_color=text_options.get('outline_color'),
-    )
-
 
 class DynamicButton(Button):
     def __init__(

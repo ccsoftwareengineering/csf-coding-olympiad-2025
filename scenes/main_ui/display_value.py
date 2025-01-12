@@ -1,6 +1,7 @@
 from pygame import Surface
 
-from structures.hud.dynamic_button import TextOptions, create_text_from_options
+from structures.hud.dynamic_button import create_text_from_options
+from modules.more_utilities.text import TextOptions
 from structures.hud.hud_object import HudObject
 
 

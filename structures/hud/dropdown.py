@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 import modules.utilities as u
+from modules.more_utilities.enums import Direction
 from structures.hud.button import Button
 from structures.hud.dynamic_hud_object import DynamicHudObject
 
@@ -20,15 +21,39 @@ class Dropdown(DynamicHudObject):
             scale: float = 1,
             parent=None,
             object_id=None,
+            direction: Direction = Direction.DOWN,
             children_enabled=True,
             **kwargs
     ):
         self.gap = gap
         self.button = button
+        self.direction = direction
         self.button.on('on_press_end', self.on_button_press)
         self._selected = False
         super().__init__(game, size, rect_template, pos, scale, parent, object_id, children_enabled)
         self.visible = False
+        self.direction_placement_strategy = {
+            Direction.DOWN: lambda absolute_rect: setattr(
+                self.rect,
+                'midtop',
+                (absolute_rect.centerx, absolute_rect.bottom + self.gap)
+            ),
+            Direction.UP: lambda absolute_rect: setattr(
+                self.rect,
+                'midbottom',
+                (absolute_rect.centerx, absolute_rect.top - self.gap)
+            ),
+            Direction.LEFT: lambda absolute_rect: setattr(
+                self.rect,
+                'midright',
+                (absolute_rect.left - self.gap, absolute_rect.centery)
+            ),
+            Direction.RIGHT: lambda absolute_rect: setattr(
+                self.rect,
+                'midleft',
+                (absolute_rect.right + self.gap, absolute_rect.centery)
+            )
+        }
 
     @property
     def selected(self):
@@ -61,5 +86,5 @@ class Dropdown(DynamicHudObject):
                                               self.button.on_press_end))
         # if self.button.on_press_end and self.button.enabled:
         #     self.selected = True
-        self.rect.midtop = (self.button.absolute_rect.centerx, self.button.absolute_rect.bottom + self.gap)
+        self.direction_placement_strategy[self.direction](self.button.absolute_rect)
         super().predraw()

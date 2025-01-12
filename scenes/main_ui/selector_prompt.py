@@ -9,7 +9,7 @@ from structures.hud.dynamic_button import DynamicButton
 from structures.hud.dynamic_hud_object import DynamicHudObject
 from structures.hud.dynamic_text_box import DynamicTextBox
 from structures.hud.list_layout import ListLayout
-from structures.hud.text import Text
+from structures.hud.types import Text
 
 if TYPE_CHECKING:
     from structures.game import Game
@@ -33,7 +33,7 @@ class SelectorPrompt(DynamicHudObject):
     ):
         modal_dims = (800, 600)
         bottom_button_size = (230, 50)
-        super().__init__(game, size=modal_dims, rect_template=u.ui_rect_template, **kwargs)
+        super().__init__(game, size=modal_dims, rect_template=u.ui_rect_template_solid, **kwargs)
         self.which = which
         self.list = list(info_map[which].items())
         self.rect.topleft = u.center_blit_pos(game.screen, self.surface)
