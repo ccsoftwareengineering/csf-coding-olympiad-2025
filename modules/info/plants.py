@@ -18,7 +18,7 @@ plants = {
         'location_constraints': 'None (Can be placed anywhere)',
         'description': 'Generates reliable energy at a low upfront cost. However, it produces high levels of '
                        'pollution and contributes to environmental degradation.',
-        'size': (5, 5),
+        'size': (6, 6),
         'upkeep': 100_000,
         'asset_id': 'fossil_fuel'
     },
@@ -49,7 +49,8 @@ plants = {
         'description': 'Delivers consistent energy with minimal pollution. High initial costs make it an '
                        'expensive investment.',
         'size': (8, 8),
-        'upkeep': 150_000
+        'upkeep': 150_000,
+        'asset_id': 'geothermal'
     },
     PlantType.HYDROPOWER: {
         'cost': 2_000_000,
@@ -57,8 +58,9 @@ plants = {
         'pollution_tco2e': 2,
         'description': 'Generates efficient, renewable energy with very low emissions. Its construction is '
                        'costly and requires significant infrastructure.',
-        'size': (10, 5),
-        'upkeep': 200_000
+        'size': (14, 7),
+        'upkeep': 200_000,
+        'asset_id': 'hydropower'
     },
     PlantType.NUCLEAR: {
         'cost': 4_000_000,
@@ -67,6 +69,7 @@ plants = {
         'description': 'Offers a massive energy output and low greenhouse gas emissions. It comes with high '
                        'costs, radioactive waste, and safety concerns.',
         'size': (10, 10),
-        'upkeep': 500_000
+        'upkeep': 500_000,
+        'asset_id': 'nuclear'
     }
 }

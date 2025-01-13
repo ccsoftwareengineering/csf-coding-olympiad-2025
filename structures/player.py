@@ -55,6 +55,6 @@ class Player:
             self.budget_increase_multiplier *= 1.2
             self.budget_increase_multiplier = round(self.budget_increase_multiplier, 2)
             self.budget_increase *= self.budget_increase_multiplier
-        self.energy_requirements += 400 * log2(self.year)
+        self.energy_requirements += 400 * log2(self.year * 0.6)
         self.energy_requirements = round(self.energy_requirements)
         self.natural_disaster_chance *= 2

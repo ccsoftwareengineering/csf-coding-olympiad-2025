@@ -2,6 +2,7 @@
 # import random
 # import string
 from enum import Enum
+from math import inf
 from typing import cast
 
 import pygame
@@ -101,7 +102,8 @@ class MainScene(Scene):
             padding=20,
             position=u.relative_pos(dims, (20, 20), from_xy='left-top'),
             rect_template=u.ui_rect_template,
-            size=(300, 140),
+            min_size=(300, 140),
+            max_size=(10_000, 140)
         )
 
         self.money_display = MoneyDisplay(game=self.game, parent=self.tl_ui, size=28)

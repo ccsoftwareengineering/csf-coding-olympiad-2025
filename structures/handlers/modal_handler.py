@@ -98,16 +98,30 @@ class ModalHandler:
         self.game.input_handler.modal = self.modal_object
         self.modal_object.surface.blit(self.title_modal if title is not None else self.regular_modal, (0, 0))
 
-    def show_simple_modal(self, body: str, title=None, on_close=empty, input_visible=False):
-        self.curr_modal = {'body': body, 'title': title, 'on_close': on_close, 'type': ModalType.SIMPLE,
-                           'input_visible': input_visible}
+    def show_simple_modal(
+            self,
+            body: str,
+            title=None,
+            on_close=empty,
+            input_visible=False,
+            pre_cleanup=empty,
+            post_cleanup=empty
+    ):
+        self.curr_modal = {
+            'body': body,
+            'title': title,
+            'pre_cleanup': on_close or pre_cleanup,
+            'post_cleanup': post_cleanup,
+            'type': ModalType.SIMPLE,
+            'input_visible': input_visible
+        }
         self.setup_simple_modal(body, title, input_visible)
 
     def show_simple_multi_modal(
             self,
             modals: list[MultiModalData] | tuple[MultiModalData, ...],
-            pre_cleanup: empty,
-            post_cleanup: empty,
+            pre_cleanup=empty,
+            post_cleanup=empty,
     ):
         if len(modals) == 0:
             return
@@ -118,8 +132,8 @@ class ModalHandler:
             'pre_cleanup': pre_cleanup,
             'post_cleanup': post_cleanup,
         }
-        first = self.curr_modal[0]
-        self.setup_simple_modal(first['body'], first['title'], first['input_visible'] or False)
+        first = modals[0]
+        self.setup_simple_modal(first['body'], first.get('title'), first.get('input_visible') or False)
         self.update_button()
 
     def update_button(self):
@@ -137,7 +151,7 @@ class ModalHandler:
             'object': hud_object,
             'type': ModalType.CUSTOM,
             'pre_cleanup': on_close or pre_cleanup,
-            'post_cleanup': post_cleanup,
+            'post_cleanup': post_cleanup or empty,
         }
 
     def cancel_modal(self):
@@ -172,8 +186,10 @@ class ModalHandler:
                 self.modal_object.draw()
             elif self.curr_modal['type'] == ModalType.CUSTOM:
                 if self.to_cancel:
-                    self.curr_modal['on_close']()
+                    post_cleanup = self.curr_modal['post_cleanup']
+                    self.curr_modal['pre_cleanup']()
                     self.modal_cleanup()
+                    post_cleanup()
                     return
                 self.curr_modal['object'].draw()
             elif self.curr_modal['type'] == ModalType.MULTI_SIMPLE:
@@ -181,16 +197,16 @@ class ModalHandler:
                         pygame.K_RETURN):
                     curr_index = self.curr_modal['curr_index']
                     if curr_index < len(self.curr_modal['modals']) - 1:
-                        (curr_index.get('after') or empty)()
+                        (self.curr_modal['modals'][curr_index].get('after') or empty)()
                         self.curr_modal['curr_index'] += 1
                         curr = self.curr_modal['modals'][curr_index + 1]
                         self.setup_simple_modal(curr['body'], curr.get('title'), curr.get('input_visible') or False)
                         self.update_button()
                     else:
-                        (curr_index.get('after') or empty)()
+                        (self.curr_modal['modals'][curr_index].get('after') or empty)()
                         self.curr_modal['pre_cleanup']()
                         post = self.curr_modal['post_cleanup']
                         self.modal_cleanup()
                         post()
                         return
-                self.curr_modal['object'].draw()
+                self.modal_object.draw()

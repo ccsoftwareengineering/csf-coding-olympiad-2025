@@ -72,15 +72,20 @@ class PlaceableManager(EventEmitter):
         if not self.game.globals['first_plant']:
             self.game.globals['first_plant'] = True
             self.game.delay_handler.delay_run(
-                u.Time.ms(200),
-                lambda: self.game.modal_handler.show_simple_modal(
-                    title='FIRST PLANT!',
-                    body="Congratulations on placing your"
-                         " first plant! Remember, in a year your total output should be "
-                         ">= the energy demand. This ensures the nation is "
-                         "well powered. Also, ensure your pollution is in the green."
-                         " Following both of these keeps your approval high.")
-            )
+                0,
+                lambda: self.game.modal_handler.show_simple_multi_modal((
+                    {
+                        'title': 'FIRST PLANT!',
+                        'body': "Congratulations on placing your"
+                                " first plant! Remember, in a year your total output should be "
+                                "EQUAL OR EXCEED the energy demand. This ensures the nation is well powered.",
+                    },
+                    {
+                        'title': 'FIRST PLANT!',
+                        'body': "Also, ensure your pollution is in the green."
+                                " Following both of these keeps your approval high.",
+                    }
+                )))
 
             print('Skibidi')
         return True
