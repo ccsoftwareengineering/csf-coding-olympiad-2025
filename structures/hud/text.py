@@ -4,9 +4,8 @@ import pygame
 from pygame import Surface
 
 from modules import utilities as u
-from modules.constants import text_multiplier
 from modules.more_utilities.enums import HorizontalAlignment
-from modules.more_utilities.text import TextOptions, TextDefaults
+from modules.more_utilities.types import TextOptions, TextDefaults
 
 if typing.TYPE_CHECKING:
     from structures.game import Game
@@ -61,53 +60,100 @@ class Text(HudObject):
             outline_color=options.get('outline_color') or default.get('outline_color'),
         )
 
-
     def calculate_surface(self, color=None):
         if not color:
             color = self.color
+
         if not self.wrap:
             return self.font.render(self.text, False, color)
-        words = (self.text or '').split(' ')
+
+        raw_lines = (self.text or '').split('\n')
         allowed_width = self.max_width or (self.game.screen.get_width() - self.rect.x - self.end_padding)
         if self.parent is not None:
             allowed_width = self.max_width or (self.parent.surface.get_width() - self.rect.x - self.end_padding)
+
         lines = []
-        while len(words) > 0:
-            line_words = []
+
+        for raw_line in raw_lines:
+            words = raw_line.split(' ')
+            current_line = []
             while len(words) > 0:
                 word = words.pop(0)
-                chunked = word.split('\n')
-                if len(chunked) > 1:
-                    line_words.append(chunked[0])
-                    for word in chunked[1:]:
-                        words.insert(0, word)
-                    break
-                line_words.append(word)
-                fw, fh = self.font.size(' '.join(line_words + words[:1]))
-                if fw > allowed_width or '\n' in word:
-                    break
-            line = ' '.join(line_words)
-            lines.append(line)
+                test_line = current_line + [word]
+                line_width, _ = self.font.size(' '.join(test_line))
 
+                if line_width <= allowed_width:
+                    current_line = test_line
+                else:
+                    lines.append(' '.join(current_line))
+                    current_line = [word]
+            if current_line:
+                lines.append(' '.join(current_line))
         _, font_height = self.font.size('A')
         surf = pygame.Surface((allowed_width, len(lines) * font_height), pygame.SRCALPHA)
-        surf.get_rect().topleft = self.surface.get_rect().topleft
+        surf.get_rect().topleft = self.rect.topleft
 
         y_offset = 0
-        half_aw = allowed_width//2
+        half_aw = allowed_width // 2
+
         for line in lines:
-            # fw, fh = self.font.size(line)
-            # topleft_x = self.rect.x - fw / 2
-            # topleft_y = self.rect.y + y_offset
             line_surface = self.font.render(line, False, color)
             if self.align == HorizontalAlignment.LEFT:
                 surf.blit(line_surface, (0, y_offset))
             elif self.align == HorizontalAlignment.RIGHT:
                 surf.blit(line_surface, (allowed_width - line_surface.get_width(), y_offset))
             else:
-                surf.blit(line_surface, (half_aw - line_surface.get_width()//2, y_offset))
+                surf.blit(line_surface, (half_aw - line_surface.get_width() // 2, y_offset))
             y_offset += line_surface.get_height()
+
         return surf
+
+    # def calculate_surface(self, color=None):
+    #     if not color:
+    #         color = self.color
+    #     if not self.wrap:
+    #         return self.font.render(self.text, False, color)
+    #     words = (self.text or '').split(' ')
+    #     allowed_width = self.max_width or (self.game.screen.get_width() - self.rect.x - self.end_padding)
+    #     if self.parent is not None:
+    #         allowed_width = self.max_width or (self.parent.surface.get_width() - self.rect.x - self.end_padding)
+    #     lines = []
+    #     while len(words) > 0:
+    #         line_words = []
+    #         while len(words) > 0:
+    #             word = words.pop(0)
+    #             chunked = word.split('\n')
+    #             if len(chunked) > 1:
+    #                 line_words.append(chunked[0])
+    #                 for word in chunked[1:]:
+    #                     words.insert(0, word)
+    #                 break
+    #             line_words.append(word)
+    #             fw, fh = self.font.size(' '.join(line_words + words[:1]))
+    #             if fw > allowed_width or '\n' in word:
+    #                 break
+    #         line = ' '.join(line_words)
+    #         lines.append(line)
+    #
+    #     _, font_height = self.font.size('A')
+    #     surf = pygame.Surface((allowed_width, len(lines) * font_height), pygame.SRCALPHA)
+    #     surf.get_rect().topleft = self.surface.get_rect().topleft
+    #
+    #     y_offset = 0
+    #     half_aw = allowed_width // 2
+    #     for line in lines:
+    #         # fw, fh = self.font.size(line)
+    #         # topleft_x = self.rect.x - fw / 2
+    #         # topleft_y = self.rect.y + y_offset
+    #         line_surface = self.font.render(line, False, color)
+    #         if self.align == HorizontalAlignment.LEFT:
+    #             surf.blit(line_surface, (0, y_offset))
+    #         elif self.align == HorizontalAlignment.RIGHT:
+    #             surf.blit(line_surface, (allowed_width - line_surface.get_width(), y_offset))
+    #         else:
+    #             surf.blit(line_surface, (half_aw - line_surface.get_width() // 2, y_offset))
+    #         y_offset += line_surface.get_height()
+    #     return surf
 
     def predraw(self):
         surf = self.calculate_surface().convert_alpha()
@@ -124,7 +170,7 @@ class Text(HudObject):
                        ]
             for ox, oy in offsets:
                 px, py = text_rect.center
-                text_surf.blit(outline_surf, outline_surf.get_rect(center=(px+ox, py+oy)))
+                text_surf.blit(outline_surf, outline_surf.get_rect(center=(px + ox, py + oy)))
             text_surf.blit(surf, surf.get_rect(center=text_rect.center))
             self.surface = text_surf
         else:

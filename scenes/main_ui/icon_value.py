@@ -4,9 +4,9 @@ import pygame
 from pygame import Surface
 
 from modules.constants import white
-from modules.more_utilities.text import TextOptions, IconOptions
+from modules.more_utilities.types import TextOptions, IconOptions
 from structures.hud.hud_object import HudObject
-from structures.hud.types import Text
+from structures.hud.text import Text
 
 if TYPE_CHECKING:
     from structures.game import Game

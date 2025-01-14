@@ -21,11 +21,11 @@ class EventEmitter:
         self.events[event][event_id] = None
         return self
 
-    def emit(self, event, value):
+    def emit(self, event, *args):
         event = self.events.get(event)
         if not event:
             return
         for func in event.values():
             if func is not None:
-                func(value)
+                func(*args)
         return self

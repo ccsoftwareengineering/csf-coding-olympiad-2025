@@ -1,6 +1,8 @@
+import math
 import os
 import sys
-from random import uniform
+from random import uniform, choices
+from string import ascii_uppercase, digits
 from typing import Optional, Callable, Tuple, Literal
 
 import pygame.transform
@@ -351,3 +353,21 @@ class Time:
     @staticmethod
     def h(t: int):
         return t * 3_600_000_000
+
+
+def rect_circle_collision(rect: pygame.Rect, circle_center: tuple[int, int], circle_radius: int):
+    closest_x = max(rect.left, min(circle_center[0], rect.right))
+    closest_y = max(rect.top, min(circle_center[1], rect.bottom))
+    # this one is a Google classic
+    distance = math.sqrt((closest_x - circle_center[0]) ** 2 + (closest_y - circle_center[1]) ** 2)
+    return distance <= circle_radius
+
+
+def circles_collision(radius1, center1, radius2, center2):
+    # this one is also a Google classic
+    distance = math.sqrt((center2[0] - center1[0]) ** 2 + (center2[1] - center1[1]) ** 2)
+    return distance <= (radius1 + radius2)
+
+
+def random_string(length=6):
+    return ''.join(choices(ascii_uppercase + digits, k=length))

@@ -35,6 +35,13 @@ class GameState(Enum):
     NONE = 5
 
 
+class ActionState(Enum):
+    NONE = 0,
+    PLACING = 1,
+    DESTROYING = 2,
+    UPGRADING = 3,
+
+
 class Direction(Enum):
     DOWN = 0
     UP = 1

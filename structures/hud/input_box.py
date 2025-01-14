@@ -7,7 +7,7 @@ from pygame import Surface
 import modules.utilities as u
 from modules.utilities import get_main_font, lerp_colors
 from structures.hud.hud_object import HudObject
-from structures.hud.types import Text
+from structures.hud.text import Text
 
 if TYPE_CHECKING:
     from structures.game import Game

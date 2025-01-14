@@ -4,12 +4,12 @@ import pygame
 
 from modules.constants import white, black, ui_color_light, ui_color_dark, red
 from modules.info.info import info_map
-from modules.more_utilities.enums import Direction, AnchorPoint
+from modules.more_utilities.enums import Direction, AnchorPoint, ActionState
 from structures.hud.dynamic_button import DynamicButton
 from structures.hud.dynamic_hud_object import DynamicHudObject
 from structures.hud.dynamic_text_box import DynamicTextBox
 from structures.hud.list_layout import ListLayout
-from structures.hud.types import Text
+from structures.hud.text import Text
 
 if TYPE_CHECKING:
     from structures.game import Game
@@ -148,6 +148,7 @@ class SelectorPrompt(DynamicHudObject):
     def predraw(self):
         if self.select_button.on_press_end:
             self.game.placement_info = {"category": self.which, "type": self.selected[0]}
+            self.game.observable_handler['action_state'] = ActionState.PLACING
             self.game.modal_handler.cancel_modal()
         if self.game.input_handler.key_on_down.get(pygame.K_DOWN):
             self.selected_index += 1
@@ -163,3 +164,5 @@ class SelectorPrompt(DynamicHudObject):
             output = selected[1]['output_mw']
             self.description_text.text += f'\nOutput: {
             u.display_number(output)} MW\nYearly Output: {u.display_wh(u.mw_to_h(output))}'
+        if self.which != 'campaign':
+            self.description_text.text += f'\nUpkeep: ${u.display_number(selected[1]['upkeep'])}'

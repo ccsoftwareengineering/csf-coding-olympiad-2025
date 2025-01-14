@@ -58,3 +58,5 @@ class Player:
         self.energy_requirements += 400 * log2(self.year * 0.6)
         self.energy_requirements = round(self.energy_requirements)
         self.natural_disaster_chance *= 2
+        for plant in self.placeable_manager.plants.values:
+            self.budget -= plant.data['upkeep']

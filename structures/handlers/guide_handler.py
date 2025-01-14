@@ -9,7 +9,7 @@ from modules.more_utilities.enums import Direction, VerticalAlignment, Horizonta
 from modules.more_utilities.guide_helpers import get_curr_guide_info, GuideInfo
 from structures.hud.dynamic_button import DynamicButton
 from structures.hud.hud_object import HudObject
-from structures.hud.types import Text
+from structures.hud.text import Text
 
 if TYPE_CHECKING:
     from structures.game import Game

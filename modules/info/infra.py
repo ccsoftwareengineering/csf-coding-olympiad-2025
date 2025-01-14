@@ -27,10 +27,11 @@ infra = {
     },
     InfraType.MAINTENANCE_CENTER: {
         "cost": 500_000,
-        "radius_px": 100,
+        "radius": 10,
         "upkeep_reduction": 0.2,
         "upkeep": 50_000,
         "description": "Reduces maintenance costs and increases the lifespan of nearby infrastructure.",
-        "size": (5, 5)
+        "size": (5, 5),
+        'asset_id': 'maintenance'
     }
 }

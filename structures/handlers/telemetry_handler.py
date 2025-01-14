@@ -9,7 +9,7 @@ if typing.TYPE_CHECKING:
     from structures.game import Game
     from structures.handlers.input_handler import InputHandler
 from structures.hud.hud_object import HudObject
-from structures.hud.types import Text
+from structures.hud.text import Text
 
 
 class TelemetryHandler:

@@ -10,7 +10,7 @@ from modules.utilities import empty
 from structures.hud.dynamic_button import DynamicButton
 from structures.hud.hud_object import HudObject
 from structures.hud.input_box import InputBox
-from structures.hud.types import Text
+from structures.hud.text import Text
 
 if TYPE_CHECKING:
     from structures.game import Game

@@ -1,3 +1,4 @@
+import pygame
 from pygame import Surface
 
 import modules.utilities as u
@@ -30,6 +31,15 @@ class Placeable:
         self.ratio = cache_get[1] or data['size'][0] / self.image.get_width() * 0.5
         image_cache[placeable_type] = (self.image, self.ratio)
         self.object = Button(game, self.image, (0, 0), select_cursor='POINTER_CONFIG')
+        self.predraw_surf = None
+        if placeable_type == InfraType.MAINTENANCE_CENTER:
+            rad = data['radius']
+            scale = 256
+            circ_surf = Surface((scale, scale), pygame.SRCALPHA)
+            pygame.draw.circle(circ_surf, (255, 0, 0), (scale//2, scale//2), scale//2)
+            circ_surf = pygame.transform.scale(circ_surf, (rad*2, rad*2))
+            circ_surf.set_alpha(70)
+            self.predraw_surf = circ_surf
 
     def update_pos(self, zf):
         a = rescale_cache.get((self.type, zf)) or u.rescale(self.image, factor=self.ratio * zf)

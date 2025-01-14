@@ -7,7 +7,7 @@ from modules.constants import white
 from structures.hud.button import Button
 from structures.hud.hud_object import HudObject
 from structures.hud.input_box import InputBox
-from structures.hud.types import Text
+from structures.hud.text import Text
 from structures.scene import Scene
 
 

@@ -16,6 +16,7 @@ from structures.handlers.guide_handler import GuideHandler
 from structures.handlers.input_handler import InputHandler
 from structures.handlers.loading_handler import LoadingHandler
 from structures.handlers.modal_handler import ModalHandler
+from structures.handlers.observable_handler import ObservableHandler
 from structures.handlers.placeable_handler import PlaceableManager
 from structures.handlers.telemetry_handler import TelemetryHandler
 from structures.player import Player
@@ -79,6 +80,7 @@ class Game:
         self.in_guide = False
         self.dialogues = None
         self.just_ended_modal = False
+        self.observable_handler = ObservableHandler()
         self.delay_handler = DelayHandler(self)
         self.asset_handler = AssetHandler(self)
         self.loading_handler = LoadingHandler(self)

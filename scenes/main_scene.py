@@ -2,7 +2,6 @@
 # import random
 # import string
 from enum import Enum
-from math import inf
 from typing import cast
 
 import pygame
@@ -11,8 +10,9 @@ from pygame import Surface
 from modules import utilities as u
 from modules.constants import default_emulated_x, dims, ui_color_light, red, green, center_dims
 from modules.info.info import info_map
+from modules.info.infra import InfraType
 from modules.info.plants import PlantType
-from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment
+from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment, ActionState
 from modules.utilities import display_number
 from scenes.main_ui.icon_value import IconValue
 from scenes.main_ui.money_display import MoneyDisplay
@@ -25,8 +25,8 @@ from structures.hud.dynamic_button import DynamicButton
 from structures.hud.dynamic_text_box import DynamicTextBox
 from structures.hud.hud_object import HudObject
 from structures.hud.list_layout import ListLayout
-from structures.hud.types import Text
-from structures.placeable import Placeable
+from structures.hud.text import Text
+from structures.placeable import Placeable, differenciate_type
 from structures.scene import Scene
 
 
@@ -254,6 +254,14 @@ class MainScene(Scene):
             "rect": self.country.get_rect(center=center_dims)
         }
 
+        self.game.observable_handler['action_state'].on('change', self.action_state_change, 'main_watch')
+
+    def action_state_change(self, new: ActionState, old: ActionState):
+        if old == ActionState.PLACING:
+            self.game.input_handler.off('mouse_on_up', 'main_click')
+        if new == ActionState.PLACING:
+            self.game.input_handler.on('mouse_on_up', self.placement_click, 'main_click')
+
     @property
     def pm(self) -> 'PlaceableManager':
         return self.game.player.placeable_manager
@@ -263,12 +271,12 @@ class MainScene(Scene):
             self.update_zoom_factor(0.5)
         elif pygame.K_i in self.game.input_handler.key_down:
             self.update_zoom_factor(-0.5)
-        if self.game.placement_info is not None:
-            self.game.input_handler.on('mouse_on_up', self.placement_click, 'main_click')
-        else:
-            self.game.input_handler.off('mouse_on_up', 'main_click')
+        # if self.game.placement_info is not None:
+        #     self.game.input_handler.on('mouse_on_up', self.placement_click, 'main_click')
+        # else:
+        #     self.game.input_handler.off('mouse_on_up', 'main_click')
         if self.game.input_handler.key_on_down.get(pygame.K_ESCAPE):
-            self.game.placement_info = None
+            self.game.observable_handler['action_state'] = ActionState.NONE
             # self.game.player.plants
         self.draw_map()
         self.draw_placement()
@@ -307,8 +315,7 @@ class MainScene(Scene):
             self.map_cache[self.zoom_factor] = self.game.screen.copy()
         else:
             self.game.screen.blit(cached, (0, 0))
-        if self.pm.plants.size > 0:
-            self.pm.draw_all(self.zoom_factor, self.game.screen, self.fixed_zoom_factor)
+        self.pm.draw_all(self.zoom_factor, self.game.screen, self.fixed_zoom_factor)
 
     def draw_ui(self):
         self.br_ui_elements['demand'].text_object.text = f'{
@@ -339,9 +346,10 @@ class MainScene(Scene):
             self.game,
             name,
             self.placement_data[1],
-            cast(PlantType, self.placement_data[0]),
+            cast(PlantType | InfraType, self.placement_data[0]),
             pos
         )
+        print(self.placement_data[0])
         added = self.pm.add_placeable(placeable)
         if not added:
             self.game.modal_handler.show_simple_modal('A plant with that name already exists! '
@@ -362,6 +370,7 @@ class MainScene(Scene):
             self.placement_data = (self.game.placement_info['type'],
                                    info_map[self.game.placement_info['category']][self.game.placement_info['type']])
             self.game.placement_info = None
+            self.game.observable_handler['action_state'] = ActionState.NONE
             self.game.player.budget -= self.placement_data[1]['cost']
             print('showing placement modal')
             self.game.modal_handler.show_simple_modal(
@@ -371,7 +380,7 @@ class MainScene(Scene):
                 input_visible=True)
 
     def draw_placement(self):
-        if self.game.placement_info is not None:
+        if self.game.observable_handler['action_state'].value == ActionState.PLACING:
             which = self.country_waves if self.game.placement_info['type'] == PlantType.WIND else self.country
             rescaled_country = u.rescale(which, factor=self.zoom_factor)
             self.country_mask = {
@@ -383,7 +392,11 @@ class MainScene(Scene):
             rect = place_surf.get_rect()
             rect.center = pygame.mouse.get_pos()
             # if rect
-            self.can_place = not self.pm.is_colliding(rect) and PlaceableManager.in_country(
+            self.can_place = not self.pm.is_colliding(
+                rect,
+                self.game.placement_info['type'],
+                differenciate_type(self.game.placement_info['type'])
+            ) and PlaceableManager.in_country(
                 self.country_mask['mask'],
                 self.country_mask['rect'],
                 rect
