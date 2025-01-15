@@ -115,14 +115,11 @@ class HudObject:
         return (
                 self.visible and
                 not self.game.loading_handler.is_transitioning and
-                (
-                        self.game.observable_handler['action_state'].value == ActionState.NONE or
-                        self.game.observable_handler['action_state'].value in (ActionState.NONE, ActionState.DESTROYING)
-                )
+                self.action_check()
         )
 
     def action_check(self):
-        if self.attributes['type'] == 'placeable':
+        if self.attributes['type'] != 'placeable':
             return True
         return self.game.observable_handler['action_state'].value in (ActionState.NONE, ActionState.DESTROYING)
 
