@@ -171,11 +171,14 @@ class PlaceableManager(EventEmitter):
 
     def is_colliding(self, rect: pygame.Rect, s_type: InfraType | PlantType, p_type: PlaceableType):
         a = rect.collidelist(
-            [u.expand_rect_outline(plant.object.rect, plant.object.rect.w//2) for plant in self.plants.values]) == 0
+            [u.expand_rect_outline(plant.object.rect, plant.object.rect.w // 2) for plant in self.plants.values]) == 0
+        b = rect.collidelist(
+            [u.expand_rect_outline(infra.object.rect, infra.object.rect.w // 4) for infra in
+             self.plants.values]) == 0
         if p_type == PlaceableType.PLANT:
-            return a
+            return a and b
 
-        status = True
+        status = False
         if s_type == InfraType.MAINTENANCE_CENTER:
             pos = u.get_distance_from_centre(dims, rect.center)
             radius: int = info_map['infra'][InfraType.MAINTENANCE_CENTER]['radius']
@@ -185,6 +188,8 @@ class PlaceableManager(EventEmitter):
                 else:
                     status = status and rect.colliderect(infra.object.rect) == 0
             return status
+        else:
+            return a and b
 
     @staticmethod
     def in_country(country_mask: pygame.Mask, country_rect: pygame.Rect, placement_rect: pygame.Rect):

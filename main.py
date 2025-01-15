@@ -16,7 +16,7 @@ game.set_state(GameState.HOME)
 
 # developer_player = Player(game, "<Developer>")
 # game.player = developer_player
-# # game.player.did_tutorial = True
+# game.player.did_tutorial = True
 # game.player.island_name = 'Jamaica'
 
 while game.running:
