@@ -265,6 +265,8 @@ class MainScene(Scene):
             ActionState.DESTROYING
         ))
 
+        self.title_text = Text(game, 30, '', outline=2, outline_color=(0, 0, 0), wrap=False)
+
     def action_state_change(self, new: ActionState, old: ActionState):
         if old == ActionState.PLACING:
             self.game.input_handler.off('mouse_on_up', 'main_click')
@@ -348,6 +350,8 @@ class MainScene(Scene):
         self.add_dropdown.draw()
         self.tl_ui.draw()
         self.tr_ui.draw()
+        self.title_text.predraw()
+        u.center_blit(self.game.screen, self.title_text.surface, xy=(None, 20))
 
     def create(self, name, pos: tuple[int, int]):
         p_type = u.differenciate_type(self.placement_data[0])
@@ -411,6 +415,9 @@ class MainScene(Scene):
 
     def init(self):
         self.game.input_handler.on('mouse_wheel', self.mouse_scroll, 'main_zoom')
+
+        self.title_text.text = self.game.player.island_name
+        self.title_text.predraw()
 
         self.cr_buttons['info_button'].on('on_press_end', lambda _: self.game.modal_handler.show_simple_modal(
             f'Player Name: {self.game.player.name}\n'

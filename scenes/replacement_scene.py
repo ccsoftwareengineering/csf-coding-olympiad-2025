@@ -4,6 +4,7 @@ from modules.constants import default_emulated_x, dims
 from modules.more_utilities.enums import HorizontalAlignment, GameState
 from structures.hud.dynamic_button import DynamicButton
 from structures.hud.text import Text
+from structures.player import Player
 from structures.scene import Scene
 
 if TYPE_CHECKING:
@@ -50,7 +51,11 @@ class ReplacementScene(Scene):
 
     def draw(self):
         if self.play_again.on_press_end:
-            self.game.player = None
+            name = self.game.player.name
+            island_name = self.game.player.island_name
+            self.game.player = Player(self.game, name)
+            self.game.player.island_name = island_name
+            self.game.player.did_tutorial = True
             self.game.loading_handler.transition_to(GameState.HOME)
         game = self.game
         u.draw_tiles(game.screen, game.bg_tile_scaled, game.tile_offset)

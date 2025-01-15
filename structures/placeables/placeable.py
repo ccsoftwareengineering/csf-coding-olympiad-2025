@@ -37,7 +37,6 @@ class Placeable:
         self.object.on('on_hover_end', self.stop_hover, 'destroy')
 
     def start_hover(self, _):
-        print('h')
         if self.game.observable_handler['action_state'].value == ActionState.DESTROYING:
             self.game.cursor_handler.text = f'Delete "{self.name}"'
 
@@ -77,7 +76,6 @@ class Placeable:
             self.game.cursor_handler.text = f'Delete "{self.name}"'
         else:
             self.game.cursor_handler.text = ''
-        print(self.object.hovering)
         self.update_pos(zoom_factor)
         self.object.rect.center = u.relative_pos(
             surf.get_size(),
