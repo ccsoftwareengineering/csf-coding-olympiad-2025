@@ -67,14 +67,14 @@ class MainScene(Scene):
             rect_template=u.ui_rect_template
         )
 
-        self.tc_ui = DynamicTextBox(
+        self.tr_ui = DynamicTextBox(
             self.game,
             (300, 140),
             {"color": (255, 255, 255), "size": 32, "outline": 0, "outline_color": (0, 0, 0), "xy": (None, 20)},
             rect_template=u.ui_rect_template,
             text=f'YEAR X',
         )
-        self.tc_ui.rect.topright = u.relative_pos(dims, (10, 10), from_xy='right-top')
+        self.tr_ui.rect.topright = u.relative_pos(dims, (10, 10), from_xy='right-top')
 
         self.advance = DynamicButton(
             game,
@@ -88,9 +88,9 @@ class MainScene(Scene):
             ),
             text_options={"size": 20},
             text="ADVANCE YEAR",
-            parent=self.tc_ui
+            parent=self.tr_ui
         )
-        self.advance.rect.midbottom = u.relative_pos(self.tc_ui.size, (0, 20), from_xy='center-bottom')
+        self.advance.rect.midbottom = u.relative_pos(self.tr_ui.size, (0, 20), from_xy='center-bottom')
 
         self.tl_ui = ListLayout(
             self.game,
@@ -239,10 +239,13 @@ class MainScene(Scene):
         self.cr_ui.predraw()
         self.cr_ui.rect.midright = u.relative_pos(dims, (20, 0), from_xy='right-center')
         self.tl_ui.predraw()
-        self.tc_ui.predraw()
-        self.br_ui.predraw()
+        self.tr_ui.predraw()
 
         self.game.globals['br'] = u.relative_pos(dims, (20, 20), from_xy='right-bottom')
+
+        self.br_ui.predraw()
+        self.br_ui.rect.midbottom = self.br_ui.rect.midbottom = u.relative_pos(dims, (0, 20), from_xy='center-bottom')
+        self.br_ui.predraw()
 
         # this for random generation of thingy to test placement :)
         # self.gap = 0.1
@@ -344,7 +347,7 @@ class MainScene(Scene):
         self.cr_ui.draw()
         self.add_dropdown.draw()
         self.tl_ui.draw()
-        self.tc_ui.draw()
+        self.tr_ui.draw()
 
     def create(self, name, pos: tuple[int, int]):
         p_type = u.differenciate_type(self.placement_data[0])
@@ -420,10 +423,10 @@ class MainScene(Scene):
 
         def on_advance(_):
             self.game.player.replenish()
-            self.tc_ui.text_object.text = f'YEAR {self.game.player.year}'
+            self.tr_ui.text_object.text = f'YEAR {self.game.player.year}'
 
         self.advance.on('on_press_end', on_advance, 'replenish')
-        self.tc_ui.text_object.text = f'YEAR {self.game.player.year}'
+        self.tr_ui.text_object.text = f'YEAR {self.game.player.year}'
         self.budget_display.text = f'Annual Budget Allocation: ${display_number(self.game.player.budget_increase)}'
         if not self.game.player.did_tutorial:
             self.game.modal_handler.show_simple_modal(

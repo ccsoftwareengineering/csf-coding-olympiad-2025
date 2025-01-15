@@ -1,6 +1,7 @@
 from math import log2, inf
 from typing import TYPE_CHECKING, Optional
 
+from modules.more_utilities.enums import GameState
 from structures.handlers.placeable_handler import PlaceableManager
 from structures.placeables.placeable import Placeable
 
@@ -88,6 +89,23 @@ class Player:
                     "ensure you meet the energy requirements and be more environmentally conscious!"
                 }
             ))
+
+        if self.super_unpopular_count == 4:
+            self.game.modal_handler.show_simple_multi_modal((
+                {
+                    "title": "Approval LOW!",
+                    "body": "You've had low approval for FOUR years straight. In a year if this doesn't change "
+                    "you'll be [REPLACED]!"
+                },
+                {
+                    "title": "Approval LOW!",
+                    "body": "REMEMBER! [REPLACEMENT] is sort-of like a game over. You must meet energy demands and"
+                            " monitor your pollution levels!"
+                }
+            ))
+
+        if self.super_unpopular_count == 5:
+            self.game.loading_handler.transition_to(GameState.REPLACED)
 
         print(log2(self.year * 0.4))
         self.energy_requirements *= (1 + 0.07)

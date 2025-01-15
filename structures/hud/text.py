@@ -164,9 +164,9 @@ class Text(HudObject):
             text_surf = pygame.Surface((size[0] + double_outline, size[1] + double_outline), pygame.SRCALPHA)
             text_rect = text_surf.get_rect()
             offsets = [(ox, oy)
-                       for ox in range(-self.outline, double_outline, self.outline)
-                       for oy in range(-self.outline, double_outline, self.outline)
-                       if ox != 0 or ox != 0
+                       for ox in range(-self.outline, double_outline)
+                       for oy in range(-self.outline, double_outline)
+                       if ox != 0 or oy != 0  # Corrected condition here
                        ]
             for ox, oy in offsets:
                 px, py = text_rect.center
@@ -178,3 +178,4 @@ class Text(HudObject):
         self.rect.size = self.surface.get_size()
         super().predraw()
         return surf
+

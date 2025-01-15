@@ -18,9 +18,9 @@ def starting_tutorial(game: 'Game'):
                  'Every year in-game you are given more money which is used for creating new plants as well as '
                  'funding the upkeep of pre-existing plants.'),
                 igi({},
-                    u.rect_from_to((15, 550), (325, 705)),  # u.rect_from_to((12, 533), (375, 705)),
+                    u.expand_rect_outline(main_scene.tl_ui.rect, 5),
                     Direction.RIGHT,
-                    text_box_alignment=VerticalAlignment.CENTER,
+                    text_box_alignment=VerticalAlignment.TOP,
                     button_alignment=HorizontalAlignment.LEFT)
             ),
             (
@@ -28,7 +28,7 @@ def starting_tutorial(game: 'Game'):
                  'Pressing ADVANCE YEAR makes you enter the new year in-game, allowing you to see the results or '
                  'consequences of your actions in the previous year. '),
                 igi({},
-                    u.expand_rect_outline(main_scene.tc_ui.rect, 5),
+                    u.expand_rect_outline(main_scene.tr_ui.rect, 5),
                     Direction.LEFT,
                     text_box_alignment=VerticalAlignment.CENTER,
                     text_alignment=HorizontalAlignment.CENTER,
@@ -39,15 +39,15 @@ def starting_tutorial(game: 'Game'):
                  'cation as well as see other metric updates.  Only press this button when you\'re certain you have'
                  ' finished your actions for that year. You will also receive a confirmation prompt.'),
                 igi({},
-                    u.expand_rect_outline(main_scene.tc_ui.rect, 5),
+                    u.expand_rect_outline(main_scene.tr_ui.rect, 5),
                     Direction.LEFT,
                     text_box_alignment=VerticalAlignment.CENTER,
                     text_alignment=HorizontalAlignment.CENTER,
                     button_alignment=HorizontalAlignment.CENTER)
             ),
             (
-                ('Here is the menu in which you can adjust settings, see player information, as well as use '
-                 'the create button to make campaigns, power plants, and infrastructure.'),
+                ('Here is the menu in which you can create and delete plants and infrastructure, '
+                 'adjust settings, and see player information'),
                 igi({},
                     u.expand_rect_outline(main_scene.cr_ui.rect, 5),
                     Direction.DOWN,
@@ -58,7 +58,7 @@ def starting_tutorial(game: 'Game'):
             (
                 'Down here is where you can see the important metrics to keep in mind whilst playing.',
                 igi({},
-                    u.rect_from_to((786, 559), (1275, 713)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
+                    u.expand_rect_outline(main_scene.br_ui.rect, 5),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
                     Direction.LEFT,
                     text_box_alignment=VerticalAlignment.TOP,
                     text_alignment=HorizontalAlignment.CENTER,

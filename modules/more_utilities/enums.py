@@ -33,6 +33,7 @@ class GameState(Enum):
     DIALOGUE = 3
     SKIPPING = 4
     NONE = 5
+    REPLACED = 6
 
 
 class ActionState(Enum):
