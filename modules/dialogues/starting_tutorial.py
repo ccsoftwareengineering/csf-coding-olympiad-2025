@@ -58,9 +58,9 @@ def starting_tutorial(game: 'Game'):
             (
                 'Down here is where you can see the important metrics to keep in mind whilst playing.',
                 igi({},
-                    u.expand_rect_outline(main_scene.br_ui.rect, 5),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
-                    Direction.LEFT,
-                    text_box_alignment=VerticalAlignment.TOP,
+                    u.rect_from_to((244, 577), (1040, 705)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
+                    Direction.UP,
+                    text_box_alignment=VerticalAlignment.BOTTOM,
                     text_alignment=HorizontalAlignment.CENTER,
                     button_alignment=HorizontalAlignment.CENTER)
             ),
@@ -69,8 +69,8 @@ def starting_tutorial(game: 'Game'):
                 '"tonnes of CO2 equivalent." This, as the name indicates, lets you know '
                 'how much pollution your energy system produces. Try to keep it green!',
                 igi({},
-                    u.rect_from_to((786, 559), (1275, 713)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
-                    Direction.LEFT,
+                    u.rect_from_to((800, 577), (1040, 705)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
+                    Direction.UP,
                     text_box_alignment=VerticalAlignment.TOP,
                     text_alignment=HorizontalAlignment.CENTER,
                     button_alignment=HorizontalAlignment.CENTER)
@@ -79,8 +79,8 @@ def starting_tutorial(game: 'Game'):
                 'Next, your yearly energy output. This is the combined energy output of all '
                 'your current plants during the year.',
                 igi({},
-                    u.rect_from_to((786, 559), (1275, 713)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
-                    Direction.LEFT,
+                    u.rect_from_to((625, 577), (800, 705)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
+                    Direction.UP,
                     text_box_alignment=VerticalAlignment.TOP,
                     text_alignment=HorizontalAlignment.CENTER,
                     button_alignment=HorizontalAlignment.CENTER)
@@ -90,8 +90,8 @@ def starting_tutorial(game: 'Game'):
                 'energy requirement, that means your energy system is powerful enough to power the '
                 'country!',
                 igi({},
-                    u.rect_from_to((786, 559), (1275, 713)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
-                    Direction.LEFT,
+                    u.rect_from_to((440, 577), (625, 705)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
+                    Direction.UP,
                     text_box_alignment=VerticalAlignment.TOP,
                     text_alignment=HorizontalAlignment.CENTER,
                     button_alignment=HorizontalAlignment.CENTER)
@@ -100,8 +100,8 @@ def starting_tutorial(game: 'Game'):
                 'Finally, the yearly energy requirement. This is how much energy is required yearly to meet '
                 'the energy requirements of the country.',
                 igi({},
-                    u.rect_from_to((786, 559), (1275, 713)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
-                    Direction.LEFT,
+                    u.rect_from_to((244, 577), (440, 705)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
+                    Direction.UP,
                     text_box_alignment=VerticalAlignment.TOP,
                     text_alignment=HorizontalAlignment.CENTER,
                     button_alignment=HorizontalAlignment.CENTER)
@@ -111,8 +111,8 @@ def starting_tutorial(game: 'Game'):
                 'system to adapt whilst keeping pollution low. Doing all of these things increases your '
                 'population approval.',
                 igi({},
-                    u.rect_from_to((786, 559), (1275, 713)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
-                    Direction.LEFT,
+                    u.rect_from_to((244, 577), (440, 705)),  # u.expand_rect_outline(main_scene.br_ui.rect, 5),
+                    Direction.UP,
                     text_box_alignment=VerticalAlignment.TOP,
                     text_alignment=HorizontalAlignment.CENTER,
                     button_alignment=HorizontalAlignment.CENTER)
