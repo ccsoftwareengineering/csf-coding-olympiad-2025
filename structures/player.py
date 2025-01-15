@@ -24,7 +24,7 @@ class Player:
         self.plants: dict[str, Placeable] = {}
         self.plants_construction_pending = {}
         self.placeable_manager = PlaceableManager(self.game)
-        self.initial_requirements = 800
+        self.initial_requirements = 600
         self.energy_requirements = self.initial_requirements
         self.pollution_multipliers = (
             (100, 600, inf),
@@ -108,7 +108,7 @@ class Player:
             self.game.loading_handler.transition_to(GameState.REPLACED)
 
         print(log2(self.year * 0.4))
-        self.energy_requirements *= (1 + 0.07)
+        self.energy_requirements *= (1 + 0.05)
         self.energy_requirements = round(self.energy_requirements)
         self.budget = int(self.budget)
         self.natural_disaster_chance *= 2
