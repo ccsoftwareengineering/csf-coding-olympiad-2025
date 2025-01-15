@@ -1,5 +1,4 @@
-from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pygame
 from pygame import Surface
@@ -8,19 +7,17 @@ from modules.constants import dims
 from modules.info.info import info_map
 from modules.info.infra import InfraType
 from modules.info.plants import PlantType
+from modules.more_utilities.enums import PlaceableType
 from structures.event_emitter import EventEmitter
+from structures.placeables.infra import Infra
+from structures.placeables.plant import Plant
 from structures.store import Store
 
 if TYPE_CHECKING:
     from structures.game import Game
-    from structures.placeable import Placeable
+    from structures.placeables.placeable import Placeable
 
 import modules.utilities as u
-
-
-class PlaceableType(Enum):
-    PLANT = 0
-    INFRA = 1
 
 
 class PlaceableManager(EventEmitter):
@@ -42,22 +39,27 @@ class PlaceableManager(EventEmitter):
             PlaceableType.PLANT: self.add_plant,
         }
 
-        self.plants_events.on('on_press_end', self.plant_clicked)
-        self.on('add_infra', self.infra_added, 'update_internals')
+        self.on('on_press_end', lambda p: game.modal_handler.show_simple_modal(
+            body=p.get_info(),
+            title=p.name + ': Info'
+        ))
+        self.on('add_infra', self.maintenance_added, 'update_internals')
         self.gap = 20
 
-    def infra_added(self, infra: 'Placeable'):
-        if infra.type == InfraType.MAINTENANCE_CENTER:
-            # handle things here
-            pass
+    def maintenance_added(self, infra: 'Infra'):
+        for plant in cast(list['Plant'], self.plants.values):
+            within = u.rect_circle_collision(pygame.Rect(plant.pos, plant.data['size']), infra.pos,
+                                             infra.data['radius'])
+            if within:
+                plant.add_effector(infra)
 
-    def plant_clicked(self, plant: 'Placeable'):
-        if plant.p_type == PlaceableType.PLANT:
-            self.game.modal_handler.show_simple_modal(
-                f"Output: {plant.data['output_mw']} MW\nYearly Output: {u.display_wh(u.mw_to_h(plant.data['output_mw']))}"
-                f"\nPollution: {u.display_number(plant.data['pollution_tco2e'] * plant.data['output_mw'])} tCO2e",
-                title=f'{plant.name}: Info'
-            )
+        for _infra in cast(list['Infra'], self.plants.values):
+            if _infra.type == InfraType.MAINTENANCE_CENTER:
+                continue
+            within = u.rect_circle_collision(pygame.Rect(_infra.pos, _infra.data['size']), infra.pos,
+                                             infra.data['radius'])
+            if within:
+                _infra.add_effector(infra)
 
     def update_output(self):
         self.total_output = sum([plant.data['output_mw'] for plant in self.plants.values])
@@ -66,12 +68,12 @@ class PlaceableManager(EventEmitter):
         self.total_pollution = sum(
             [plant.data['pollution_tco2e'] * plant.data['output_mw'] for plant in self.plants.values])
 
-    def add_plant(self, p: 'Placeable'):
-        if p.name in self.plants:
-            p.object.destroy()
+    def add_plant(self, plant: 'Plant'):
+        if plant.name in self.plants:
+            plant.object.destroy()
             return False
-        self.plants[p.name] = p
-        p.object.on('on_press_end', lambda e: self.plants_events.emit('on_press_end', p))
+        self.plants[plant.name] = plant
+        plant.object.on('on_press_end', lambda e: self.plants_events.emit('on_press_end', plant))
         self.update_output()
         self.update_pollution()
         for i in range(len(self.game.player.pollution_multipliers[0])):
@@ -79,6 +81,17 @@ class PlaceableManager(EventEmitter):
                     self.game.player.energy_requirements * self.game.player.pollution_multipliers[0][i]):
                 self.pollution_level = i
                 break
+        self.first_plant_added()
+        self.emit('add_plant', plant)
+        for infra in self.infra:
+            if infra.type == InfraType.MAINTENANCE_CENTER:
+                within = u.rect_circle_collision(pygame.Rect(plant.pos, plant.data['size']), infra.pos,
+                                                 infra.data['radius'])
+                if within:
+                    plant.add_effector(infra)
+        return True
+
+    def first_plant_added(self):
         if not self.game.globals['first_plant']:
             self.game.globals['first_plant'] = True
             self.game.delay_handler.delay_run(
@@ -96,22 +109,30 @@ class PlaceableManager(EventEmitter):
                                 " Following both of these keeps your approval high.",
                     }
                 )))
-        self.emit('add_plant', p)
-        return True
 
-    def add_infra(self, p: 'Placeable'):
-        if p.name in self.infra:
-            p.object.destroy()
+    def add_infra(self, infra: 'Infra'):
+        if infra.name in self.infra:
+            infra.object.destroy()
             return False
-        self.infra[p.name] = p
-        self.emit('add_infra', p)
-        p.object.on('on_press_end', lambda e: self.infra_events.emit('on_press_end', p))
+        self.infra[infra.name] = infra
+        self.emit('add_infra', infra)
+        if infra.type == InfraType.MAINTENANCE_CENTER:
+            self.maintenance_added(infra)
+        else:
+            for _infra in self.infra:
+                if _infra.type == InfraType.MAINTENANCE_CENTER:
+                    within = u.rect_circle_collision(pygame.Rect(infra.pos, infra.data['size']), _infra.pos,
+                                                     _infra.data['radius'])
+                    if within:
+                        infra.add_effector(infra)
+        infra.object.on('on_press_end', lambda e: self.infra_events.emit('on_press_end', infra))
         return True
 
     def add_placeable(self, p: 'Placeable') -> bool:
         a = self.add_method[p.p_type](p)  # noqa
         if a:
             self.emit('add_placeable', p)
+        p.object.on('on_press_end', lambda e: self.emit('on_press_end', p))
         return a
 
     def draw_all(self, zoom_factor, surf: Surface, normalized_zoom_factor):
@@ -122,7 +143,7 @@ class PlaceableManager(EventEmitter):
                 (infra.pos[0] * normalized_zoom_factor, infra.pos[1] * normalized_zoom_factor),
                 from_xy="center-center")
             if infra.predraw_surf:
-                rescaled = pygame.transform.scale_by(infra.predraw_surf, zoom_factor)
+                rescaled = pygame.transform.scale_by(infra.predraw_surf, normalized_zoom_factor)
                 surf.blit(rescaled, rescaled.get_rect(center=infra.object.rect.center))
             infra.object.draw(draw_surface=surf)
         for plant in self.plants.values:

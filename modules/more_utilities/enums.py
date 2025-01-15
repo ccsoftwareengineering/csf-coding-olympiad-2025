@@ -59,3 +59,8 @@ class HorizontalAlignment(Enum):
     LEFT = 0
     CENTER = 1
     RIGHT = 2,
+
+
+class PlaceableType(Enum):
+    PLANT = 0
+    INFRA = 1

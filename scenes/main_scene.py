@@ -2,7 +2,6 @@
 # import random
 # import string
 from enum import Enum
-from typing import cast
 
 import pygame
 from pygame import Surface
@@ -10,10 +9,9 @@ from pygame import Surface
 from modules import utilities as u
 from modules.constants import default_emulated_x, dims, ui_color_light, red, green, center_dims
 from modules.info.info import info_map
-from modules.info.infra import InfraType
 from modules.info.plants import PlantType
 from modules.more_utilities.enums import AnchorPoint, Direction, HorizontalAlignment, ActionState
-from modules.utilities import display_number
+from modules.utilities import display_number, differenciate_type
 from scenes.main_ui.icon_value import IconValue
 from scenes.main_ui.money_display import MoneyDisplay
 from scenes.main_ui.selector_prompt import SelectorPrompt
@@ -26,7 +24,8 @@ from structures.hud.dynamic_text_box import DynamicTextBox
 from structures.hud.hud_object import HudObject
 from structures.hud.list_layout import ListLayout
 from structures.hud.text import Text
-from structures.placeable import Placeable, differenciate_type
+from structures.placeables.infra import Infra
+from structures.placeables.plant import Plant
 from structures.scene import Scene
 
 
@@ -256,6 +255,8 @@ class MainScene(Scene):
 
         self.game.observable_handler['action_state'].on('change', self.action_state_change, 'main_watch')
 
+        self.placeable_map = (Plant, Infra)
+
     def action_state_change(self, new: ActionState, old: ActionState):
         if old == ActionState.PLACING:
             self.game.input_handler.off('mouse_on_up', 'main_click')
@@ -342,11 +343,12 @@ class MainScene(Scene):
         self.tc_ui.draw()
 
     def create(self, name, pos: tuple[int, int]):
-        placeable = Placeable(
+        p_type = u.differenciate_type(self.placement_data[0])
+        placeable = self.placeable_map[p_type.value](
             self.game,
             name,
             self.placement_data[1],
-            cast(PlantType | InfraType, self.placement_data[0]),
+            self.placement_data[0],
             pos
         )
         print(self.placement_data[0])

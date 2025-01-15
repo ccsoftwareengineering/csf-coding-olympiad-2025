@@ -1,9 +1,8 @@
 from math import log2, inf
 from typing import TYPE_CHECKING, Optional
 
-from modules.info.plants import PlantType
 from structures.handlers.placeable_handler import PlaceableManager
-from structures.placeable import Placeable
+from structures.placeables.placeable import Placeable
 
 if TYPE_CHECKING:
     from structures.game import Game
@@ -59,4 +58,4 @@ class Player:
         self.energy_requirements = round(self.energy_requirements)
         self.natural_disaster_chance *= 2
         for plant in self.placeable_manager.plants.values:
-            self.budget -= plant.data['upkeep']
+            self.budget -= plant.data['upkeep'] * plant.upkeep_multiplier

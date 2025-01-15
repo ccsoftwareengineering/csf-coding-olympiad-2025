@@ -42,6 +42,12 @@ class Computed:
         self.observable.off('change', self.id)
 
 
+def effect(observable: 'Observable', f: Callable):
+    identifier = u.random_string()
+    observable.on('change', f, identifier.random_string())
+    return lambda: observable.off('change', identifier)
+
+
 class ObservableHandler(EventEmitter):
     def __init__(self):
         super().__init__()

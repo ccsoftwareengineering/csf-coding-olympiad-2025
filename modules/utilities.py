@@ -10,6 +10,9 @@ from pygame import Surface
 from pygame.image import load
 
 from modules.constants import dims, font_name, text_multiplier, default_emulated_x
+from modules.info.infra import InfraType
+from modules.info.plants import PlantType
+from modules.more_utilities.enums import PlaceableType
 
 
 # Magic to make files work with compilation!
@@ -371,3 +374,10 @@ def circles_collision(radius1, center1, radius2, center2):
 
 def random_string(length=6):
     return ''.join(choices(ascii_uppercase + digits, k=length))
+
+
+def differenciate_type(t):
+    if isinstance(t, PlantType):
+        return PlaceableType.PLANT
+    if isinstance(t, InfraType):
+        return PlaceableType.INFRA
