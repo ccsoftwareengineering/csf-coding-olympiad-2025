@@ -225,7 +225,7 @@ def get_main_font(size: int) -> pygame.font.Font:
 
 def fix_color(color):
     if len(color) < 4:
-        return (color[0], color[1], color[2], 255)
+        return color[0], color[1], color[2], 255
     else:
         return color
 
