@@ -25,9 +25,9 @@ class Plant(Placeable):
         addition = f' (-{
         round(max(1 - self.upkeep_multiplier, 0) * 100)}% reduction)' if self.upkeep_multiplier != 1 else ''
         return (
-            super().get_info() +
-            f"\nOutput: {self.data['output_mw']} MW"
-            f"\nYearly Output: {u.display_wh(u.mw_to_h(self.data['output_mw']))}"
-            f"\nPollution: {u.display_number(self.data['pollution_tco2e'] * self.data['output_mw'])} tCO2e"
-            f"\nUpkeep: ${u.display_number(int(self.data['upkeep'] * max(self.upkeep_multiplier, 0)))}{addition}",
+                super().get_info() +
+                f"\nOutput: {self.data['output_mw']} MW"
+                f"\nYearly Output: {u.display_wh(u.mw_to_h(self.data['output_mw']))}"
+                f"\nPollution: {u.display_number(self.data['pollution_tco2e'] * self.data['output_mw'])} tCO2e"
+                f"\nUpkeep: ${u.display_number(int(self.data['upkeep'] * max(self.upkeep_multiplier, 0)))}{addition}"
         )

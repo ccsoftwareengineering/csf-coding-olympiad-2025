@@ -7,7 +7,7 @@ from modules.constants import dims
 from modules.info.info import info_map
 from modules.info.infra import InfraType
 from modules.info.plants import PlantType
-from modules.more_utilities.enums import PlaceableType
+from modules.more_utilities.enums import PlaceableType, ActionState
 from structures.event_emitter import EventEmitter
 from structures.placeables.infra import Infra
 from structures.placeables.plant import Plant
@@ -39,12 +39,40 @@ class PlaceableManager(EventEmitter):
             PlaceableType.PLANT: self.add_plant,
         }
 
-        self.on('on_press_end', lambda p: game.modal_handler.show_simple_modal(
-            body=p.get_info(),
-            title=p.name + ': Info'
-        ))
+        self.on('on_press_end', self.placeable_click)
         self.on('add_infra', self.maintenance_added, 'update_internals')
         self.gap = 20
+
+    def placeable_click(self, p: 'Placeable'):
+        # deleting placeable
+        if self.game.observable_handler['action_state'].value == ActionState.DESTROYING:
+            if p.p_type == PlaceableType.INFRA:
+                if p.type == InfraType.MAINTENANCE_CENTER:
+                    self.mass_remove_effector(p)
+                self.infra.remove(p.name)
+            if p.p_type == PlaceableType.PLANT:
+                self.plants.remove(p.name)
+            self.game.player.budget += round(p.data['cost'] / 1000 * 0.75) * 1000
+            del p
+            self.update_output()
+            self.update_pollution()
+        else:
+            self.game.modal_handler.show_simple_modal(
+                body=p.get_info(),
+                title=p.name + ': Info'
+            )
+
+    # there's a more elegant way to do this...
+    # make the maintenance center store the plants and infra that it affects,
+    # so everything doesn't have to be updated
+
+    # also side note, all of this code is riddled with side effects
+    #
+    def mass_remove_effector(self, effector):
+        for plant in self.plants.values:
+            plant.remove_effector(effector)
+        for infra in self.infra.values:
+            infra.remove_effector(effector)
 
     def maintenance_added(self, infra: 'Infra'):
         for plant in cast(list['Plant'], self.plants.values):
@@ -83,7 +111,7 @@ class PlaceableManager(EventEmitter):
                 break
         self.first_plant_added()
         self.emit('add_plant', plant)
-        for infra in self.infra:
+        for infra in self.infra.values:
             if infra.type == InfraType.MAINTENANCE_CENTER:
                 within = u.rect_circle_collision(pygame.Rect(plant.pos, plant.data['size']), infra.pos,
                                                  infra.data['radius'])
@@ -137,26 +165,13 @@ class PlaceableManager(EventEmitter):
 
     def draw_all(self, zoom_factor, surf: Surface, normalized_zoom_factor):
         for infra in self.infra.values:
-            infra.update_pos(zoom_factor)
-            infra.object.rect.center = u.relative_pos(
-                surf.get_size(),
-                (infra.pos[0] * normalized_zoom_factor, infra.pos[1] * normalized_zoom_factor),
-                from_xy="center-center")
-            if infra.predraw_surf:
-                rescaled = pygame.transform.scale_by(infra.predraw_surf, normalized_zoom_factor)
-                surf.blit(rescaled, rescaled.get_rect(center=infra.object.rect.center))
-            infra.object.draw(draw_surface=surf)
-        for plant in self.plants.values:
-            plant.update_pos(zoom_factor)
-            plant.object.rect.center = u.relative_pos(
-                surf.get_size(),
-                (plant.pos[0] * normalized_zoom_factor, plant.pos[1] * normalized_zoom_factor),
-                from_xy="center-center")
-            plant.object.draw(draw_surface=surf)
+            infra.draw(zoom_factor, surf, normalized_zoom_factor)
+        for plant in list(self.plants.values):
+            plant.draw(zoom_factor, surf, normalized_zoom_factor)
 
     def is_colliding(self, rect: pygame.Rect, s_type: InfraType | PlantType, p_type: PlaceableType):
         a = rect.collidelist(
-            [u.expand_rect_outline(plant.object.rect, self.gap) for plant in self.plants.values]) == 0
+            [u.expand_rect_outline(plant.object.rect, plant.object.rect.w//2) for plant in self.plants.values]) == 0
         if p_type == PlaceableType.PLANT:
             return a
 
@@ -169,6 +184,7 @@ class PlaceableManager(EventEmitter):
                     status = status and not u.circles_collision(radius, pos, radius * 0.7, infra.pos)
                 else:
                     status = status and rect.colliderect(infra.object.rect) == 0
+            return status
 
     @staticmethod
     def in_country(country_mask: pygame.Mask, country_rect: pygame.Rect, placement_rect: pygame.Rect):

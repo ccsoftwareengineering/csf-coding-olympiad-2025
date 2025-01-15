@@ -257,11 +257,18 @@ class MainScene(Scene):
 
         self.placeable_map = (Plant, Infra)
 
+        self.cr_buttons['trash_button'].on('on_press_end', lambda _: self.game.observable_handler.set(
+            'action_state',
+            ActionState.DESTROYING
+        ))
+
     def action_state_change(self, new: ActionState, old: ActionState):
         if old == ActionState.PLACING:
             self.game.input_handler.off('mouse_on_up', 'main_click')
         if new == ActionState.PLACING:
             self.game.input_handler.on('mouse_on_up', self.placement_click, 'main_click')
+        if new == ActionState.NONE:
+            self.game.cursor_handler.cursor = 'NORMAL'
 
     @property
     def pm(self) -> 'PlaceableManager':
@@ -272,10 +279,6 @@ class MainScene(Scene):
             self.update_zoom_factor(0.5)
         elif pygame.K_i in self.game.input_handler.key_down:
             self.update_zoom_factor(-0.5)
-        # if self.game.placement_info is not None:
-        #     self.game.input_handler.on('mouse_on_up', self.placement_click, 'main_click')
-        # else:
-        #     self.game.input_handler.off('mouse_on_up', 'main_click')
         if self.game.input_handler.key_on_down.get(pygame.K_ESCAPE):
             self.game.observable_handler['action_state'] = ActionState.NONE
             # self.game.player.plants
@@ -335,6 +338,7 @@ class MainScene(Scene):
             (150, 255, 150),
             self.game.player.approval / 5
         )
+        self.br_ui_elements['approval'].icon = self.approval_upsized[max(round(self.game.player.approval) - 1, 0)]
         self.br_ui.rect.midbottom = u.relative_pos(dims, (0, 20), from_xy='center-bottom')
         self.br_ui.draw()
         self.cr_ui.draw()
@@ -351,17 +355,12 @@ class MainScene(Scene):
             self.placement_data[0],
             pos
         )
-        print(self.placement_data[0])
         added = self.pm.add_placeable(placeable)
         if not added:
             self.game.modal_handler.show_simple_modal('A plant with that name already exists! '
                                                       'Please rename the pre-existing one or choose another name.')
             self.game.player.budget += self.placement_data[1]['cost']
             return
-        # self.game.player.plants[name] = Placeable(self.game, name, self.placement_data[1],
-        #                                           cast(PlantType, self.placement_data[0]),
-        #                                           position)
-        print(f'Creating {name} of type {self.placement_data[0].value[0]}')
 
     def placement_click(self, event: pygame.event.Event):
         if event.button != 1 or not self.can_place:
@@ -374,7 +373,6 @@ class MainScene(Scene):
             self.game.placement_info = None
             self.game.observable_handler['action_state'] = ActionState.NONE
             self.game.player.budget -= self.placement_data[1]['cost']
-            print('showing placement modal')
             self.game.modal_handler.show_simple_modal(
                 'What do you want to name it?',
                 f'Creation',

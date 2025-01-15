@@ -7,7 +7,7 @@ import pygame._sdl2 as pg_sdl2
 from modules import utilities as u
 from modules.constants import dims
 from modules.dialogue import dialogues
-from modules.more_utilities.enums import GameState
+from modules.more_utilities.enums import GameState, ActionState
 from structures.handlers.asset_handler import AssetHandler
 from structures.handlers.cursor_handler import CursorHandler
 from structures.handlers.delay_handler import DelayHandler
@@ -81,6 +81,7 @@ class Game:
         self.dialogues = None
         self.just_ended_modal = False
         self.observable_handler = ObservableHandler()
+        self.observable_handler['action_state'] = ActionState.NONE
         self.delay_handler = DelayHandler(self)
         self.asset_handler = AssetHandler(self)
         self.loading_handler = LoadingHandler(self)

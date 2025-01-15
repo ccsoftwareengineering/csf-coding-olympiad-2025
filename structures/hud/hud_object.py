@@ -1,8 +1,10 @@
+from argparse import Action
 from typing import TYPE_CHECKING
 
 import pygame
 from pygame import Rect
 
+from modules.more_utilities.enums import ActionState
 from modules.more_utilities.guide_helpers import get_curr_guide_info
 from structures.store import Store
 
@@ -102,17 +104,27 @@ class HudObject:
 
     @property
     def enabled(self):
-        if self.game.input_handler.modal is not None and self.patriarch is not self.game.input_handler.modal:
+        if self.game.input_handler.modal and self.patriarch is not self.game.input_handler.modal:
             return False
+
         if self.game.in_guide and self.object_id != 'ok_guide_button':
             curr_guide_info = get_curr_guide_info(self.game)
-            if not curr_guide_info['rect'].colliderect(self.absolute_rect) or not curr_guide_info['gui_enabled']:
+            if not (curr_guide_info['rect'].colliderect(self.absolute_rect) and curr_guide_info['gui_enabled']):
                 return False
+
         return (
-                True and self.visible and
+                self.visible and
                 not self.game.loading_handler.is_transitioning and
-                self.game.placement_info is None
+                (
+                        self.game.observable_handler['action_state'].value == ActionState.NONE or
+                        self.game.observable_handler['action_state'].value in (ActionState.NONE, ActionState.DESTROYING)
+                )
         )
+
+    def action_check(self):
+        if self.attributes['type'] == 'placeable':
+            return True
+        return self.game.observable_handler['action_state'].value in (ActionState.NONE, ActionState.DESTROYING)
 
     def predraw(self):
         if self.absolute_rect.collidepoint(pygame.mouse.get_pos()):

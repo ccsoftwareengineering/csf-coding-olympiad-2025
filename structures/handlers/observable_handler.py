@@ -67,3 +67,6 @@ class ObservableHandler(EventEmitter):
 
     def __delitem__(self, key):
         del self.observables[key]
+
+    def set(self, key, value):
+        self.__setitem__(key, value)

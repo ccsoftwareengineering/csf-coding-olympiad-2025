@@ -1,6 +1,9 @@
+import pygame
+
 import modules.utilities as u
 from modules.info.infra import InfraType
 from modules.info.plants import PlantType
+from modules.more_utilities.enums import ActionState
 from structures.hud.button import Button
 from structures.store import Store
 
@@ -21,12 +24,26 @@ class Placeable:
         self.image = cache_get[0] or u.load_image(f'assets/{string}/{data.get('asset_id') or 'missing'}.png')
         self.ratio = cache_get[1] or data['size'][0] / self.image.get_width() * 0.5
         image_cache[placeable_type] = (self.image, self.ratio)
-        self.object = Button(game, self.image, (0, 0), select_cursor='POINTER_CONFIG')
+        self.object = Button(game, self.image, (0, 0), select_cursor='POINTER_CONFIG', attributes={
+            'type': 'placeable'
+        })
         self.predraw_surf = None
         self.attributes = Store()
 
         self.effectors = set()
         self.upkeep_multiplier = 1.0
+
+        self.object.on('on_hover_start', self.start_hover, 'destroy')
+        self.object.on('on_hover_end', self.stop_hover, 'destroy')
+
+    def start_hover(self, _):
+        print('h')
+        if self.game.observable_handler['action_state'].value == ActionState.DESTROYING:
+            self.game.cursor_handler.text = f'Delete "{self.name}"'
+
+    def stop_hover(self, _):
+        if self.game.observable_handler['action_state'].value == ActionState.DESTROYING:
+            self.game.cursor_handler.text = ''
 
     def update_pos(self, zf):
         a = rescale_cache.get((self.type, zf)) or u.rescale(self.image, factor=self.ratio * zf)
@@ -53,4 +70,20 @@ class Placeable:
             if effector.type == InfraType.MAINTENANCE_CENTER:
                 ukm -= effector.data['upkeep_reduction']
         self.upkeep_multiplier = ukm
-        print(self.upkeep_multiplier)
+
+    def draw(self, zoom_factor, surf, normalized_zoom_factor):
+        destroying = self.game.observable_handler['action_state'].value == ActionState.DESTROYING
+        if self.object.hovering and destroying:
+            self.game.cursor_handler.text = f'Delete "{self.name}"'
+        else:
+            self.game.cursor_handler.text = ''
+        print(self.object.hovering)
+        self.update_pos(zoom_factor)
+        self.object.rect.center = u.relative_pos(
+            surf.get_size(),
+            (self.pos[0] * normalized_zoom_factor, self.pos[1] * normalized_zoom_factor),
+            from_xy="center-center")
+        if self.predraw_surf:
+            rescaled = pygame.transform.scale_by(self.predraw_surf, normalized_zoom_factor)
+            surf.blit(rescaled, rescaled.get_rect(center=self.object.rect.center))
+        self.object.draw(draw_surface=surf)
