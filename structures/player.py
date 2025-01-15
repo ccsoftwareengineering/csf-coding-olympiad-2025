@@ -57,13 +57,13 @@ class Player:
 
         self.approval += self.pollution_multipliers[2][self.placeable_manager.pollution_level]
 
-        if self.energy_requirements > u.mw_to_h(self.placeable_manager.total_output):
+        if self.energy_requirements > (u.mw_to_h(self.placeable_manager.total_output) / 1000):
             self.fail_count += 1
             self.approval -= (0.5 * self.fail_count)
         else:
             self.approval += 0.2
 
-        self.approval = max(round(self.approval, 2), 0)
+        self.approval = u.clamp(round(self.approval, 2), 0, 5)
 
         if round(self.approval) >= 4:
             self.super_popular_count += 1
