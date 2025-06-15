@@ -1,3 +1,5 @@
+from typing import Union
+
 import pygame
 
 import modules.utilities as u
@@ -12,7 +14,7 @@ rescale_cache = {}
 
 
 class Placeable:
-    def __init__(self, game, name, data, placeable_type: PlantType | InfraType, pos, p_type):
+    def __init__(self, game, name, data, placeable_type: Union[PlantType, InfraType], pos, p_type):
         self.game = game
         self.type = placeable_type
         self.p_type = p_type
@@ -21,7 +23,7 @@ class Placeable:
         self.pos = pos
         cache_get = image_cache.get(placeable_type) or (None, None)
         string = 'plants' if isinstance(placeable_type, PlantType) else 'infra'
-        self.image = cache_get[0] or u.load_image(f'assets/{string}/{data.get('asset_id') or 'missing'}.png')
+        self.image = cache_get[0] or u.load_image(f'assets/{string}/{data.get("asset_id") or "missing"}.png')
         self.ratio = cache_get[1] or data['size'][0] / self.image.get_width() * 0.5
         image_cache[placeable_type] = (self.image, self.ratio)
         self.object = Button(game, self.image, (0, 0), select_cursor='POINTER_CONFIG', attributes={

@@ -33,4 +33,4 @@ class Infra(Placeable):
     def get_info(self):
         if self.type == InfraType.MAINTENANCE_CENTER:
             return (super().get_info() +
-                    f'\nUpkeep Reduction: {round(self.data['upkeep_reduction'] * 100)}%')
+                    f'\nUpkeep Reduction: {round(self.data["upkeep_reduction"] * 100)}%')

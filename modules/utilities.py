@@ -3,7 +3,7 @@ import os
 import sys
 from random import uniform, choices
 from string import ascii_uppercase, digits
-from typing import Optional, Callable, Tuple, Literal
+from typing import Optional, Callable, Tuple, Literal, Union
 
 import pygame.transform
 from pygame import Surface
@@ -183,7 +183,7 @@ def rounded_rect(
     return pygame.transform.scale(surf, (xy[0], xy[1]))
 
 
-type RectTemplate = Callable[[Tuple[int, int]], pygame.Surface]
+RectTemplate = Callable[[Tuple[int, int]], pygame.Surface]
 
 
 def rounded_rect_template(color=(255, 255, 255),
@@ -194,7 +194,7 @@ def rounded_rect_template(color=(255, 255, 255),
                           emulate_outline=False,
                           emulate_radius=False,
                           double_bottom=False,
-                          behavior: Literal['out'] | Literal['in'] = 'in') -> RectTemplate:
+                          behavior: Union[Literal['out'], Literal['in']] = 'in') -> RectTemplate:
     return lambda xy: rounded_rect(xy, color, emulated_x(xy), radius, outline, outline_color, emulate_outline,
                                    emulate_radius, double_bottom, behavior=behavior)
 
@@ -248,14 +248,14 @@ def empty():
     pass
 
 
-def comma_adder(amount: float | int):
+def comma_adder(amount: Union[float, int]):
     return f"{amount:,}"
 
 
 units = ('K', 'M', 'B', 'T', 'Qd', 'Qt', 'Sx', 'Sp', 'Oc', 'Nt', 'Dc',)
 
 
-def display_number(amount: float | int):
+def display_number(amount: Union[float, int]):
     return comma_adder(amount)
     # if amount < 1000:
     #     return str(amount)
@@ -269,7 +269,7 @@ def display_number(amount: float | int):
     #     return f"{amount:.1f}{units[unit_index]}"
 
 
-type TupleColor = tuple[int, int, int] | tuple[int, int, int, int]
+TupleColor = Union[tuple[int, int, int], tuple[int, int, int, int]]
 
 
 def rect_factory(pos: tuple[int, int], size: tuple[int, int], from_xy='left-top') -> pygame.Rect:

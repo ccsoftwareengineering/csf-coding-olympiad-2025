@@ -42,9 +42,7 @@ introduction = lambda game: (
                 "input_submit": lambda data: setattr(game.player, 'island_name', data),
             }),
         (
-            lambda: f"You've chosen {
-            game.player.island_name}... {
-            island_name_comment(game.player.island_name)}! Press OKAY to jump into the action!",
+            lambda: f"You've chosen {game.player.island_name}... {island_name_comment(game.player.island_name)}! Press OKAY to jump into the action!",
             {})
     ], {
         "after": lambda: game.loading_handler.transition_to(GameState.MAIN)

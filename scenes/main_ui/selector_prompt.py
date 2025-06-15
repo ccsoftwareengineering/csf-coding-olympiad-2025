@@ -158,11 +158,9 @@ class SelectorPrompt(DynamicHudObject):
         self.change_afford_view()
         self.update_type_list_look()
         selected = self.selected
-        self.description_text.text = f'{
-        selected[1]['description']}\n \n\nCost: ${u.display_number(selected[1]["cost"])}'
+        self.description_text.text = f'{selected[1]["description"]}\n \n\nCost: ${u.display_number(selected[1]["cost"])}'
         if self.which == 'plant':
             output = selected[1]['output_mw']
-            self.description_text.text += f'\nOutput: {
-            u.display_number(output)} MW\nYearly Output: {u.display_wh(u.mw_to_h(output))}'
+            self.description_text.text += f'\nOutput: {u.display_number(output)} MW\nYearly Output: {u.display_wh(u.mw_to_h(output))}'
         if self.which != 'campaign':
-            self.description_text.text += f'\nUpkeep: ${u.display_number(selected[1]['upkeep'])}'
+            self.description_text.text += f'\nUpkeep: ${u.display_number(selected[1]["upkeep"])}'
